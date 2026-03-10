@@ -1,28 +1,24 @@
 #!/usr/bin/env python3
 """
-main.py — Entry point for Tech-App-Devoir-II (INF 6243).
+Point d’entrée unique pour Tech-App-Devoir-II (INF 6243).
 
-Role:
-  - Parse CLI arguments (e.g. --train, --evaluate, --data-path, --config).
-  - Load configuration (from config.py or overrides).
-  - Orchestrate the pipeline: data loading -> training and/or evaluation -> output.
+Lance le pipeline défini dans Code/main.py (chargement → exploration
+→ prétraitement → entraînement → évaluation → visualisations).
 
-Structure:
-  1. Imports (standard library, then third-party, then local: config, data, train, evaluate).
-  2. Argument parser (argparse): subcommands or flags for train/evaluate, paths, device.
-  3. main():
-     - Set device (CPU/CUDA from config or env).
-     - If train: call train.run() or equivalent with config and data.
-     - If evaluate: load model + data, call evaluate.run() and print/save metrics.
-     - Optional: logging setup, seed for reproducibility.
-  4. if __name__ == "__main__": main() or parser.invoke().
+Usage (depuis la racine du projet) :
+  python main.py
 """
 
+import sys
+from pathlib import Path
 
-def main():
-    """Orchestrate pipeline based on CLI. Implement: parse args, load config, run train/evaluate."""
-    pass
+ROOT = Path(__file__).resolve().parent
+CODE_DIR = ROOT / "Code"
+if str(CODE_DIR) not in sys.path:
+    sys.path.insert(0, str(CODE_DIR))
 
+# Exécuter le pipeline (main.py dans Code/ importe preprocessing, models, utils)
+from main import main
 
 if __name__ == "__main__":
     main()

@@ -1,125 +1,129 @@
-# Tech-App-Devoir-II
+# Tech-App-Devoir-II — INF 6243 (Hiver 2026)
 
-**INF 6243 — Classification et Apprentissage Automatique**
-
-Assignment project for machine learning / classification. This repo is set up for local development with a Python virtual environment and optional CUDA support on Linux and Windows.
+**Classification et apprentissage automatique**  
+Département d’Informatique et d’Ingénierie — UQO
 
 ---
 
-## Project structure
+## Objectifs
+
+- Analyse exploratoire et prétraitement des données
+- Implémentation d’au moins 4 algorithmes de classification
+- Évaluation (accuracy, précision, rappel, F1, matrice de confusion, validation croisée)
+- Visualisation des résultats et comparaison des modèles
+
+---
+
+## Structure du projet
 
 ```
 Tech-App-Devoir-II/
-├── README.md           # This file
-├── requirements.txt    # Python dependencies (CPU + optional CUDA)
-├── main.py             # Entry point: CLI and pipeline orchestration
-├── config.py           # Central configuration (paths, hyperparameters, device)
-├── data.py             # Data loading, preprocessing, and dataset utilities
-├── train.py            # Training loop and model fitting
-├── evaluate.py         # Evaluation, metrics, and reporting
-├── .gitignore
-└── .github/workflows/  # CI (e.g. SonarQube)
+├── README.md
+├── requirements.txt
+├── main.py                 # Point d’entrée (lance Code/main.py)
+├── Code/
+│   ├── main.py             # Pipeline : EDA, préparation, entraînement, évaluation
+│   ├── preprocessing.py    # Nettoyage, encodage, split train/val/test
+│   ├── models.py           # Définition et entraînement des classificateurs
+│   └── utils.py            # Métriques, visualisations, helpers
+├── Data/
+│   ├── lien_vers_dataset.txt   # URL(s) du dataset
+│   └── (fichiers de données)   # Optionnel si trop volumineux
+├── Rapport_INF6243_NomEtudiants.pdf
+└── Presentation_INF6243_NomEtudiants.pptx
 ```
 
-Each script is documented at the top with its role and internal structure (sections, main functions). No business logic is implemented in the stubs—only comments and minimal scaffolding.
+Chaque script dans `Code/` est documenté en en-tête avec son rôle et sa structure (sections, fonctions à implémenter). Les commentaires à l’intérieur des fichiers décrivent en détail le rôle de chaque section, les entrées/sorties des fonctions et, pour l’apprentissage profond, l’usage du device (CUDA en priorité, repli sur CPU).
 
 ---
 
-## Prerequisites
+## Environnement (venv, Linux & Windows)
 
-- **Python**: 3.10+ recommended (3.11 or 3.12 supported).
-- **CUDA** (optional): For GPU acceleration, install [CUDA Toolkit](https://developer.nvidia.com/cuda-downloads) and matching cuDNN. PyTorch will use it if available; otherwise it falls back to CPU.
+### Politique de calcul : CUDA en priorité, repli sur CPU
 
----
+Le projet est conçu pour **utiliser le GPU (CUDA) en priorité** dès qu’il est disponible (driver NVIDIA + toolkit CUDA + build PyTorch/TensorFlow compatible). Si CUDA n’est pas disponible (pas de GPU, driver manquant, ou librairie installée en version CPU uniquement), **le code bascule automatiquement sur le CPU** sans erreur : l’exécution reste possible, seule la vitesse d’entraînement est réduite.
 
-## Setup (venv, Linux & Windows)
+- **Où c’est géré** : au démarrage du pipeline (ou au premier usage d’un modèle GPU), une fonction dédiée (p.ex. `get_device()` dans `Code/utils.py` ou `Code/models.py`) teste la disponibilité de CUDA ; elle retourne `cuda` si possible, sinon `cpu`. Tous les tenseurs et modèles (PyTorch/TensorFlow) sont ensuite créés ou déplacés sur ce device.
+- **Scikit-learn** : les classificateurs classiques (KNN, Random Forest, SVM, etc.) s’exécutent sur CPU ; seuls les réseaux de neurones (PyTorch/TensorFlow) profitent du GPU. La politique CUDA-first s’applique donc surtout à l’apprentissage profond.
+- **Vérification** : au lancement, vous pouvez afficher le device choisi (p.ex. `Using device: cuda` ou `Using device: cpu`) pour confirmer le comportement sur votre machine.
 
-### 1. Clone and enter the project
+### Prérequis
 
-```bash
-cd /path/to/Tech-App-Devoir-II
-```
+- **Python** : 3.10+ recommandé (3.11 ou 3.12 supportés).
+- **CUDA** (recommandé pour accélérer les réseaux de neurones) : driver NVIDIA à jour + toolkit CUDA (p.ex. 11.8 ou 12.x) et, pour PyTorch, une build « cu118 » ou « cu121 » selon votre version. Sans GPU, le projet fonctionne entièrement sur CPU.
 
-### 2. Create and activate a virtual environment
-
-**Linux / macOS:**
+### Création du venv (Linux)
 
 ```bash
+cd Tech-App-Devoir-II
 python3 -m venv .venv
 source .venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
 ```
 
-**Windows (cmd):**
+### Création du venv (Windows)
+
+**PowerShell :**
+
+```powershell
+cd Tech-App-Devoir-II
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+**Invite de commandes :**
 
 ```cmd
 python -m venv .venv
 .venv\Scripts\activate.bat
-```
-
-**Windows (PowerShell):**
-
-```powershell
-python -m venv .venv
-.venv\Scripts\Activate.ps1
-```
-
-### 3. Upgrade pip (recommended)
-
-```bash
-python -m pip install --upgrade pip
-```
-
-### 4. Install dependencies
-
-**CPU only (works everywhere):**
-
-```bash
 pip install -r requirements.txt
 ```
 
-**With CUDA (Linux / Windows):**
+### Installation de CUDA (priorité GPU, repli CPU)
 
-- Install PyTorch with the correct CUDA version from [PyTorch Get Started](https://pytorch.org/get-started/locally/), then install the rest:
+Pour que le code utilise le GPU en priorité, il faut une build PyTorch (ou TensorFlow) compilée pour CUDA. Si vous installez la version CPU uniquement, le code détectera l’absence de CUDA et utilisera le CPU sans plantage.
 
-  **Example (CUDA 12.x):**
+- **PyTorch avec CUDA (recommandé)**  
+  Après `pip install -r requirements.txt`, installer la build GPU correspondant à votre version de CUDA (voir [pytorch.org/get-started/locally](https://pytorch.org/get-started/locally/)) :
+  - **Linux, CUDA 12.1** :  
+    `pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121`
+  - **Linux, CUDA 11.8** :  
+    `pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118`
+  - **Windows** : même principe ; choisir `cu118` ou `cu121` selon le toolkit installé.
+  Une fois installé, le code qui appelle `torch.cuda.is_available()` obtiendra `True` si le driver et le toolkit sont corrects, et le device sera choisi en priorité comme `cuda`, sinon `cpu`.
 
-  ```bash
-  pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
-  pip install -r requirements.txt
-  ```
+- **TensorFlow avec GPU**  
+  `pip install tensorflow` suffit souvent : TensorFlow détecte automatiquement le GPU si CUDA et cuDNN sont présents. En l’absence de GPU, il utilise le CPU.
 
-  **Example (CUDA 11.8):**
-
-  ```bash
-  pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
-  pip install -r requirements.txt
-  ```
-
-- Adjust `cu121` / `cu118` to match your installed CUDA version. The rest of `requirements.txt` is CPU-only and shared across platforms.
-
----
-
-## Running the project
-
-With the venv activated:
-
-```bash
-python main.py
-```
-
-Use the comments in `main.py` and in each script to implement CLI arguments (e.g. `--train`, `--evaluate`, `--data-path`) and to wire config, data, train, and evaluate together.
+- **Comportement en cas d’impossibilité**  
+  Si aucun GPU n’est détecté (machine sans NVIDIA, driver manquant, ou build CPU-only), la fonction de sélection du device retourne `cpu` et tout l’entraînement/inférence se fait sur CPU. Aucune modification de code n’est requise pour faire fonctionner le projet sans CUDA.
 
 ---
 
-## Keeping it simple (KISS)
+## Lancer le projet
 
-- Single venv (`.venv`), one `requirements.txt` for all non-PyTorch deps.
-- PyTorch/CUDA is installed separately so each machine can choose CPU or the right CUDA build.
-- No extra config layers or frameworks unless the assignment requires them.
-- Scripts are flat (no heavy package layout); add a `src/` package later if the assignment grows.
+1. Activer le venv : `source .venv/bin/activate` (Linux/macOS) ou `.venv\Scripts\Activate.ps1` (Windows PowerShell).
+2. Renseigner l’URL du dataset dans `Data/lien_vers_dataset.txt` et, si besoin, télécharger les données dans `Data/`.
+3. Depuis la racine du projet lancer le pipeline :
+   ```bash
+   python main.py
+   ```
+   (ou `python Code/main.py` ; les deux exécutent le même pipeline dans `Code/main.py`.)
+
+Au premier lancement, si vous avez implémenté la sélection du device, un message du type `Using device: cuda` ou `Using device: cpu` indiquera si le GPU est utilisé ou si le repli sur CPU est actif. Les scripts `Code/main.py`, `preprocessing.py`, `models.py` et `utils.py` contiennent des commentaires détaillés sur la structure à implémenter (chemins, chargement, prétraitement, modèles, métriques, visualisations, et utilisation du device pour le deep learning).
 
 ---
 
-## License
+## Soumission (Moodle)
 
-See [LICENSE](LICENSE).
+- Fichier `.zip` nommé : `INF6243_Projet_NomEtudiants.zip`
+- Contenu : rapport PDF, présentation PowerPoint, dossier `Code/`, éventuellement `Data/` ou seulement `lien_vers_dataset.txt` si le dataset est trop volumineux.
+
+---
+
+## Licence
+
+Voir [LICENSE](LICENSE).

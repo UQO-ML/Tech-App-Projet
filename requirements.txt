@@ -1,0 +1,25 @@
+# Tech-App-Devoir-II — INF 6243 — Dépendances
+# Avec venv activé : pip install -r requirements.txt
+# Python 3.10+ recommandé.
+#
+# Device : le code utilise CUDA en priorité pour l’apprentissage profond (PyTorch/TensorFlow).
+# Si CUDA est indisponible (pas de GPU, driver manquant, ou build CPU-only), le repli sur CPU
+# est automatique via get_device() (voir Code/utils.py et README). Installer une build GPU
+# depuis les index PyTorch (cu118/cu121) pour activer CUDA ; sinon le projet tourne sur CPU.
+
+# Core scientific stack
+numpy>=1.24
+pandas>=2.0
+scipy>=1.10
+
+# Machine learning (classiques + validation, grid search)
+scikit-learn>=1.3
+
+# Visualisation
+matplotlib>=3.7
+seaborn>=0.12
+
+# Optionnel — apprentissage profond (décommenter si le sujet l’exige)
+# Pour GPU : installer une build CUDA (priorité) depuis README ; sinon build CPU (repli automatique).
+# torch>=2.0
+# tensorflow>=2.13

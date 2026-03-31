@@ -1,104 +1,134 @@
-"""
-main.py — Point d’entrée du pipeline INF 6243.
+"""Pipeline principal du projet INF6243."""
 
-Enchaîne tout le flux : chargement des données → analyse exploratoire → prétraitement
-→ entraînement des modèles (≥4 algorithmes) → évaluation sur test → visualisations
-→ sélection et sauvegarde du meilleur modèle. Si des réseaux de neurones sont utilisés,
-le device (CUDA en priorité, repli CPU) est déterminé au démarrage via utils.get_device()
-et réutilisé pour tous les modèles GPU.
+from __future__ import annotations
 
-Structure détaillée (à implémenter) :
-  1. Imports et configuration : chemins (ROOT, DATA_DIR), RANDOM_STATE, optionnellement affichage du device
-  2. Chargement : lecture du dataset depuis Data/ ou URL (lien_vers_dataset.txt)
-  3. Exploration : résumé statistique, valeurs manquantes, distribution des classes, figures EDA
-  4. Prétraitement : nettoyage, gestion des manquants, encodage, mise à l’échelle, split train/val/test
-  5. Entraînement : appel à models.train_all_models (ou boucle sur train_with_grid_search) ; pour un NN, passer device
-  6. Évaluation sur test : métriques et matrices de confusion pour chaque modèle
-  7. Visualisations : comparaison des modèles, courbes d’apprentissage, importance des features
-  8. Meilleur modèle : choix justifié et sauvegarde (utils.save_model)
+from pathlib import Path
+from typing import Any
 
-Exécution : depuis la racine du projet « python main.py » ou « python Code/main.py ».
-"""
+import pandas as pd
 
-# -----------------------------------------------------------------------------
-# 1. Imports et configuration
-# -----------------------------------------------------------------------------
-# import sys
-# from pathlib import Path
-# ROOT = Path(__file__).resolve().parent.parent   # Racine du projet (Tech-App-Devoir-II)
-# DATA_DIR = ROOT / "Data"   # Dossier des données ; lire aussi Data/lien_vers_dataset.txt pour l’URL
-# sys.path.insert(0, str(Path(__file__).resolve().parent))   # Pour importer preprocessing, models, utils
-# import preprocessing as prep
-# import models
-# import utils
-# RANDOM_STATE = 42   # Utiliser partout pour reproductibilité (split, seeds)
-# # Optionnel : device = utils.get_device() ; print(f"Using device: {device}")   # CUDA si dispo, sinon CPU
+import models
+import preprocessing as prep
+import utils
 
-# -----------------------------------------------------------------------------
-# 2. Chargement des données
-# -----------------------------------------------------------------------------
-# Construire data_path (fichier local dans Data/ ou URL lue depuis lien_vers_dataset.txt).
-# prep.load_data(data_path) doit retourner un DataFrame (adapter selon le format du sujet : csv, etc.).
-# data_path = DATA_DIR / "votre_fichier.csv"
-# df = prep.load_data(data_path)
-
-# -----------------------------------------------------------------------------
-# 3. Exploration (EDA)
-# -----------------------------------------------------------------------------
-# prep.exploratory_summary(df) : shape, dtypes, describe(), valeurs manquantes, distribution de la cible.
-# Ensuite : visualisations (histogrammes des variables numériques, boxplots, heatmap de corrélations,
-# distribution des classes). Sauvegarder les figures dans utils.FIGURES_DIR si défini.
-
-# -----------------------------------------------------------------------------
-# 4. Prétraitement
-# -----------------------------------------------------------------------------
-# Nettoyage (doublons, colonnes inutiles, outliers si pertinent), puis gestion des manquants (drop ou impute).
-# Séparer X (features) et y (cible). Encoder les variables catégorielles, normaliser/standardiser si besoin.
-# Split stratifié train / validation / test avec prep.train_val_test_split (pour garder les proportions de classes).
-# df_clean = prep.clean_data(df)
-# df_clean = prep.handle_missing(df_clean, strategy="...")
-# X, y = ..., ...
-# X_train, X_val, X_test, y_train, y_val, y_test = prep.train_val_test_split(X, y, ...)
-
-# -----------------------------------------------------------------------------
-# 5. Entraînement
-# -----------------------------------------------------------------------------
-# Appel à models.train_all_models(X_train, y_train, X_val, y_val) pour lancer la recherche d’hyperparamètres
-# et l’évaluation sur la validation pour chaque modèle. Si vous avez un NN PyTorch, passer device=get_device()
-# pour que le modèle et les tenseurs utilisent CUDA en priorité, avec repli sur CPU.
-# results = models.train_all_models(X_train, y_train, X_val, y_val)
-
-# -----------------------------------------------------------------------------
-# 6. Évaluation sur test
-# -----------------------------------------------------------------------------
-# Pour chaque modèle dans results : prédire sur X_test, calculer les métriques (utils.compute_metrics),
-# afficher/sauvegarder la matrice de confusion (utils.plot_confusion_matrix). Construire metrics_by_model
-# pour l’étape de comparaison.
-# for name, res in results.items():
-#     y_pred = res["estimator"].predict(X_test)
-#     utils.plot_confusion_matrix(y_test, y_pred, title=name, ...)
-
-# -----------------------------------------------------------------------------
-# 7. Visualisations comparatives
-# -----------------------------------------------------------------------------
-# Barplot de comparaison des modèles (ex. F1 ou accuracy) avec utils.plot_models_comparison.
-# Courbes d’apprentissage du meilleur modèle avec utils.plot_learning_curves.
-# Si le meilleur modèle a des feature_importances_ : utils.plot_feature_importance.
-# utils.plot_models_comparison(metrics_by_model)
-# utils.plot_learning_curves(best_estimator, X_train, y_train)
-# utils.plot_feature_importance(best_estimator, feature_names)
-
-# -----------------------------------------------------------------------------
-# 8. Meilleur modèle
-# -----------------------------------------------------------------------------
-# Choisir le modèle aux meilleures performances (ex. F1 sur validation/test), justifier brièvement,
-# sauvegarder avec utils.save_model(best_estimator, "meilleur_modele") pour réutilisation ultérieure.
-# utils.save_model(best_estimator, "meilleur_modele")
+RANDOM_STATE = 42
+DATA_PATH = Path(__file__).resolve().parent.parent / "Data" / "labeled_data.csv"
 
 
-def main():
-    """Orchestre le pipeline complet : config, chargement, EDA, prétraitement, entraînement, évaluation, visualisations, sauvegarde."""
-    pass
+def _prepare_outputs() -> None:
+    """Crée les dossiers de sortie."""
+    utils.ensure_dir(utils.OUTPUTS_DIR)
+    utils.ensure_dir(utils.FIGURES_DIR)
+    utils.ensure_dir(utils.MODELS_DIR)
+    utils.ensure_dir(utils.REPORTS_DIR)
+
+
+def run_pipeline(data_path: str | Path = DATA_PATH, max_samples: int | None = None) -> dict[str, Any]:
+    """Exécute toutes les étapes demandées et retourne un résumé des artefacts."""
+    _prepare_outputs()
+    device = utils.get_device()
+    print(f"Device détecté (pour deep learning): {device}")
+
+    raw_df = prep.load_data(data_path)
+    df = prep.clean_data(raw_df)
+    if max_samples is not None and 0 < max_samples < len(df):
+        # Echantillonnage stratifié pour accélérer les essais sans casser l'équilibre des classes.
+        ratio = max_samples / len(df)
+        df = df.groupby("class", group_keys=False).sample(frac=ratio, random_state=RANDOM_STATE).reset_index(drop=True)
+    summary = prep.exploratory_summary(df, target_column="class")
+    utils.save_json(summary, utils.REPORTS_DIR / "eda_summary.json")
+
+    # Visualisations EDA
+    utils.plot_class_distribution(df["class"], prep.CLASS_LABELS, utils.FIGURES_DIR / "class_distribution.png")
+    utils.plot_missing_values(df, utils.FIGURES_DIR / "missing_values.png")
+    utils.plot_numeric_correlation(df, utils.FIGURES_DIR / "correlation_heatmap.png")
+    utils.plot_text_length(df, prep.CLASS_LABELS, utils.FIGURES_DIR / "tweet_length_histogram.png")
+    utils.plot_word_count_boxplot(df, prep.CLASS_LABELS, utils.FIGURES_DIR / "word_count_boxplot.png")
+
+    # Split train / val / test
+    x = df["clean_tweet"]
+    y = df["class"]
+    x_train, x_val, x_test, y_train, y_val, y_test = prep.train_val_test_split(
+        x,
+        y,
+        test_size=0.2,
+        val_size=0.1,
+        random_state=RANDOM_STATE,
+    )
+
+    # Entraînement des 4 modèles avec tuning
+    results = models.train_all_models(
+        x_train=x_train,
+        y_train=y_train,
+        x_val=x_val,
+        y_val=y_val,
+        random_state=RANDOM_STATE,
+    )
+
+    # Évaluation test + matrices de confusion
+    test_metrics: dict[str, dict[str, float]] = {}
+    full_report: dict[str, Any] = {}
+    for model_name, result in results.items():
+        estimator = result["estimator"]
+        y_pred_test = estimator.predict(x_test)
+        metrics_test = utils.compute_metrics(y_test, y_pred_test)
+        test_metrics[model_name] = metrics_test
+        full_report[model_name] = {
+            "validation_metrics": result["val_metrics"],
+            "test_metrics": metrics_test,
+            "tuning": result["tuning"],
+            "classification_report_test": utils.build_classification_report(y_test, y_pred_test, prep.CLASS_LABELS),
+        }
+        utils.plot_confusion_matrix(
+            y_true=y_test,
+            y_pred=y_pred_test,
+            class_names=prep.CLASS_LABELS,
+            title=f"Matrice de confusion - {model_name}",
+            save_path=utils.FIGURES_DIR / f"confusion_{model_name}.png",
+        )
+
+    utils.plot_models_comparison(test_metrics, utils.FIGURES_DIR / "models_comparison_test.png")
+
+    # Sélection du meilleur modèle (validation F1 macro)
+    best_model_name, best_model_payload = models.select_best_model(results, metric_name="f1_macro")
+    best_estimator = best_model_payload["estimator"]
+
+    # Validation croisée k-fold sur train+val du meilleur modèle
+    x_train_val = pd.concat([x_train, x_val], axis=0)
+    y_train_val = pd.concat([y_train, y_val], axis=0)
+    cv_scores = models.cross_validate_estimator(best_estimator, x_train_val, y_train_val, cv=5)
+
+    utils.plot_learning_curves(best_estimator, x_train_val, y_train_val, utils.FIGURES_DIR / "learning_curve_best_model.png")
+    utils.plot_feature_importance_from_pipeline(best_estimator, utils.FIGURES_DIR / "feature_importance_best_model.png")
+
+    model_path = utils.save_model(best_estimator, "best_model")
+    global_report = {
+        "dataset_path": str(data_path),
+        "n_samples": int(df.shape[0]),
+        "best_model": best_model_name,
+        "best_model_validation_metrics": best_model_payload["val_metrics"],
+        "best_model_test_metrics": test_metrics[best_model_name],
+        "best_model_cv_f1_macro_scores": cv_scores,
+        "all_models": full_report,
+    }
+    report_path = utils.save_json(global_report, utils.REPORTS_DIR / "metrics_report.json")
+
+    return {
+        "best_model_name": best_model_name,
+        "best_model_path": str(model_path),
+        "report_path": str(report_path),
+        "figures_dir": str(utils.FIGURES_DIR),
+        "outputs_dir": str(utils.OUTPUTS_DIR),
+    }
+
+
+def main() -> None:
+    """Point d'entrée script pour terminal."""
+    results = run_pipeline()
+    print("Pipeline terminé.")
+    print(f"Meilleur modèle: {results['best_model_name']}")
+    print(f"Rapport JSON: {results['report_path']}")
+    print(f"Figures: {results['figures_dir']}")
 
 
 if __name__ == "__main__":

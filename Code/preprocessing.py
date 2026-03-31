@@ -1,124 +1,92 @@
-"""
-preprocessing.py — Prétraitement des données pour le projet INF 6243.
+"""Prétraitement et résumé EDA pour la classification de tweets haineux/offensants."""
 
-Rôle :
-  - Chargement du dataset depuis un fichier local (Data/) ou une URL (p.ex. lue depuis lien_vers_dataset.txt).
-  - Analyse exploratoire : statistiques descriptives, types, valeurs manquantes, corrélations, distribution des classes.
-  - Nettoyage : doublons, colonnes vides ou non informatives, valeurs aberrantes (outliers) selon le contexte.
-  - Gestion des valeurs manquantes : suppression (lignes/colonnes) ou imputation (moyenne, médiane, mode).
-  - Encodage des variables catégorielles (LabelEncoder pour la cible, OneHotEncoder ou LabelEncoder pour les features).
-  - Mise à l’échelle des variables numériques (StandardScaler ou MinMaxScaler) pour les algorithmes sensibles (SVM, KNN, etc.).
-  - Séparation train / validation / test de façon stratifiée pour préserver les proportions de classes.
+from __future__ import annotations
 
-Structure détaillée :
-  1. Imports (pandas, numpy, pathlib, sklearn.model_selection, sklearn.preprocessing, sklearn.impute)
-  2. load_data : lecture selon extension/URL, retour DataFrame
-  3. exploratory_summary : affichage structuré pour le rapport (shape, describe, manquants, corrélations, compte par classe)
-  4. clean_data : drop_duplicates, suppression colonnes à trop de manquants ou sans variance ; optionnel : seuils d’outliers
-  5. handle_missing : stratégie drop (lignes ou colonnes) ou impute (SimpleImputer avec stratégie par type)
-  6. encode_features : OneHotEncoder pour features catégorielles (éviter fuite de données : fit sur train uniquement)
-  7. scale_features : fit sur train, transform sur train/val/test avec le même scaler pour cohérence
-  8. train_val_test_split : deux appels à train_test_split stratifié (train+val vs test, puis train vs val)
-  9. get_preprocessing_pipeline (optionnel) : Pipeline sklearn pour enchaîner imputation, encodage, scaling
-"""
+import re
+from pathlib import Path
+from typing import Any
 
-# -----------------------------------------------------------------------------
-# 1. Imports
-# -----------------------------------------------------------------------------
-# import pandas as pd
-# import numpy as np
-# from pathlib import Path
-# from sklearn.model_selection import train_test_split
-# from sklearn.preprocessing import StandardScaler, MinMaxScaler, LabelEncoder, OneHotEncoder
-# from sklearn.impute import SimpleImputer
+import pandas as pd
+from sklearn.model_selection import train_test_split
 
-# -----------------------------------------------------------------------------
-# 2. Chargement
-# -----------------------------------------------------------------------------
-# def load_data(path_or_url):
-#     """
-#     Charge le dataset et retourne un DataFrame. path_or_url : str ou Path (fichier local) ou URL.
-#     Adapter selon le sujet : pd.read_csv pour csv, pd.read_parquet pour parquet, requests+io pour URL.
-#     Gérer les encodages (encoding="utf-8" ou "latin-1") et séparateurs si nécessaire.
-#     """
-#     pass
+CLASS_LABELS = {
+    0: "hate_speech",
+    1: "offensive_language",
+    2: "neither",
+}
 
-# -----------------------------------------------------------------------------
-# 3. Résumé exploratoire
-# -----------------------------------------------------------------------------
-# def exploratory_summary(df, target_column=None):
-#     """
-#     Affiche (ou retourne) un résumé pour l’EDA : df.shape, df.dtypes, df.describe(), nombre de manquants
-#     par colonne (isna().sum()), et si target_column est fourni la distribution des classes (value_counts).
-#     Optionnel : matrice de corrélation des colonnes numériques. Utile pour le rapport et le choix du prétraitement.
-#     """
-#     pass
 
-# -----------------------------------------------------------------------------
-# 4. Nettoyage
-# -----------------------------------------------------------------------------
-# def clean_data(df, drop_duplicates=True, drop_empty_columns=True, outlier_method=None):
-#     """
-#     Retourne un DataFrame nettoyé. drop_duplicates : supprimer les lignes dupliquées. drop_empty_columns :
-#     supprimer les colonnes entièrement vides ou à variance nulle. outlier_method : None, "iqr" ou "zscore" pour
-#     supprimer ou capter les valeurs extrêmes (à documenter dans le rapport selon le domaine).
-#     """
-#     pass
+def load_data(path_or_url: str | Path) -> pd.DataFrame:
+    """Charge un CSV local ou distant et retourne un DataFrame."""
+    return pd.read_csv(path_or_url, encoding="utf-8")
 
-# -----------------------------------------------------------------------------
-# 5. Valeurs manquantes
-# -----------------------------------------------------------------------------
-# def handle_missing(df, strategy="drop", numerical_columns=None, categorical_columns=None):
-#     """
-#     strategy "drop" : supprimer les lignes contenant des NA (ou les colonnes à trop de NA, selon un seuil).
-#     strategy "impute" : SimpleImputer(strategy="mean"/"median") pour les numériques, strategy="most_frequent"
-#     pour les catégorielles. numerical_columns / categorical_columns : listes de noms de colonnes pour appliquer
-#     la bonne stratégie par type. Retourne un DataFrame sans NA (ou avec NA imputés).
-#     """
-#     pass
 
-# -----------------------------------------------------------------------------
-# 6. Encodage
-# -----------------------------------------------------------------------------
-# def encode_features(X, categorical_columns, strategy="onehot", fit=True, encoders=None):
-#     """
-#     Encode les variables catégorielles pour obtenir des entiers ou des one-hot. strategy "onehot" :
-#     OneHotEncoder (get_dummies ou sklearn) pour des features sans ordre. strategy "label" : LabelEncoder
-#     par colonne pour des entiers. fit=True : créer et ajuster les encodeurs (sur l’ensemble d’entraînement) ;
-#     fit=False : utiliser encoders fournis pour transform uniquement (validation/test). Retourne (X_encoded, encoders).
-#     """
-#     pass
+def clean_text(text: str) -> str:
+    """Nettoyage minimal: minuscules, suppression URL/mentions/symboles, espaces propres."""
+    if not isinstance(text, str):
+        return ""
+    text = text.lower()
+    text = re.sub(r"http\S+|www\.\S+", " ", text)
+    text = re.sub(r"@\w+", " ", text)
+    text = re.sub(r"#\w+", " ", text)
+    text = re.sub(r"[^a-z\s]", " ", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
 
-# -----------------------------------------------------------------------------
-# 7. Mise à l’échelle
-# -----------------------------------------------------------------------------
-# def scale_features(X, method="standard", fit=True, scaler=None):
-#     """
-#     method "standard" : StandardScaler (moyenne 0, écart-type 1). method "minmax" : MinMaxScaler (plage 0–1).
-#     fit=True : instancier et ajuster le scaler sur X (à utiliser sur X_train). fit=False : appliquer scaler
-#     existant (sur X_val, X_test) pour éviter la fuite d’information. Retourne (X_scaled, scaler).
-#     """
-#     pass
 
-# -----------------------------------------------------------------------------
-# 8. Split train / validation / test
-# -----------------------------------------------------------------------------
-# def train_val_test_split(X, y, test_size=0.2, val_size=0.1, random_state=42, stratify=True):
-#     """
-#     Produit 6 sorties : X_train, X_val, X_test, y_train, y_val, y_test. stratify=y (ou True) assure que les
-#     proportions de classes sont conservées dans chaque split (important en classification déséquilibrée).
-#     Implémentation : d’abord split (train+val) vs test, puis split train vs val sur (train+val), avec les
-#     mêmes random_state et stratify pour reproductibilité.
-#     """
-#     pass
+def clean_data(df: pd.DataFrame) -> pd.DataFrame:
+    """Nettoie les lignes invalides puis crée des variables utiles à l'EDA."""
+    clean_df = df.copy()
 
-# -----------------------------------------------------------------------------
-# 9. Pipeline (optionnel)
-# -----------------------------------------------------------------------------
-# def get_preprocessing_pipeline(numerical_cols, categorical_cols, scale_method="standard"):
-#     """
-#     Retourne un sklearn.pipeline.Pipeline (ou ColumnTransformer) qui enchaîne imputation, encodage des
-#     catégorielles, scaling des numériques. Permet de fit sur train puis transform sur train/val/test
-#     sans dupliquer la logique et en évitant les fuites de données.
-#     """
-#     pass
+    # Supprime les colonnes inutiles fréquentes dans le dataset Kaggle.
+    to_drop = [col for col in ["Unnamed: 0", "Unnamed: 0.1"] if col in clean_df.columns]
+    if to_drop:
+        clean_df = clean_df.drop(columns=to_drop)
+
+    clean_df = clean_df.dropna(subset=["tweet", "class"]).drop_duplicates(subset=["tweet", "class"])
+    clean_df["class"] = clean_df["class"].astype(int)
+    clean_df["clean_tweet"] = clean_df["tweet"].map(clean_text)
+    clean_df["tweet_length"] = clean_df["tweet"].astype(str).str.len()
+    clean_df["word_count"] = clean_df["clean_tweet"].str.split().str.len()
+    return clean_df.reset_index(drop=True)
+
+
+def exploratory_summary(df: pd.DataFrame, target_column: str = "class") -> dict[str, Any]:
+    """Retourne un résumé EDA exploitable dans le notebook et le rapport."""
+    numeric_df = df.select_dtypes(include=["number"])
+    summary = {
+        "shape": {"rows": int(df.shape[0]), "cols": int(df.shape[1])},
+        "missing_values": df.isna().sum().sort_values(ascending=False).to_dict(),
+        "dtypes": {k: str(v) for k, v in df.dtypes.to_dict().items()},
+        "describe": df.describe(include="all").fillna("").to_dict(),
+        "class_distribution": df[target_column].value_counts().sort_index().to_dict(),
+        "class_distribution_pct": (df[target_column].value_counts(normalize=True).sort_index() * 100).round(2).to_dict(),
+        "correlation": numeric_df.corr(numeric_only=True).fillna(0).round(3).to_dict() if not numeric_df.empty else {},
+    }
+    return summary
+
+
+def train_val_test_split(
+    x: pd.Series,
+    y: pd.Series,
+    test_size: float = 0.2,
+    val_size: float = 0.1,
+    random_state: int = 42,
+) -> tuple[pd.Series, pd.Series, pd.Series, pd.Series, pd.Series, pd.Series]:
+    """Split stratifié: train/val/test."""
+    x_train_val, x_test, y_train_val, y_test = train_test_split(
+        x,
+        y,
+        test_size=test_size,
+        random_state=random_state,
+        stratify=y,
+    )
+    relative_val_size = val_size / (1 - test_size)
+    x_train, x_val, y_train, y_val = train_test_split(
+        x_train_val,
+        y_train_val,
+        test_size=relative_val_size,
+        random_state=random_state,
+        stratify=y_train_val,
+    )
+    return x_train, x_val, x_test, y_train, y_val, y_test

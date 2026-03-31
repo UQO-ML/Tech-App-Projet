@@ -1,105 +1,152 @@
-"""
-models.py — Définition et entraînement des classificateurs pour le projet INF 6243.
+"""Définition et entraînement de plusieurs modèles de classification texte."""
 
-Rôle :
-  - Définir au moins 4 algorithmes de classification (ex. KNN, arbre de décision,
-    Random Forest, SVM, régression logistique, Naive Bayes, réseau de neurones).
-  - Pour chaque modèle : réglage des hyperparamètres (GridSearchCV ou RandomizedSearchCV).
-  - Entraînement et retour des modèles entraînés + métriques de validation.
-  - Pour l’apprentissage profond : utiliser le device fourni par utils.get_device() (CUDA en priorité,
-    repli sur CPU) pour placer le modèle et les tenseurs sur le bon device.
+from __future__ import annotations
 
-Structure détaillée :
-  1. Imports (sklearn.* ; optionnel : torch, utils.get_device)
-  2. Grilles d’hyperparamètres par modèle (étendue adaptée au temps de calcul et à la taille des données)
-  3. get_models() : dict { "NomAffiché": (estimator, param_grid ou None) } pour alimenter la recherche
-  4. train_with_grid_search : GridSearchCV/RandomizedSearchCV, retour best_estimator + cv_results_
-  5. train_all_models : boucle sur les modèles, évaluation sur validation, agrégation des résultats
-  6. Réseau de neurones (optionnel) : build_nn_model + train_nn en utilisant device (CUDA si dispo, sinon CPU)
-"""
+from typing import Any
 
-# -----------------------------------------------------------------------------
-# 1. Imports
-# -----------------------------------------------------------------------------
-# import numpy as np
-# from sklearn.neighbors import KNeighborsClassifier
-# from sklearn.tree import DecisionTreeClassifier
-# from sklearn.ensemble import RandomForestClassifier
-# from sklearn.svm import SVC
-# from sklearn.linear_model import LogisticRegression
-# from sklearn.naive_bayes import GaussianNB  # ou MultinomialNB pour texte
-# from sklearn.model_selection import GridSearchCV, RandomizedSearchCV, cross_val_score
-# from sklearn.metrics import classification_report, confusion_matrix
-# # Pour deep learning : import torch ; from utils import get_device  # device = get_device() -> "cuda" ou "cpu"
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import GridSearchCV, cross_val_score
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.pipeline import Pipeline
+from sklearn.svm import LinearSVC
 
-# -----------------------------------------------------------------------------
-# 2. Grilles d’hyperparamètres (à adapter au dataset et au temps de calcul)
-# -----------------------------------------------------------------------------
-# Chaque clé correspond à un nom de modèle ; la valeur est le param_grid (ou param_distributions pour RandomizedSearchCV).
-# Réduire les listes si les essais prennent trop de temps ; augmenter n_iter pour RandomizedSearchCV si besoin.
-# PARAM_GRIDS = {
-#     "KNN": {"n_neighbors": [3, 5, 7, 11, 15], "weights": ["uniform", "distance"]},
-#     "DecisionTree": {"max_depth": [3, 5, 10, None], "min_samples_split": [2, 5, 10]},
-#     "RandomForest": {"n_estimators": [50, 100, 200], "max_depth": [5, 10, None]},
-#     "SVM": {"C": [0.1, 1, 10], "kernel": ["rbf", "linear"], "gamma": ["scale", "auto"]},
-#     "LogisticRegression": {"C": [0.1, 1, 10], "max_iter": [500, 1000]},
-#     "NaiveBayes": {},  # peu d’hyperparamètres à tuner
-# }
+from utils import compute_metrics
 
-# -----------------------------------------------------------------------------
-# 3. Dictionnaire des modèles (estimator + grille)
-# -----------------------------------------------------------------------------
-# def get_models():
-#     """
-#     Retourne un dict : { "NomAffiché": (estimator, param_grid ou None) }.
-#     estimateur : instance non entraînée (ex. RandomForestClassifier()). param_grid : dict pour GridSearchCV ;
-#     None ou {} pour les modèles sans recherche (ex. Naive Bayes). Utilisé par train_all_models et train_with_grid_search.
-#     """
-#     pass
 
-# -----------------------------------------------------------------------------
-# 4. Entraînement avec recherche d’hyperparamètres
-# -----------------------------------------------------------------------------
-# def train_with_grid_search(X_train, y_train, model_name, cv=5, scoring="f1_macro", n_jobs=-1):
-#     """
-#     Instancie GridSearchCV (ou RandomizedSearchCV si l’espace est grand) avec la grille du modèle model_name,
-#     fit sur (X_train, y_train), retourne best_estimator_ et cv_results_. scoring : métrique à maximiser
-#     (f1_macro, accuracy, etc.). n_jobs=-1 utilise tous les cœurs CPU (les modèles sklearn sont sur CPU).
-#     """
-#     pass
+def get_models(random_state: int = 42) -> dict[str, dict[str, Any]]:
+    """Retourne 4 pipelines texte + grilles d'hyperparamètres."""
+    return {
+        "NaiveBayes": {
+            "pipeline": Pipeline(
+                [
+                    ("tfidf", TfidfVectorizer()),
+                    ("clf", MultinomialNB()),
+                ],
+                memory=None,
+            ),
+            "param_grid": {
+                "tfidf__ngram_range": [(1, 1), (1, 2)],
+                "tfidf__min_df": [2, 5],
+                "clf__alpha": [0.5, 1.0],
+            },
+        },
+        "LogisticRegression": {
+            "pipeline": Pipeline(
+                [
+                    ("tfidf", TfidfVectorizer()),
+                    ("clf", LogisticRegression(max_iter=1000, class_weight="balanced", random_state=random_state)),
+                ],
+                memory=None,
+            ),
+            "param_grid": {
+                "tfidf__ngram_range": [(1, 1), (1, 2)],
+                "tfidf__min_df": [2, 5],
+                "clf__C": [0.5, 1.0, 2.0],
+            },
+        },
+        "LinearSVC": {
+            "pipeline": Pipeline(
+                [
+                    ("tfidf", TfidfVectorizer()),
+                    ("clf", LinearSVC(class_weight="balanced", random_state=random_state)),
+                ],
+                memory=None,
+            ),
+            "param_grid": {
+                "tfidf__ngram_range": [(1, 1), (1, 2)],
+                "tfidf__min_df": [2, 5],
+                "clf__C": [0.5, 1.0, 2.0],
+            },
+        },
+        "RandomForest": {
+            "pipeline": Pipeline(
+                [
+                    # On limite les features pour garder un temps de calcul raisonnable.
+                    ("tfidf", TfidfVectorizer(max_features=8000)),
+                    (
+                        "clf",
+                        RandomForestClassifier(
+                            class_weight="balanced_subsample",
+                            random_state=random_state,
+                            n_jobs=-1,
+                            min_samples_leaf=1,
+                            max_features="sqrt",
+                        ),
+                    ),
+                ],
+                memory=None,
+            ),
+            "param_grid": {
+                "tfidf__ngram_range": [(1, 1)],
+                "tfidf__min_df": [2, 5],
+                "clf__n_estimators": [100, 200],
+                "clf__max_depth": [None, 30],
+                "clf__max_features": ["sqrt", "log2"],
+                "clf__min_samples_leaf": [1, 2],
+            },
+        },
+    }
 
-# -----------------------------------------------------------------------------
-# 5. Entraîner tous les modèles
-# -----------------------------------------------------------------------------
-# def train_all_models(X_train, y_train, X_val, y_val, model_names=None):
-#     """
-#     Pour chaque modèle dans get_models() (ou dans model_names si fourni) : lance train_with_grid_search,
-#     évalue le best_estimator sur (X_val, y_val) avec les métriques choisies. Retourne un dict :
-#     { "nom": {"estimator": best_estimator, "val_metrics": {...}, "cv_results": cv_results_ } }.
-#     """
-#     pass
 
-# -----------------------------------------------------------------------------
-# 6. Réseau de neurones (optionnel) — Device CUDA en priorité, repli CPU
-# -----------------------------------------------------------------------------
-# def build_nn_model(input_dim, n_classes, hidden=(64, 32), dropout=0.2, device=None):
-#     """
-#     Construit un MLP (PyTorch nn.Module ou sklearn.neural_network.MLPClassifier). Si PyTorch : passer
-#     device = get_device() (depuis utils) pour que le modèle soit créé / déplacé sur GPU si disponible.
-#     Ex. : model = MyMLP(...).to(device). Tous les tenseurs d’entrée doivent aussi être envoyés sur device
-#     (ex. x = torch.tensor(...).to(device)) pour que l’entraînement utilise CUDA quand c’est possible.
-#     """
-#     # if device is None:
-#     #     from utils import get_device
-#     #     device = get_device()
-#     # ... model.to(device)
-#     pass
+def train_with_grid_search(
+    x_train,
+    y_train,
+    model_name: str,
+    random_state: int = 42,
+    cv: int = 5,
+    scoring: str = "f1_macro",
+) -> tuple[Any, dict[str, Any]]:
+    """Optimise un modèle avec GridSearchCV puis retourne le meilleur estimateur."""
+    model_entry = get_models(random_state=random_state)[model_name]
+    search = GridSearchCV(
+        estimator=model_entry["pipeline"],
+        param_grid=model_entry["param_grid"],
+        cv=cv,
+        scoring=scoring,
+        n_jobs=-1,
+        verbose=0,
+    )
+    search.fit(x_train, y_train)
+    return search.best_estimator_, {
+        "best_params": search.best_params_,
+        "best_cv_score": float(search.best_score_),
+    }
 
-# def train_nn(model, X_train, y_train, X_val, y_val, epochs=50, batch_size=32, device=None):
-#     """
-#     Boucle d’entraînement (PyTorch) : à chaque batch, envoyer inputs et labels sur device (ex. .to(device)),
-#     forward, loss, backward, optimizer.step(). À chaque epoch, évaluer sur X_val (également sur device).
-#     device doit être celui retourné par get_device() : CUDA en priorité, sinon CPU, pour garantir le repli
-#     automatique si le GPU est indisponible.
-#     """
-#     pass
+
+def train_all_models(
+    x_train,
+    y_train,
+    x_val,
+    y_val,
+    random_state: int = 42,
+) -> dict[str, dict[str, Any]]:
+    """Entraîne tous les modèles, puis calcule leurs métriques de validation."""
+    results: dict[str, dict[str, Any]] = {}
+    for model_name in get_models(random_state=random_state):
+        estimator, tuning_info = train_with_grid_search(
+            x_train,
+            y_train,
+            model_name=model_name,
+            random_state=random_state,
+        )
+        y_val_pred = estimator.predict(x_val)
+        results[model_name] = {
+            "estimator": estimator,
+            "val_metrics": compute_metrics(y_val, y_val_pred),
+            "tuning": tuning_info,
+        }
+    return results
+
+
+def cross_validate_estimator(estimator, X, y, cv: int = 5) -> list[float]:
+    """Retourne les scores F1 macro de validation croisée k-fold."""
+    scores = cross_val_score(estimator, X, y, cv=cv, scoring="f1_macro", n_jobs=-1)
+    return [float(score) for score in scores]
+
+
+def select_best_model(results: dict[str, dict[str, Any]], metric_name: str = "f1_macro") -> tuple[str, dict[str, Any]]:
+    """Sélectionne le meilleur modèle selon une métrique de validation."""
+    best_name = max(results, key=lambda name: results[name]["val_metrics"][metric_name])
+    return best_name, results[best_name]

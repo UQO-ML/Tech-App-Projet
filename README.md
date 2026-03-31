@@ -54,7 +54,9 @@ Ouvrir `Code/notebook_principal.ipynb` et exécuter les cellules.
   - heatmap de corrélation
   - histogrammes / boxplots
   - matrices de confusion
+  - compilation des matrices de confusion (tous les modèles)
   - comparaison des modèles
+  - compilation synthèse comparative globale
   - courbe d’apprentissage
   - importance des features (si supportée)
 - `Outputs/reports/eda_summary.json`
@@ -66,6 +68,8 @@ Ouvrir `Code/notebook_principal.ipynb` et exécuter les cellules.
 - Naive Bayes
 - Logistic Regression
 - Linear SVC
+- KNN
+- Decision Tree
 - Random Forest
 
 Chaque modèle est entraîné avec `GridSearchCV` et évalué avec:
@@ -75,3 +79,6 @@ Chaque modèle est entraîné avec `GridSearchCV` et évalué avec:
 - F1 macro
 - matrice de confusion
 - validation croisée (k-fold) pour le meilleur modèle
+
+Sélection finale du meilleur modèle via score pondéré:
+`0.35 * val_f1_macro + 0.40 * test_f1_macro + 0.25 * cv_f1_macro_mean`.

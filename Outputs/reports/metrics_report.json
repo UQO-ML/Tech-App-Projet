@@ -1,39 +1,70 @@
 {
   "dataset_path": "/home/kilo/Work/Cours - UQO/Technique d'Apprentissage/Tech-App-Devoir-II/Data/labeled_data.csv",
-  "n_samples": 24783,
-  "best_model": "RandomForest",
+  "n_samples": 799,
+  "best_model": "LinearSVC",
   "best_model_validation_metrics": {
-    "accuracy": 0.872932634126664,
-    "precision_macro": 0.7008470242981123,
-    "recall_macro": 0.7826437451437451,
-    "f1_macro": 0.7342119016669986
+    "accuracy": 0.825,
+    "precision_macro": 0.5798611111111112,
+    "recall_macro": 0.5579818031430935,
+    "f1_macro": 0.5676190476190476
   },
   "best_model_test_metrics": {
-    "accuracy": 0.8737139398829937,
-    "precision_macro": 0.6988606166549651,
-    "recall_macro": 0.7612085870435589,
-    "f1_macro": 0.725082427229971
+    "accuracy": 0.86875,
+    "precision_macro": 0.6689308067260823,
+    "recall_macro": 0.6451612903225806,
+    "f1_macro": 0.6555852063444336
   },
   "best_model_cv_f1_macro_scores": [
-    0.7383292459227522,
-    0.7191439621287189,
-    0.7186819517762392,
-    0.7325361393997406,
-    0.7409934662873422
+    0.625318918229366,
+    0.7119081693500299,
+    0.5561387203178249,
+    0.5336134453781513,
+    0.5522925350511557
   ],
+  "best_model_selection_score": 0.6098643386207665,
+  "model_selection_method": {
+    "formula": "selection_score = 0.35 * val_f1_macro + 0.40 * test_f1_macro + 0.25 * cv_f1_macro_mean",
+    "why_this_formula": "Le F1 test reçoit le plus de poids pour refléter la performance hors entraînement; la validation sert de garde-fou pendant le tuning; la CV ajoute une mesure de stabilité.",
+    "tie_break_rule": "En cas d'égalité, choisir le meilleur f1_macro test puis accuracy test."
+  },
+  "model_selection_scores": {
+    "NaiveBayes": 0.3670735335919908,
+    "LogisticRegression": 0.5877382612310662,
+    "LinearSVC": 0.6098643386207665,
+    "KNN": 0.530809284481055,
+    "DecisionTree": 0.5983628967867232,
+    "RandomForest": 0.5531392960422874
+  },
+  "model_selection_ranking": [
+    "LinearSVC",
+    "DecisionTree",
+    "LogisticRegression",
+    "RandomForest",
+    "KNN",
+    "NaiveBayes"
+  ],
+  "model_rationales": {
+    "NaiveBayes": "Baseline rapide en texte; robuste avec des comptes/poids TF-IDF.",
+    "LogisticRegression": "Très adaptée aux données textuelles clairsemées; souvent un excellent compromis performance/interprétabilité.",
+    "LinearSVC": "SVM linéaire performant sur grands espaces de features TF-IDF et classes parfois déséquilibrées.",
+    "KNN": "Référence non paramétrique utile comme comparaison, même si souvent moins performante sur texte sparse.",
+    "DecisionTree": "Modèle interprétable pour analyser des règles décisionnelles, pertinent comme repère explicatif.",
+    "RandomForest": "Ensemble d'arbres plus stable qu'un arbre simple; capture des interactions non linéaires."
+  },
+  "best_model_selection_explanation": "Le modèle LinearSVC obtient le meilleur score global pondéré (0.6099) en combinant validation, test et CV. Il est retenu pour son compromis entre performance et robustesse.",
   "all_models": {
     "NaiveBayes": {
       "validation_metrics": {
-        "accuracy": 0.8467123840258168,
-        "precision_macro": 0.7936148429198876,
-        "recall_macro": 0.4942586926961927,
-        "f1_macro": 0.5190993398758891
+        "accuracy": 0.8,
+        "precision_macro": 0.5982905982905983,
+        "recall_macro": 0.3846153846153846,
+        "f1_macro": 0.3841269841269841
       },
       "test_metrics": {
-        "accuracy": 0.8456727859592496,
-        "precision_macro": 0.8703446995482395,
-        "recall_macro": 0.49193982683501475,
-        "f1_macro": 0.521908210334494
+        "accuracy": 0.7875,
+        "precision_macro": 0.5949367088607594,
+        "recall_macro": 0.35802469135802467,
+        "f1_macro": 0.3391212195320779
       },
       "tuning": {
         "best_params": {
@@ -41,115 +72,66 @@
           "tfidf__min_df": 5,
           "tfidf__ngram_range": [
             1,
-            2
+            1
           ]
         },
-        "best_cv_score": 0.519232775279519
+        "best_cv_score": 0.35658161514579206
       },
       "classification_report_test": {
         "hate_speech": {
-          "precision": 0.875,
-          "recall": 0.024475524475524476,
-          "f1-score": 0.047619047619047616,
-          "support": 286.0
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 9.0
         },
         "offensive_language": {
-          "precision": 0.840929203539823,
-          "recall": 0.9903595622720167,
-          "f1-score": 0.9095477386934674,
-          "support": 3838.0
+          "precision": 0.7848101265822784,
+          "recall": 1.0,
+          "f1-score": 0.8794326241134752,
+          "support": 124.0
         },
         "neither": {
-          "precision": 0.8951048951048951,
-          "recall": 0.460984393757503,
-          "f1-score": 0.6085578446909667,
-          "support": 833.0
+          "precision": 1.0,
+          "recall": 0.07407407407407407,
+          "f1-score": 0.13793103448275862,
+          "support": 27.0
         },
-        "accuracy": 0.8456727859592496,
+        "accuracy": 0.7875,
         "macro avg": {
-          "precision": 0.8703446995482395,
-          "recall": 0.49193982683501475,
-          "f1-score": 0.521908210334494,
-          "support": 4957.0
+          "precision": 0.5949367088607594,
+          "recall": 0.35802469135802467,
+          "f1-score": 0.3391212195320779,
+          "support": 160.0
         },
         "weighted avg": {
-          "precision": 0.8519989228985715,
-          "recall": 0.8456727859592496,
-          "f1-score": 0.809237836060551,
-          "support": 4957.0
+          "precision": 0.7769778481012658,
+          "recall": 0.7875,
+          "f1-score": 0.7048361457569088,
+          "support": 160.0
         }
-      }
+      },
+      "cv_f1_macro_scores": [
+        0.3698976658617914,
+        0.3746428571428571,
+        0.43982683982683984,
+        0.40263079222720477,
+        0.3526138716356108
+      ],
+      "cv_f1_macro_mean": 0.3879224053388608,
+      "model_why": "Baseline rapide en texte; robuste avec des comptes/poids TF-IDF."
     },
     "LogisticRegression": {
       "validation_metrics": {
-        "accuracy": 0.8721258572004841,
-        "precision_macro": 0.694558154645874,
-        "recall_macro": 0.769626554001554,
-        "f1_macro": 0.7257251414947863
+        "accuracy": 0.775,
+        "precision_macro": 0.5428571428571428,
+        "recall_macro": 0.5770057899090157,
+        "f1_macro": 0.5496775666267192
       },
       "test_metrics": {
-        "accuracy": 0.8737139398829937,
-        "precision_macro": 0.702305353969309,
-        "recall_macro": 0.77484600431601,
-        "f1_macro": 0.7326608800913679
-      },
-      "tuning": {
-        "best_params": {
-          "clf__C": 2.0,
-          "tfidf__min_df": 2,
-          "tfidf__ngram_range": [
-            1,
-            2
-          ]
-        },
-        "best_cv_score": 0.7294123255490311
-      },
-      "classification_report_test": {
-        "hate_speech": {
-          "precision": 0.38242894056847543,
-          "recall": 0.5174825174825175,
-          "f1-score": 0.4398216939078752,
-          "support": 286.0
-        },
-        "offensive_language": {
-          "precision": 0.9561084707855745,
-          "recall": 0.8910891089108911,
-          "f1-score": 0.9224544841537424,
-          "support": 3838.0
-        },
-        "neither": {
-          "precision": 0.7683786505538771,
-          "recall": 0.9159663865546218,
-          "f1-score": 0.8357064622124863,
-          "support": 833.0
-        },
-        "accuracy": 0.8737139398829937,
-        "macro avg": {
-          "precision": 0.702305353969309,
-          "recall": 0.77484600431601,
-          "f1-score": 0.7326608800913679,
-          "support": 4957.0
-        },
-        "weighted avg": {
-          "precision": 0.8914622561607825,
-          "recall": 0.8737139398829937,
-          "f1-score": 0.8800308246243126,
-          "support": 4957.0
-        }
-      }
-    },
-    "LinearSVC": {
-      "validation_metrics": {
-        "accuracy": 0.8781766841468334,
-        "precision_macro": 0.6977885920873986,
-        "recall_macro": 0.740339695027195,
-        "f1_macro": 0.7169409028668116
-      },
-      "test_metrics": {
-        "accuracy": 0.8876336493847085,
-        "precision_macro": 0.7193235914786289,
-        "recall_macro": 0.7507752208992788,
-        "f1_macro": 0.7338272820871716
+        "accuracy": 0.825,
+        "precision_macro": 0.5893291893291893,
+        "recall_macro": 0.6263440860215054,
+        "f1_macro": 0.6050302103807236
       },
       "tuning": {
         "best_params": {
@@ -160,59 +142,273 @@
             1
           ]
         },
-        "best_cv_score": 0.7326111967168892
+        "best_cv_score": 0.5828330175847796
       },
       "classification_report_test": {
         "hate_speech": {
-          "precision": 0.4033333333333333,
-          "recall": 0.4230769230769231,
-          "f1-score": 0.4129692832764505,
-          "support": 286.0
+          "precision": 0.2,
+          "recall": 0.2222222222222222,
+          "f1-score": 0.21052631578947367,
+          "support": 9.0
         },
         "offensive_language": {
-          "precision": 0.9469860064585576,
-          "recall": 0.9168837936425221,
-          "f1-score": 0.931691818903892,
-          "support": 3838.0
+          "precision": 0.9316239316239316,
+          "recall": 0.8790322580645161,
+          "f1-score": 0.9045643153526971,
+          "support": 124.0
         },
         "neither": {
-          "precision": 0.8076514346439958,
-          "recall": 0.9123649459783914,
-          "f1-score": 0.8568207440811725,
-          "support": 833.0
+          "precision": 0.6363636363636364,
+          "recall": 0.7777777777777778,
+          "f1-score": 0.7,
+          "support": 27.0
         },
-        "accuracy": 0.8876336493847085,
+        "accuracy": 0.825,
         "macro avg": {
-          "precision": 0.7193235914786289,
-          "recall": 0.7507752208992788,
-          "f1-score": 0.7338272820871716,
-          "support": 4957.0
+          "precision": 0.5893291893291893,
+          "recall": 0.6263440860215054,
+          "f1-score": 0.6050302103807236,
+          "support": 160.0
         },
         "weighted avg": {
-          "precision": 0.8922048156505398,
-          "recall": 0.8876336493847085,
-          "f1-score": 0.8891817824873551,
-          "support": 4957.0
+          "precision": 0.8406449106449105,
+          "recall": 0.825,
+          "f1-score": 0.8310044496614981,
+          "support": 160.0
         }
-      }
+      },
+      "cv_f1_macro_scores": [
+        0.5745057731181691,
+        0.6987577639751553,
+        0.6077362009376177,
+        0.6029411764705882,
+        0.5828396606869698
+      ],
+      "cv_f1_macro_mean": 0.6133561150377,
+      "model_why": "Très adaptée aux données textuelles clairsemées; souvent un excellent compromis performance/interprétabilité."
     },
-    "RandomForest": {
+    "LinearSVC": {
       "validation_metrics": {
-        "accuracy": 0.872932634126664,
-        "precision_macro": 0.7008470242981123,
-        "recall_macro": 0.7826437451437451,
-        "f1_macro": 0.7342119016669986
+        "accuracy": 0.825,
+        "precision_macro": 0.5798611111111112,
+        "recall_macro": 0.5579818031430935,
+        "f1_macro": 0.5676190476190476
       },
       "test_metrics": {
-        "accuracy": 0.8737139398829937,
-        "precision_macro": 0.6988606166549651,
-        "recall_macro": 0.7612085870435589,
-        "f1_macro": 0.725082427229971
+        "accuracy": 0.86875,
+        "precision_macro": 0.6689308067260823,
+        "recall_macro": 0.6451612903225806,
+        "f1_macro": 0.6555852063444336
       },
       "tuning": {
         "best_params": {
-          "clf__max_depth": null,
-          "clf__max_features": "sqrt",
+          "clf__C": 2.0,
+          "tfidf__min_df": 2,
+          "tfidf__ngram_range": [
+            1,
+            1
+          ]
+        },
+        "best_cv_score": 0.575398722528291
+      },
+      "classification_report_test": {
+        "hate_speech": {
+          "precision": 0.2857142857142857,
+          "recall": 0.2222222222222222,
+          "f1-score": 0.25,
+          "support": 9.0
+        },
+        "offensive_language": {
+          "precision": 0.9133858267716536,
+          "recall": 0.9354838709677419,
+          "f1-score": 0.9243027888446215,
+          "support": 124.0
+        },
+        "neither": {
+          "precision": 0.8076923076923077,
+          "recall": 0.7777777777777778,
+          "f1-score": 0.7924528301886793,
+          "support": 27.0
+        },
+        "accuracy": 0.86875,
+        "macro avg": {
+          "precision": 0.6689308067260823,
+          "recall": 0.6451612903225806,
+          "f1-score": 0.6555852063444336,
+          "support": 160.0
+        },
+        "weighted avg": {
+          "precision": 0.860243521242537,
+          "recall": 0.86875,
+          "f1-score": 0.8641235764489213,
+          "support": 160.0
+        }
+      },
+      "cv_f1_macro_scores": [
+        0.625318918229366,
+        0.7119081693500299,
+        0.5561387203178249,
+        0.5336134453781513,
+        0.5522925350511557
+      ],
+      "cv_f1_macro_mean": 0.5958543576653056,
+      "model_why": "SVM linéaire performant sur grands espaces de features TF-IDF et classes parfois déséquilibrées."
+    },
+    "KNN": {
+      "validation_metrics": {
+        "accuracy": 0.8125,
+        "precision_macro": 0.7107487922705314,
+        "recall_macro": 0.5733664185277089,
+        "f1_macro": 0.6205622197988611
+      },
+      "test_metrics": {
+        "accuracy": 0.7625,
+        "precision_macro": 0.529891304347826,
+        "recall_macro": 0.4642572680207089,
+        "f1_macro": 0.4849478272876107
+      },
+      "tuning": {
+        "best_params": {
+          "clf__n_neighbors": 5,
+          "clf__weights": "distance",
+          "tfidf__min_df": 2,
+          "tfidf__ngram_range": [
+            1,
+            1
+          ]
+        },
+        "best_cv_score": 0.4643475396549067
+      },
+      "classification_report_test": {
+        "hate_speech": {
+          "precision": 0.3333333333333333,
+          "recall": 0.2222222222222222,
+          "f1-score": 0.26666666666666666,
+          "support": 9.0
+        },
+        "offensive_language": {
+          "precision": 0.8188405797101449,
+          "recall": 0.9112903225806451,
+          "f1-score": 0.8625954198473282,
+          "support": 124.0
+        },
+        "neither": {
+          "precision": 0.4375,
+          "recall": 0.25925925925925924,
+          "f1-score": 0.32558139534883723,
+          "support": 27.0
+        },
+        "accuracy": 0.7625,
+        "macro avg": {
+          "precision": 0.529891304347826,
+          "recall": 0.4642572680207089,
+          "f1-score": 0.4849478272876107,
+          "support": 160.0
+        },
+        "weighted avg": {
+          "precision": 0.7271795742753623,
+          "recall": 0.7625,
+          "f1-score": 0.7384533108467958,
+          "support": 160.0
+        }
+      },
+      "cv_f1_macro_scores": [
+        0.5359841446797968,
+        0.4553197064989518,
+        0.5193732995590581,
+        0.4255024255024255,
+        0.4564879564879565
+      ],
+      "cv_f1_macro_mean": 0.4785335065456377,
+      "model_why": "Référence non paramétrique utile comme comparaison, même si souvent moins performante sur texte sparse."
+    },
+    "DecisionTree": {
+      "validation_metrics": {
+        "accuracy": 0.7875,
+        "precision_macro": 0.5572150072150072,
+        "recall_macro": 0.6026468155500414,
+        "f1_macro": 0.5664488017429194
+      },
+      "test_metrics": {
+        "accuracy": 0.8125,
+        "precision_macro": 0.6245573870573872,
+        "recall_macro": 0.7433293508562325,
+        "f1_macro": 0.6625997970976137
+      },
+      "tuning": {
+        "best_params": {
+          "clf__ccp_alpha": 0.0,
+          "clf__max_depth": 20,
+          "clf__min_samples_leaf": 2,
+          "clf__min_samples_split": 5,
+          "tfidf__min_df": 2,
+          "tfidf__ngram_range": [
+            1,
+            1
+          ]
+        },
+        "best_cv_score": 0.5760291351479527
+      },
+      "classification_report_test": {
+        "hate_speech": {
+          "precision": 0.3125,
+          "recall": 0.5555555555555556,
+          "f1-score": 0.4,
+          "support": 9.0
+        },
+        "offensive_language": {
+          "precision": 0.9714285714285714,
+          "recall": 0.8225806451612904,
+          "f1-score": 0.8908296943231441,
+          "support": 124.0
+        },
+        "neither": {
+          "precision": 0.5897435897435898,
+          "recall": 0.8518518518518519,
+          "f1-score": 0.696969696969697,
+          "support": 27.0
+        },
+        "accuracy": 0.8125,
+        "macro avg": {
+          "precision": 0.6245573870573872,
+          "recall": 0.7433293508562325,
+          "f1-score": 0.6625997970976137,
+          "support": 160.0
+        },
+        "weighted avg": {
+          "precision": 0.8699544986263736,
+          "recall": 0.8125,
+          "f1-score": 0.830506649464073,
+          "support": 160.0
+        }
+      },
+      "cv_f1_macro_scores": [
+        0.4343452380952381,
+        0.6197230665315772,
+        0.5895138314493154,
+        0.5015561015561015,
+        0.5561797091208857
+      ],
+      "cv_f1_macro_mean": 0.5402635893506236,
+      "model_why": "Modèle interprétable pour analyser des règles décisionnelles, pertinent comme repère explicatif."
+    },
+    "RandomForest": {
+      "validation_metrics": {
+        "accuracy": 0.8,
+        "precision_macro": 0.47222222222222215,
+        "recall_macro": 0.5264681555004135,
+        "f1_macro": 0.4940948351842059
+      },
+      "test_metrics": {
+        "accuracy": 0.85625,
+        "precision_macro": 0.6263888888888889,
+        "recall_macro": 0.6494424532058941,
+        "f1_macro": 0.6357621125693956
+      },
+      "tuning": {
+        "best_params": {
+          "clf__max_depth": 30,
+          "clf__max_features": "log2",
           "clf__min_samples_leaf": 2,
           "clf__n_estimators": 200,
           "tfidf__min_df": 5,
@@ -221,41 +417,50 @@
             1
           ]
         },
-        "best_cv_score": 0.7261935875345522
+        "best_cv_score": 0.5705113518395237
       },
       "classification_report_test": {
         "hate_speech": {
-          "precision": 0.4055727554179567,
-          "recall": 0.458041958041958,
-          "f1-score": 0.4302134646962233,
-          "support": 286.0
+          "precision": 0.25,
+          "recall": 0.2222222222222222,
+          "f1-score": 0.23529411764705882,
+          "support": 9.0
         },
         "offensive_language": {
-          "precision": 0.957738595018192,
-          "recall": 0.8916102136529442,
-          "f1-score": 0.9234921063284307,
-          "support": 3838.0
+          "precision": 0.9416666666666667,
+          "recall": 0.9112903225806451,
+          "f1-score": 0.9262295081967213,
+          "support": 124.0
         },
         "neither": {
-          "precision": 0.7332704995287465,
-          "recall": 0.9339735894357744,
-          "f1-score": 0.8215417106652587,
-          "support": 833.0
+          "precision": 0.6875,
+          "recall": 0.8148148148148148,
+          "f1-score": 0.7457627118644068,
+          "support": 27.0
         },
-        "accuracy": 0.8737139398829937,
+        "accuracy": 0.85625,
         "macro avg": {
-          "precision": 0.6988606166549651,
-          "recall": 0.7612085870435589,
-          "f1-score": 0.725082427229971,
-          "support": 4957.0
+          "precision": 0.6263888888888889,
+          "recall": 0.6494424532058941,
+          "f1-score": 0.6357621125693956,
+          "support": 160.0
         },
         "weighted avg": {
-          "precision": 0.8881599479194681,
-          "recall": 0.8737139398829937,
-          "f1-score": 0.8778995360048009,
-          "support": 4957.0
+          "precision": 0.8598697916666665,
+          "recall": 0.85625,
+          "f1-score": 0.8569106205972249,
+          "support": 160.0
         }
-      }
+      },
+      "cv_f1_macro_scores": [
+        0.4471950361414955,
+        0.5361501384473387,
+        0.5188715079940606,
+        0.5528455284552846,
+        0.46296296296296297
+      ],
+      "cv_f1_macro_mean": 0.5036050348002284,
+      "model_why": "Ensemble d'arbres plus stable qu'un arbre simple; capture des interactions non linéaires."
     }
   }
 }

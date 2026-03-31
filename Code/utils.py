@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 from typing import Any
 
@@ -24,6 +25,7 @@ OUTPUTS_DIR = ROOT_DIR / "Outputs"
 FIGURES_DIR = OUTPUTS_DIR / "figures"
 MODELS_DIR = OUTPUTS_DIR / "models"
 REPORTS_DIR = OUTPUTS_DIR / "reports"
+MODEL_LABEL = "Modèle"
 
 
 def ensure_dir(path: str | Path) -> Path:
@@ -161,6 +163,46 @@ def plot_confusion_matrix(
     plt.close()
 
 
+def plot_confusion_matrices_grid(
+    confusion_by_model: dict[str, np.ndarray],
+    class_names: dict[int, str],
+    save_path: str | Path,
+) -> None:
+    """Compile toutes les matrices de confusion dans une seule figure."""
+    n_models = len(confusion_by_model)
+    if n_models == 0:
+        return
+    n_cols = 3
+    n_rows = math.ceil(n_models / n_cols)
+    labels = [class_names[i] for i in sorted(class_names)]
+
+    fig, axes = plt.subplots(n_rows, n_cols, figsize=(5 * n_cols, 4 * n_rows))
+    axes_array = np.atleast_1d(axes).ravel()
+    for idx, (model_name, cm) in enumerate(confusion_by_model.items()):
+        ax = axes_array[idx]
+        sns.heatmap(
+            cm,
+            annot=True,
+            fmt="d",
+            cmap="Blues",
+            xticklabels=labels,
+            yticklabels=labels,
+            ax=ax,
+            cbar=False,
+        )
+        ax.set_title(model_name)
+        ax.set_xlabel("Prédiction")
+        ax.set_ylabel("Vrai")
+
+    for idx in range(n_models, len(axes_array)):
+        axes_array[idx].axis("off")
+
+    fig.suptitle("Matrices de confusion - Tous les modèles", fontsize=14)
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=150)
+    plt.close()
+
+
 def plot_models_comparison(metrics_by_model: dict[str, dict[str, float]], save_path: str | Path) -> None:
     """Barplot comparant Accuracy et F1 macro pour chaque modèle."""
     rows: list[dict[str, Any]] = []
@@ -182,6 +224,71 @@ def plot_models_comparison(metrics_by_model: dict[str, dict[str, float]], save_p
     plt.xlabel("Modèle")
     plt.ylabel("Score")
     plt.xticks(rotation=15)
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=150)
+    plt.close()
+
+
+def plot_models_compilation(
+    report_by_model: dict[str, dict[str, Any]],
+    model_selection_scores: dict[str, float],
+    save_path: str | Path,
+) -> None:
+    """
+    Figure de synthèse comparative:
+    - barplot accuracy/f1,
+    - heatmap métriques macro,
+    - barplot score global de sélection.
+    """
+    rows: list[dict[str, Any]] = []
+    for model_name, payload in report_by_model.items():
+        test_metrics = payload.get("test_metrics", {})
+        rows.append(
+            {
+                "model": model_name,
+                "accuracy": test_metrics.get("accuracy", 0.0),
+                "precision_macro": test_metrics.get("precision_macro", 0.0),
+                "recall_macro": test_metrics.get("recall_macro", 0.0),
+                "f1_macro": test_metrics.get("f1_macro", 0.0),
+            }
+        )
+    frame = pd.DataFrame(rows).sort_values("f1_macro", ascending=False)
+    melted = frame.melt(
+        id_vars="model",
+        value_vars=["accuracy", "f1_macro"],
+        var_name="metric",
+        value_name="score",
+    )
+
+    fig, axes = plt.subplots(1, 3, figsize=(19, 5))
+
+    sns.barplot(data=melted, x="model", y="score", hue="metric", ax=axes[0])
+    axes[0].set_ylim(0, 1)
+    axes[0].set_title("Accuracy vs F1 macro (test)")
+    axes[0].tick_params(axis="x", rotation=25)
+    axes[0].set_xlabel(MODEL_LABEL)
+    axes[0].set_ylabel("Score")
+
+    heatmap_data = frame.set_index("model")[["precision_macro", "recall_macro", "f1_macro"]]
+    sns.heatmap(heatmap_data, annot=True, cmap="YlGnBu", fmt=".3f", ax=axes[1], cbar=False, vmin=0, vmax=1)
+    axes[1].set_title("Métriques macro (test)")
+    axes[1].set_xlabel("Métrique")
+    axes[1].set_ylabel(MODEL_LABEL)
+
+    selection_df = pd.DataFrame(
+        {
+            "model": list(model_selection_scores.keys()),
+            "selection_score": list(model_selection_scores.values()),
+        }
+    ).sort_values("selection_score", ascending=False)
+    sns.barplot(data=selection_df, x="model", y="selection_score", color="#4575b4", ax=axes[2])
+    axes[2].set_ylim(0, 1)
+    axes[2].set_title("Score global de sélection")
+    axes[2].tick_params(axis="x", rotation=25)
+    axes[2].set_xlabel(MODEL_LABEL)
+    axes[2].set_ylabel("Score")
+
+    fig.suptitle("Compilation comparative de tous les modèles", fontsize=14)
     plt.tight_layout()
     plt.savefig(save_path, dpi=150)
     plt.close()

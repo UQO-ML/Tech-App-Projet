@@ -9,14 +9,16 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV, cross_val_score
 from sklearn.naive_bayes import MultinomialNB
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import Pipeline
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import LinearSVC
 
 from utils import compute_metrics
 
 
 def get_models(random_state: int = 42) -> dict[str, dict[str, Any]]:
-    """Retourne 4 pipelines texte + grilles d'hyperparamètres."""
+    """Retourne un ensemble de modèles pertinents pour du texte TF-IDF multi-classes."""
     return {
         "NaiveBayes": {
             "pipeline": Pipeline(
@@ -31,6 +33,7 @@ def get_models(random_state: int = 42) -> dict[str, dict[str, Any]]:
                 "tfidf__min_df": [2, 5],
                 "clf__alpha": [0.5, 1.0],
             },
+            "why": "Baseline rapide en texte; robuste avec des comptes/poids TF-IDF.",
         },
         "LogisticRegression": {
             "pipeline": Pipeline(
@@ -45,6 +48,7 @@ def get_models(random_state: int = 42) -> dict[str, dict[str, Any]]:
                 "tfidf__min_df": [2, 5],
                 "clf__C": [0.5, 1.0, 2.0],
             },
+            "why": "Très adaptée aux données textuelles clairsemées; souvent un excellent compromis performance/interprétabilité.",
         },
         "LinearSVC": {
             "pipeline": Pipeline(
@@ -59,6 +63,41 @@ def get_models(random_state: int = 42) -> dict[str, dict[str, Any]]:
                 "tfidf__min_df": [2, 5],
                 "clf__C": [0.5, 1.0, 2.0],
             },
+            "why": "SVM linéaire performant sur grands espaces de features TF-IDF et classes parfois déséquilibrées.",
+        },
+        "KNN": {
+            "pipeline": Pipeline(
+                [
+                    ("tfidf", TfidfVectorizer(max_features=12000)),
+                    ("clf", KNeighborsClassifier(n_neighbors=5)),
+                ],
+                memory=None,
+            ),
+            "param_grid": {
+                "tfidf__ngram_range": [(1, 1)],
+                "tfidf__min_df": [2, 5],
+                "clf__n_neighbors": [3, 5, 11],
+                "clf__weights": ["uniform", "distance"],
+            },
+            "why": "Référence non paramétrique utile comme comparaison, même si souvent moins performante sur texte sparse.",
+        },
+        "DecisionTree": {
+            "pipeline": Pipeline(
+                [
+                    ("tfidf", TfidfVectorizer(max_features=6000)),
+                    ("clf", DecisionTreeClassifier(random_state=random_state, class_weight="balanced", ccp_alpha=0.0)),
+                ],
+                memory=None,
+            ),
+            "param_grid": {
+                "tfidf__ngram_range": [(1, 1)],
+                "tfidf__min_df": [2, 5],
+                "clf__max_depth": [20, 40, None],
+                "clf__min_samples_split": [2, 5],
+                "clf__min_samples_leaf": [1, 2],
+                "clf__ccp_alpha": [0.0, 0.001],
+            },
+            "why": "Modèle interprétable pour analyser des règles décisionnelles, pertinent comme repère explicatif.",
         },
         "RandomForest": {
             "pipeline": Pipeline(
@@ -86,6 +125,7 @@ def get_models(random_state: int = 42) -> dict[str, dict[str, Any]]:
                 "clf__max_features": ["sqrt", "log2"],
                 "clf__min_samples_leaf": [1, 2],
             },
+            "why": "Ensemble d'arbres plus stable qu'un arbre simple; capture des interactions non linéaires.",
         },
     }
 
@@ -150,3 +190,8 @@ def select_best_model(results: dict[str, dict[str, Any]], metric_name: str = "f1
     """Sélectionne le meilleur modèle selon une métrique de validation."""
     best_name = max(results, key=lambda name: results[name]["val_metrics"][metric_name])
     return best_name, results[best_name]
+
+
+def get_model_rationales(random_state: int = 42) -> dict[str, str]:
+    """Retourne le rationnel 'pourquoi ce modèle' pour le rapport."""
+    return {name: entry.get("why", "") for name, entry in get_models(random_state=random_state).items()}

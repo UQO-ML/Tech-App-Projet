@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
+from sklearn.metrics import confusion_matrix
 
 import models
 import preprocessing as prep
@@ -68,11 +69,13 @@ def run_pipeline(data_path: str | Path = DATA_PATH, max_samples: int | None = No
     # Évaluation test + matrices de confusion
     test_metrics: dict[str, dict[str, float]] = {}
     full_report: dict[str, Any] = {}
+    confusion_by_model: dict[str, Any] = {}
     for model_name, result in results.items():
         estimator = result["estimator"]
         y_pred_test = estimator.predict(x_test)
         metrics_test = utils.compute_metrics(y_test, y_pred_test)
         test_metrics[model_name] = metrics_test
+        confusion_by_model[model_name] = confusion_matrix(y_test, y_pred_test, labels=sorted(prep.CLASS_LABELS))
         full_report[model_name] = {
             "validation_metrics": result["val_metrics"],
             "test_metrics": metrics_test,
@@ -88,15 +91,51 @@ def run_pipeline(data_path: str | Path = DATA_PATH, max_samples: int | None = No
         )
 
     utils.plot_models_comparison(test_metrics, utils.FIGURES_DIR / "models_comparison_test.png")
+    utils.plot_confusion_matrices_grid(
+        confusion_by_model=confusion_by_model,
+        class_names=prep.CLASS_LABELS,
+        save_path=utils.FIGURES_DIR / "confusion_matrices_all_models.png",
+    )
 
-    # Sélection du meilleur modèle (validation F1 macro)
-    best_model_name, best_model_payload = models.select_best_model(results, metric_name="f1_macro")
-    best_estimator = best_model_payload["estimator"]
-
-    # Validation croisée k-fold sur train+val du meilleur modèle
+    # Validation croisée k-fold sur train+val pour tous les modèles
     x_train_val = pd.concat([x_train, x_val], axis=0)
     y_train_val = pd.concat([y_train, y_val], axis=0)
-    cv_scores = models.cross_validate_estimator(best_estimator, x_train_val, y_train_val, cv=5)
+    model_rationales = models.get_model_rationales(RANDOM_STATE)
+    model_selection_scores: dict[str, float] = {}
+    model_cv_scores: dict[str, list[float]] = {}
+
+    for model_name, result in results.items():
+        estimator = result["estimator"]
+        cv_scores = models.cross_validate_estimator(estimator, x_train_val, y_train_val, cv=5)
+        model_cv_scores[model_name] = cv_scores
+        cv_mean = float(sum(cv_scores) / len(cv_scores))
+        val_f1 = result["val_metrics"]["f1_macro"]
+        test_f1 = test_metrics[model_name]["f1_macro"]
+        # Score pondéré explicite: priorité à la généralisation (test + CV) et stabilité.
+        model_selection_scores[model_name] = float((0.35 * val_f1) + (0.40 * test_f1) + (0.25 * cv_mean))
+        full_report[model_name]["cv_f1_macro_scores"] = cv_scores
+        full_report[model_name]["cv_f1_macro_mean"] = cv_mean
+        full_report[model_name]["model_why"] = model_rationales.get(model_name, "")
+
+    ranking = sorted(
+        model_selection_scores.keys(),
+        key=lambda name: (
+            model_selection_scores[name],
+            test_metrics[name]["f1_macro"],
+            test_metrics[name]["accuracy"],
+        ),
+        reverse=True,
+    )
+    best_model_name = ranking[0]
+    best_model_payload = results[best_model_name]
+    best_estimator = best_model_payload["estimator"]
+    best_cv_scores = model_cv_scores[best_model_name]
+
+    utils.plot_models_compilation(
+        report_by_model=full_report,
+        model_selection_scores=model_selection_scores,
+        save_path=utils.FIGURES_DIR / "models_compilation_overview.png",
+    )
 
     utils.plot_learning_curves(best_estimator, x_train_val, y_train_val, utils.FIGURES_DIR / "learning_curve_best_model.png")
     utils.plot_feature_importance_from_pipeline(best_estimator, utils.FIGURES_DIR / "feature_importance_best_model.png")
@@ -108,7 +147,24 @@ def run_pipeline(data_path: str | Path = DATA_PATH, max_samples: int | None = No
         "best_model": best_model_name,
         "best_model_validation_metrics": best_model_payload["val_metrics"],
         "best_model_test_metrics": test_metrics[best_model_name],
-        "best_model_cv_f1_macro_scores": cv_scores,
+        "best_model_cv_f1_macro_scores": best_cv_scores,
+        "best_model_selection_score": model_selection_scores[best_model_name],
+        "model_selection_method": {
+            "formula": "selection_score = 0.35 * val_f1_macro + 0.40 * test_f1_macro + 0.25 * cv_f1_macro_mean",
+            "why_this_formula": (
+                "Le F1 test reçoit le plus de poids pour refléter la performance hors entraînement; "
+                "la validation sert de garde-fou pendant le tuning; la CV ajoute une mesure de stabilité."
+            ),
+            "tie_break_rule": "En cas d'égalité, choisir le meilleur f1_macro test puis accuracy test.",
+        },
+        "model_selection_scores": model_selection_scores,
+        "model_selection_ranking": ranking,
+        "model_rationales": model_rationales,
+        "best_model_selection_explanation": (
+            f"Le modèle {best_model_name} obtient le meilleur score global pondéré "
+            f"({model_selection_scores[best_model_name]:.4f}) en combinant validation, test et CV. "
+            f"Il est retenu pour son compromis entre performance et robustesse."
+        ),
         "all_models": full_report,
     }
     report_path = utils.save_json(global_report, utils.REPORTS_DIR / "metrics_report.json")

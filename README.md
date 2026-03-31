@@ -46,6 +46,10 @@ python main.py
 ### Option 2 — Notebook
 Ouvrir `Code/notebook_principal.ipynb` et exécuter les cellules.
 
+Dans le notebook, la cellule `RUN_CONFIG` permet de régler:
+- `max_samples`
+- `distilbert_epochs`
+
 ## Ce que le pipeline produit
 
 - `Outputs/figures/` :
@@ -62,6 +66,7 @@ Ouvrir `Code/notebook_principal.ipynb` et exécuter les cellules.
 - `Outputs/reports/eda_summary.json`
 - `Outputs/reports/metrics_report.json`
 - `Outputs/models/best_model.joblib`
+  - si meilleur modèle deep learning: `Outputs/reports/best_model_deep_learning_note.json`
 
 ## Modèles implémentés
 
@@ -71,6 +76,7 @@ Ouvrir `Code/notebook_principal.ipynb` et exécuter les cellules.
 - KNN
 - Decision Tree
 - Random Forest
+- DistilBERT (fine-tuning, si dépendances deep learning installées)
 
 Chaque modèle est entraîné avec `GridSearchCV` et évalué avec:
 - accuracy
@@ -82,3 +88,8 @@ Chaque modèle est entraîné avec `GridSearchCV` et évalué avec:
 
 Sélection finale du meilleur modèle via score pondéré:
 `0.35 * val_f1_macro + 0.40 * test_f1_macro + 0.25 * cv_f1_macro_mean`.
+
+Note DistilBERT:
+- entraîné via fine-tuning direct (pas de GridSearchCV complet pour limiter le coût de calcul);
+- si `transformers/torch/datasets` ne sont pas disponibles, le pipeline continue avec les modèles classiques.
+- `best_cv_score` peut être `NaN` pour DistilBERT car il n'est pas optimisé via `GridSearchCV`; la stabilité est couverte par le fallback documenté dans `model_selection_method`.

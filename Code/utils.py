@@ -29,14 +29,25 @@ MODEL_LABEL = "Modèle"
 
 
 def ensure_dir(path: str | Path) -> Path:
-    """Crée le dossier demandé si nécessaire."""
+    """Crée un dossier s'il n'existe pas.
+
+    Paramètres:
+        path: Chemin du dossier à créer.
+
+    Retour:
+        Objet `Path` du dossier.
+    """
     folder = Path(path)
     folder.mkdir(parents=True, exist_ok=True)
     return folder
 
 
 def get_device() -> str:
-    """Sélectionne CUDA si disponible, sinon CPU."""
+    """Détecte le device de calcul.
+
+    Retour:
+        `"cuda"` si disponible, sinon `"cpu"`.
+    """
     try:
         import torch
 
@@ -46,7 +57,15 @@ def get_device() -> str:
 
 
 def compute_metrics(y_true: pd.Series, y_pred: np.ndarray) -> dict[str, float]:
-    """Retourne les métriques principales en macro moyenne."""
+    """Calcule les métriques principales de classification.
+
+    Paramètres:
+        y_true: Labels de référence.
+        y_pred: Labels prédits.
+
+    Retour:
+        Dictionnaire avec accuracy, precision_macro, recall_macro, f1_macro.
+    """
     precision, recall, f1, _ = precision_recall_fscore_support(
         y_true,
         y_pred,
@@ -62,7 +81,13 @@ def compute_metrics(y_true: pd.Series, y_pred: np.ndarray) -> dict[str, float]:
 
 
 def plot_class_distribution(y: pd.Series, class_names: dict[int, str], save_path: str | Path) -> None:
-    """Affiche et sauvegarde la distribution des classes."""
+    """Trace la distribution des classes puis sauvegarde la figure.
+
+    Paramètres:
+        y: Labels de classes.
+        class_names: Mapping id -> nom de classe.
+        save_path: Chemin de sortie PNG.
+    """
     plt.figure(figsize=(8, 4))
     counts = y.value_counts().sort_index()
     labels = [class_names.get(int(i), str(i)) for i in counts.index]
@@ -76,7 +101,12 @@ def plot_class_distribution(y: pd.Series, class_names: dict[int, str], save_path
 
 
 def plot_missing_values(df: pd.DataFrame, save_path: str | Path) -> None:
-    """Visualise les valeurs manquantes par variable."""
+    """Visualise les valeurs manquantes par variable.
+
+    Paramètres:
+        df: Données à analyser.
+        save_path: Chemin de sortie PNG.
+    """
     missing = df.isna().sum().sort_values(ascending=False)
     missing = missing[missing > 0]
     plt.figure(figsize=(10, 4))
@@ -94,7 +124,12 @@ def plot_missing_values(df: pd.DataFrame, save_path: str | Path) -> None:
 
 
 def plot_numeric_correlation(df: pd.DataFrame, save_path: str | Path) -> None:
-    """Affiche la heatmap de corrélation des variables numériques."""
+    """Trace la heatmap de corrélation des variables numériques.
+
+    Paramètres:
+        df: Données à analyser.
+        save_path: Chemin de sortie PNG.
+    """
     numeric = df.select_dtypes(include=["number"])
     plt.figure(figsize=(8, 6))
     if numeric.shape[1] < 2:
@@ -110,7 +145,13 @@ def plot_numeric_correlation(df: pd.DataFrame, save_path: str | Path) -> None:
 
 
 def plot_text_length(df: pd.DataFrame, class_names: dict[int, str], save_path: str | Path) -> None:
-    """Histogramme des longueurs de tweet."""
+    """Trace l'histogramme des longueurs de tweets.
+
+    Paramètres:
+        df: Données contenant `tweet_length` et `class`.
+        class_names: Mapping id -> nom de classe.
+        save_path: Chemin de sortie PNG.
+    """
     plt.figure(figsize=(8, 4))
     sns.histplot(data=df, x="tweet_length", hue="class", bins=40, kde=True, element="step")
     plt.title("Distribution de la longueur des tweets")
@@ -123,7 +164,13 @@ def plot_text_length(df: pd.DataFrame, class_names: dict[int, str], save_path: s
 
 
 def plot_word_count_boxplot(df: pd.DataFrame, class_names: dict[int, str], save_path: str | Path) -> None:
-    """Boxplot du nombre de mots par classe."""
+    """Trace le boxplot du nombre de mots par classe.
+
+    Paramètres:
+        df: Données contenant `word_count` et `class`.
+        class_names: Mapping id -> nom de classe.
+        save_path: Chemin de sortie PNG.
+    """
     df_plot = df.copy()
     df_plot["class_name"] = df_plot["class"].map(class_names)
     plt.figure(figsize=(8, 4))
@@ -143,7 +190,15 @@ def plot_confusion_matrix(
     title: str,
     save_path: str | Path,
 ) -> None:
-    """Trace la matrice de confusion annotée."""
+    """Trace la matrice de confusion annotée.
+
+    Paramètres:
+        y_true: Labels de référence.
+        y_pred: Labels prédits.
+        class_names: Mapping id -> nom de classe.
+        title: Titre du graphique.
+        save_path: Chemin de sortie PNG.
+    """
     labels = sorted(class_names.keys())
     cm = confusion_matrix(y_true, y_pred, labels=labels)
     plt.figure(figsize=(6, 5))
@@ -168,7 +223,13 @@ def plot_confusion_matrices_grid(
     class_names: dict[int, str],
     save_path: str | Path,
 ) -> None:
-    """Compile toutes les matrices de confusion dans une seule figure."""
+    """Compile toutes les matrices de confusion dans une figure en grille.
+
+    Paramètres:
+        confusion_by_model: Dictionnaire `{modele: matrice_confusion}`.
+        class_names: Mapping id -> nom de classe.
+        save_path: Chemin de sortie PNG.
+    """
     n_models = len(confusion_by_model)
     if n_models == 0:
         return
@@ -204,7 +265,12 @@ def plot_confusion_matrices_grid(
 
 
 def plot_models_comparison(metrics_by_model: dict[str, dict[str, float]], save_path: str | Path) -> None:
-    """Barplot comparant Accuracy et F1 macro pour chaque modèle."""
+    """Trace un barplot Accuracy/F1 pour comparer les modèles.
+
+    Paramètres:
+        metrics_by_model: Dictionnaire `{modele: metriques}`.
+        save_path: Chemin de sortie PNG.
+    """
     rows: list[dict[str, Any]] = []
     for model_name, metrics in metrics_by_model.items():
         rows.append(
@@ -239,6 +305,11 @@ def plot_models_compilation(
     - barplot accuracy/f1,
     - heatmap métriques macro,
     - barplot score global de sélection.
+
+    Paramètres:
+        report_by_model: Rapport détaillé par modèle.
+        model_selection_scores: Score global de sélection par modèle.
+        save_path: Chemin de sortie PNG.
     """
     rows: list[dict[str, Any]] = []
     for model_name, payload in report_by_model.items():
@@ -295,7 +366,14 @@ def plot_models_compilation(
 
 
 def plot_learning_curves(estimator: Any, X: pd.Series, y: pd.Series, save_path: str | Path) -> None:
-    """Courbes d'apprentissage du meilleur modèle."""
+    """Trace les courbes d'apprentissage du modèle fourni.
+
+    Paramètres:
+        estimator: Modèle sklearn entraînable.
+        X: Features.
+        y: Labels.
+        save_path: Chemin de sortie PNG.
+    """
     train_sizes, train_scores, valid_scores = learning_curve(
         estimator,
         X,
@@ -327,7 +405,16 @@ def plot_feature_importance_from_pipeline(
     save_path: str | Path,
     top_k: int = 20,
 ) -> bool:
-    """Trace les termes importants si le classifieur le permet. Retourne True si figure créée."""
+    """Trace l'importance des features d'un pipeline si disponible.
+
+    Paramètres:
+        model_pipeline: Pipeline sklearn avec étapes `tfidf` et `clf`.
+        save_path: Chemin de sortie PNG.
+        top_k: Nombre maximal de features à afficher.
+
+    Retour:
+        `True` si une figure a été créée, sinon `False`.
+    """
     if not hasattr(model_pipeline, "named_steps"):
         return False
 
@@ -360,7 +447,15 @@ def plot_feature_importance_from_pipeline(
 
 
 def save_model(model: Any, name: str) -> Path:
-    """Sauvegarde un modèle sklearn/pipeline avec joblib."""
+    """Sauvegarde un modèle sklearn/pipeline avec joblib.
+
+    Paramètres:
+        model: Modèle à sauvegarder.
+        name: Nom de fichier sans extension.
+
+    Retour:
+        Chemin du fichier `.joblib`.
+    """
     ensure_dir(MODELS_DIR)
     path = MODELS_DIR / f"{name}.joblib"
     joblib.dump(model, path)
@@ -368,7 +463,15 @@ def save_model(model: Any, name: str) -> Path:
 
 
 def save_json(payload: dict[str, Any], path: str | Path) -> Path:
-    """Sauvegarde un dictionnaire JSON de manière lisible."""
+    """Sauvegarde un dictionnaire JSON lisible (indenté, UTF-8).
+
+    Paramètres:
+        payload: Données à sérialiser.
+        path: Chemin de sortie JSON.
+
+    Retour:
+        Chemin du fichier JSON écrit.
+    """
     out_path = Path(path)
     ensure_dir(out_path.parent)
     with out_path.open("w", encoding="utf-8") as file:
@@ -377,7 +480,16 @@ def save_json(payload: dict[str, Any], path: str | Path) -> Path:
 
 
 def build_classification_report(y_true: pd.Series, y_pred: np.ndarray, class_names: dict[int, str]) -> dict[str, Any]:
-    """Génère un rapport de classification dict (facile à enregistrer en JSON)."""
+    """Construit un rapport de classification structuré.
+
+    Paramètres:
+        y_true: Labels de référence.
+        y_pred: Labels prédits.
+        class_names: Mapping id -> nom de classe.
+
+    Retour:
+        Dictionnaire compatible JSON (sortie `classification_report`).
+    """
     labels = sorted(class_names.keys())
     target_names = [class_names[i] for i in labels]
     return classification_report(y_true, y_pred, labels=labels, target_names=target_names, output_dict=True, zero_division=0)

@@ -1,6 +1,6 @@
 {
   "shape": {
-    "rows": 799,
+    "rows": 201,
     "cols": 9
   },
   "missing_values": {
@@ -27,12 +27,12 @@
   },
   "describe": {
     "count": {
-      "count": 799.0,
+      "count": 201.0,
       "unique": "",
       "top": "",
       "freq": "",
-      "mean": 3.2778473091364204,
-      "std": 0.9246810039751137,
+      "mean": 3.1641791044776117,
+      "std": 0.726574461264084,
       "min": 3.0,
       "25%": 3.0,
       "50%": 3.0,
@@ -40,51 +40,51 @@
       "max": 9.0
     },
     "hate_speech": {
-      "count": 799.0,
+      "count": 201.0,
       "unique": "",
       "top": "",
       "freq": "",
-      "mean": 0.2753441802252816,
-      "std": 0.6521838005595726,
+      "mean": 0.31343283582089554,
+      "std": 0.6973296614345454,
       "min": 0.0,
       "25%": 0.0,
       "50%": 0.0,
       "75%": 0.0,
-      "max": 6.0
+      "max": 5.0
     },
     "offensive_language": {
-      "count": 799.0,
+      "count": 201.0,
       "unique": "",
       "top": "",
       "freq": "",
-      "mean": 2.469336670838548,
-      "std": 1.4548332498973715,
+      "mean": 2.3233830845771144,
+      "std": 1.2328424463460192,
       "min": 0.0,
       "25%": 2.0,
       "50%": 3.0,
       "75%": 3.0,
-      "max": 9.0
+      "max": 6.0
     },
     "neither": {
-      "count": 799.0,
+      "count": 201.0,
       "unique": "",
       "top": "",
       "freq": "",
-      "mean": 0.5331664580725908,
-      "std": 1.0707263882863713,
+      "mean": 0.527363184079602,
+      "std": 1.0442688889542822,
       "min": 0.0,
       "25%": 0.0,
       "50%": 0.0,
       "75%": 0.0,
-      "max": 6.0
+      "max": 4.0
     },
     "class": {
-      "count": 799.0,
+      "count": 201.0,
       "unique": "",
       "top": "",
       "freq": "",
-      "mean": 1.1101376720901126,
-      "std": 0.46197229578761084,
+      "mean": 1.109452736318408,
+      "std": 0.46686207706877964,
       "min": 0.0,
       "25%": 1.0,
       "50%": 1.0,
@@ -92,8 +92,8 @@
       "max": 2.0
     },
     "tweet": {
-      "count": 799,
-      "unique": 799,
+      "count": 201,
+      "unique": 201,
       "top": "@AustinG1135 I do not like talking to you faggot and I did but in a nicely way fag",
       "freq": 1,
       "mean": "",
@@ -105,9 +105,9 @@
       "max": ""
     },
     "clean_tweet": {
-      "count": 799,
-      "unique": 795,
-      "top": "sup bitches",
+      "count": 201,
+      "unique": 200,
+      "top": "pussy",
       "freq": 2,
       "mean": "",
       "std": "",
@@ -118,104 +118,104 @@
       "max": ""
     },
     "tweet_length": {
-      "count": 799.0,
+      "count": 201.0,
       "unique": "",
       "top": "",
       "freq": "",
-      "mean": 85.1314142678348,
-      "std": 41.739813511289675,
-      "min": 8.0,
-      "25%": 49.0,
-      "50%": 85.0,
-      "75%": 119.0,
+      "mean": 85.32835820895522,
+      "std": 44.769539217988886,
+      "min": 11.0,
+      "25%": 46.0,
+      "50%": 78.0,
+      "75%": 120.0,
       "max": 300.0
     },
     "word_count": {
-      "count": 799.0,
+      "count": 201.0,
       "unique": "",
       "top": "",
       "freq": "",
-      "mean": 13.2090112640801,
-      "std": 7.129318822004508,
-      "min": 0.0,
+      "mean": 13.552238805970148,
+      "std": 7.714823877619409,
+      "min": 1.0,
       "25%": 7.0,
       "50%": 12.0,
-      "75%": 18.0,
+      "75%": 20.0,
       "max": 32.0
     }
   },
   "class_distribution": {
-    "0": 46,
-    "1": 619,
-    "2": 134
+    "0": 12,
+    "1": 155,
+    "2": 34
   },
   "class_distribution_pct": {
-    "0": 5.76,
-    "1": 77.47,
-    "2": 16.77
+    "0": 5.97,
+    "1": 77.11,
+    "2": 16.92
   },
   "correlation": {
     "count": {
       "count": 1.0,
-      "hate_speech": 0.129,
-      "offensive_language": 0.585,
-      "neither": -0.009,
-      "class": -0.057,
-      "tweet_length": -0.031,
-      "word_count": -0.018
+      "hate_speech": 0.342,
+      "offensive_language": 0.326,
+      "neither": 0.083,
+      "class": -0.127,
+      "tweet_length": -0.037,
+      "word_count": -0.044
     },
     "hate_speech": {
-      "count": 0.129,
+      "count": 0.342,
       "hate_speech": 1.0,
-      "offensive_language": -0.275,
-      "neither": -0.124,
-      "class": -0.513,
-      "tweet_length": 0.032,
-      "word_count": 0.029
+      "offensive_language": -0.299,
+      "neither": -0.077,
+      "class": -0.536,
+      "tweet_length": 0.033,
+      "word_count": 0.005
     },
     "offensive_language": {
-      "count": 0.585,
-      "hate_speech": -0.275,
+      "count": 0.326,
+      "hate_speech": -0.299,
       "offensive_language": 1.0,
-      "neither": -0.686,
-      "class": -0.388,
-      "tweet_length": -0.139,
-      "word_count": -0.047
+      "neither": -0.755,
+      "class": -0.418,
+      "tweet_length": -0.104,
+      "word_count": -0.039
     },
     "neither": {
-      "count": -0.009,
-      "hate_speech": -0.124,
-      "offensive_language": -0.686,
+      "count": 0.083,
+      "hate_speech": -0.077,
+      "offensive_language": -0.755,
       "neither": 1.0,
-      "class": 0.791,
-      "tweet_length": 0.142,
-      "word_count": 0.03
+      "class": 0.763,
+      "tweet_length": 0.074,
+      "word_count": 0.013
     },
     "class": {
-      "count": -0.057,
-      "hate_speech": -0.513,
-      "offensive_language": -0.388,
-      "neither": 0.791,
+      "count": -0.127,
+      "hate_speech": -0.536,
+      "offensive_language": -0.418,
+      "neither": 0.763,
       "class": 1.0,
-      "tweet_length": 0.079,
-      "word_count": 0.011
+      "tweet_length": 0.052,
+      "word_count": 0.022
     },
     "tweet_length": {
-      "count": -0.031,
-      "hate_speech": 0.032,
-      "offensive_language": -0.139,
-      "neither": 0.142,
-      "class": 0.079,
+      "count": -0.037,
+      "hate_speech": 0.033,
+      "offensive_language": -0.104,
+      "neither": 0.074,
+      "class": 0.052,
       "tweet_length": 1.0,
-      "word_count": 0.806
+      "word_count": 0.793
     },
     "word_count": {
-      "count": -0.018,
-      "hate_speech": 0.029,
-      "offensive_language": -0.047,
-      "neither": 0.03,
-      "class": 0.011,
-      "tweet_length": 0.806,
+      "count": -0.044,
+      "hate_speech": 0.005,
+      "offensive_language": -0.039,
+      "neither": 0.013,
+      "class": 0.022,
+      "tweet_length": 0.793,
       "word_count": 1.0
     }
   }

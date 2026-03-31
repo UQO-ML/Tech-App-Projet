@@ -23,7 +23,9 @@ seaborn>=0.12
 # Notebook (présentation des résultats)
 jupyter>=1.0
 
-# Optionnel — apprentissage profond (décommenter si le sujet l’exige)
-# Pour GPU : installer une build CUDA (priorité) depuis README ; sinon build CPU (repli automatique).
-# torch>=2.0
-# tensorflow>=2.13
+# Deep learning (DistilBERT)
+# Pour GPU: installer une build torch CUDA adaptée à votre machine.
+torch>=2.0
+transformers>=4.42
+datasets>=2.20
+accelerate>=0.33

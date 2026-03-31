@@ -17,12 +17,26 @@ CLASS_LABELS = {
 
 
 def load_data(path_or_url: str | Path) -> pd.DataFrame:
-    """Charge un CSV local ou distant et retourne un DataFrame."""
+    """Charge les données brutes.
+
+    Paramètres:
+        path_or_url: Chemin local ou URL vers un CSV.
+
+    Retour:
+        DataFrame pandas contenant les colonnes du dataset.
+    """
     return pd.read_csv(path_or_url, encoding="utf-8")
 
 
 def clean_text(text: str) -> str:
-    """Nettoyage minimal: minuscules, suppression URL/mentions/symboles, espaces propres."""
+    """Nettoie un tweet avant vectorisation.
+
+    Paramètres:
+        text: Texte brut d'un tweet.
+
+    Retour:
+        Texte normalisé (minuscules, sans URL/mentions/symboles parasites).
+    """
     if not isinstance(text, str):
         return ""
     text = text.lower()
@@ -35,7 +49,14 @@ def clean_text(text: str) -> str:
 
 
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
-    """Nettoie les lignes invalides puis crée des variables utiles à l'EDA."""
+    """Nettoie le dataset et crée des features EDA simples.
+
+    Paramètres:
+        df: DataFrame brut.
+
+    Retour:
+        DataFrame nettoyé avec `clean_tweet`, `tweet_length` et `word_count`.
+    """
     clean_df = df.copy()
 
     # Supprime les colonnes inutiles fréquentes dans le dataset Kaggle.
@@ -52,7 +73,15 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def exploratory_summary(df: pd.DataFrame, target_column: str = "class") -> dict[str, Any]:
-    """Retourne un résumé EDA exploitable dans le notebook et le rapport."""
+    """Construit un résumé EDA prêt pour reporting JSON.
+
+    Paramètres:
+        df: Données à analyser.
+        target_column: Colonne cible de classification.
+
+    Retour:
+        Dictionnaire (shape, types, manquants, stats, distribution, corrélations).
+    """
     numeric_df = df.select_dtypes(include=["number"])
     summary = {
         "shape": {"rows": int(df.shape[0]), "cols": int(df.shape[1])},
@@ -73,7 +102,18 @@ def train_val_test_split(
     val_size: float = 0.1,
     random_state: int = 42,
 ) -> tuple[pd.Series, pd.Series, pd.Series, pd.Series, pd.Series, pd.Series]:
-    """Split stratifié: train/val/test."""
+    """Découpe les données en train/validation/test de façon stratifiée.
+
+    Paramètres:
+        x: Série des textes.
+        y: Série des labels.
+        test_size: Proportion du test.
+        val_size: Proportion de validation (relative à l'ensemble global).
+        random_state: Seed de reproductibilité.
+
+    Retour:
+        Tuple `(x_train, x_val, x_test, y_train, y_val, y_test)`.
+    """
     x_train_val, x_test, y_train_val, y_test = train_test_split(
         x,
         y,

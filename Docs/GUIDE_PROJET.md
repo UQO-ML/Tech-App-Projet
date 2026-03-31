@@ -19,8 +19,9 @@ Le pipeline complet est dans les scripts Python du dossier `Code/`, puis appelé
   - crée des variables EDA (`tweet_length`, `word_count`);
   - prépare le split `train/validation/test`.
 - `Code/models.py`
-  - définit plusieurs modèles pertinents pour texte (`NaiveBayes`, `LogisticRegression`, `LinearSVC`, `KNN`, `DecisionTree`, `RandomForest`);
+  - définit plusieurs modèles pertinents pour texte (`NaiveBayes`, `LogisticRegression`, `LinearSVC`, `KNN`, `DecisionTree`, `RandomForest`, `DistilBERT`);
   - applique GridSearchCV pour régler les hyperparamètres;
+  - applique aussi un fine-tuning DistilBERT (si dépendances deep installées);
   - calcule un score global de sélection pour retenir le meilleur modèle.
 - `Code/utils.py`
   - calcule les métriques (`accuracy`, `precision`, `recall`, `f1`);
@@ -48,6 +49,10 @@ python main.py
 
 Ou dans le notebook, exécuter les cellules de haut en bas.
 
+Le notebook contient une cellule `RUN_CONFIG` pour ajuster facilement:
+- la taille d'échantillon (`max_samples`);
+- le nombre d'epochs DistilBERT (`distilbert_epochs`).
+
 ## 5) Sorties générées
 
 Le pipeline crée automatiquement:
@@ -57,3 +62,7 @@ Le pipeline crée automatiquement:
 - `Outputs/reports/eda_summary.json` : résumé EDA;
 - `Outputs/reports/metrics_report.json` : résultats détaillés de tous les modèles;
 - `Outputs/models/best_model.joblib` : meilleur modèle sauvegardé.
+
+Remarque DistilBERT:
+- `best_cv_score` est vide (`NaN`) car DistilBERT est entraîné en fine-tuning direct (pas de GridSearchCV complet).
+- Le report inclut alors un fallback de stabilité via `cv_fallback_for_models`.

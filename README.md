@@ -58,6 +58,10 @@ Dans le notebook, chaque paramètre de `RUN_CONFIG` est défini via une constant
 - `SELECTION_WEIGHTS`: tuple `(validation, test, cv)` (somme idéalement = 1.0);
 - `RANDOM_STATE`: seed de reproductibilité.
 
+Pour la comparaison multi-runs, une règle dédiée est aussi paramétrable:
+- `DISTILBERT_PROXY_PENALTY`: `float` (recommandé: `0.00` à `0.05`) appliqué comme malus
+  aux runs où DistilBERT est évalué avec CV proxy.
+
 ## Ce que le pipeline produit
 
 - `Outputs/figures/` :
@@ -103,6 +107,12 @@ Note DistilBERT:
 - entraîné via fine-tuning direct (pas de GridSearchCV complet pour limiter le coût de calcul);
 - si `transformers/torch/datasets` ne sont pas disponibles, le pipeline continue avec les modèles classiques.
 - `best_cv_score` peut être `NaN` pour DistilBERT car il n'est pas optimisé via `GridSearchCV`; la stabilité est couverte par le fallback documenté dans `model_selection_method`.
+- lors de la comparaison inter-runs, un score ajusté est utilisé:
+  `adjusted_selection_score = best_selection_score - DISTILBERT_PROXY_PENALTY`
+  quand DistilBERT est en mode CV proxy.
+
+La figure `runs_comparison_overview.png` est volontairement zoomée sur l'intervalle `[0.6, 0.8]`
+pour mieux visualiser les écarts fins entre runs.
 
 Le notebook inclut aussi un **interpréteur de résultats** (script dédié `Code/result_interpreter.py`) qui imprime:
 - le meilleur modèle et son score global;

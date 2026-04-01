@@ -409,27 +409,36 @@ def plot_model_status_overview(
 
 
 def plot_runs_comparison(run_summary: pd.DataFrame, save_path: str | Path) -> None:
-    """Trace une comparaison inter-runs sur score global et F1 test.
+    """Trace une comparaison inter-runs sur score brut/ajusté et F1 test.
 
     Paramètres:
-        run_summary: DataFrame contenant `run`, `best_selection_score`, `best_test_f1_macro`.
+        run_summary: DataFrame contenant `run`, `best_selection_score`, `best_test_f1_macro`
+            et optionnellement `adjusted_selection_score`.
         save_path: Chemin de sortie PNG.
     """
     if run_summary.empty:
         return
 
     frame = run_summary.copy()
-    frame = frame.sort_values("best_selection_score", ascending=False)
+    if "adjusted_selection_score" in frame.columns:
+        frame = frame.sort_values("adjusted_selection_score", ascending=False)
+        comparison_metrics = ["best_selection_score", "adjusted_selection_score", "best_test_f1_macro"]
+        ranking_metric = "adjusted_selection_score"
+    else:
+        frame = frame.sort_values("best_selection_score", ascending=False)
+        comparison_metrics = ["best_selection_score", "best_test_f1_macro"]
+        ranking_metric = "best_selection_score"
+
     melted = frame.melt(
         id_vars="run",
-        value_vars=["best_selection_score", "best_test_f1_macro"],
+        value_vars=comparison_metrics,
         var_name="metric",
         value_name="score",
     )
 
     fig, axes = plt.subplots(1, 2, figsize=(15, 5))
     sns.barplot(data=melted, x="run", y="score", hue="metric", ax=axes[0])
-    axes[0].set_ylim(0, 1)
+    axes[0].set_ylim(0.6, 0.8)
     axes[0].set_title("Comparaison des runs")
     axes[0].set_xlabel("Run")
     axes[0].set_ylabel("Score")
@@ -437,14 +446,14 @@ def plot_runs_comparison(run_summary: pd.DataFrame, save_path: str | Path) -> No
 
     rank = frame[["run", "best_model"]].reset_index(drop=True)
     rank["order"] = rank.index + 1
-    sns.barplot(data=frame, x="run", y="best_selection_score", color="#4575b4", ax=axes[1])
-    axes[1].set_ylim(0, 1)
-    axes[1].set_title("Score global par run (ordre décroissant)")
+    sns.barplot(data=frame, x="run", y=ranking_metric, color="#4575b4", ax=axes[1])
+    axes[1].set_ylim(0.6, 0.8)
+    axes[1].set_title("Classement inter-runs (ordre décroissant)")
     axes[1].set_xlabel("Run")
-    axes[1].set_ylabel("best_selection_score")
+    axes[1].set_ylabel(ranking_metric)
     axes[1].tick_params(axis="x", rotation=20)
     for idx, row in rank.iterrows():
-        axes[1].text(idx, row["order"] * 0 + frame.iloc[idx]["best_selection_score"] + 0.01, f"#{row['order']} {row['best_model']}", ha="center", fontsize=8)
+        axes[1].text(idx, row["order"] * 0 + frame.iloc[idx][ranking_metric] + 0.01, f"#{row['order']} {row['best_model']}", ha="center", fontsize=8)
 
     fig.suptitle("Vue comparative inter-runs", fontsize=14)
     plt.tight_layout()

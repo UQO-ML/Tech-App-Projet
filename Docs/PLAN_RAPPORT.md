@@ -39,7 +39,8 @@ Utilise ce gabarit pour produire `Rapport_INF6243_NomEtudiants.pdf`.
 - Détailler les constantes utilisées:
   - `MAX_SAMPLES`, `DISTILBERT_EPOCHS`, `INCLUDE_DISTILBERT`;
   - `TEST_SIZE`, `VAL_SIZE`, `CV_FOLDS`;
-  - `SCORING`, `SELECTION_WEIGHTS`, `RANDOM_STATE`.
+  - `SCORING`, `SELECTION_WEIGHTS`, `RANDOM_STATE`;
+  - `DISTILBERT_PROXY_PENALTY` (règle de compensation DistilBERT CV proxy).
 - Expliquer l'impact attendu de chaque constante sur temps d'exécution et qualité des résultats.
 
 ### 5.2 Stratégie multi-runs (A/B/C)
@@ -61,13 +62,14 @@ Utilise ce gabarit pour produire `Rapport_INF6243_NomEtudiants.pdf`.
 - Tableau de statut d'exécution (trained/skipped/failed) avec causes (`error_or_reason`).
 - Tableau de comparaison inter-runs (`metrics_report_run_*.json`) avec:
   - meilleur modèle par run;
-  - score de sélection du meilleur;
+  - score de sélection du meilleur et score ajusté (`adjusted_selection_score`);
   - F1 macro test du meilleur.
 - Figure `models_comparison_test.png`.
 - Figure `models_compilation_overview.png`.
 - Figure `models_status_overview.png`.
 - Matrices de confusion.
 - Figure `confusion_matrices_all_models.png`.
+- Figure `runs_comparison_overview.png` (échelle zoomée entre 0.6 et 0.8).
 - Analyse d’erreurs: classes confondues et explications possibles.
 - Sortie de l'interpréteur du notebook:
   - top-3 des modèles,

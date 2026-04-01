@@ -56,6 +56,7 @@ Le notebook contient des constantes (une par paramètre) pour ajuster facilement
 - `MAX_SAMPLES`, `DISTILBERT_EPOCHS`, `INCLUDE_DISTILBERT`;
 - `TEST_SIZE`, `VAL_SIZE`, `CV_FOLDS`;
 - `SCORING`, `SELECTION_WEIGHTS`, `RANDOM_STATE`.
+- `DISTILBERT_PROXY_PENALTY` pour la comparaison inter-runs.
 
 Chaque constante est commentée dans le notebook pour préciser son impact et les valeurs recommandées.
 
@@ -73,5 +74,11 @@ Le pipeline crée automatiquement:
 Remarque DistilBERT:
 - `best_cv_score` est vide (`NaN`) car DistilBERT est entraîné en fine-tuning direct (pas de GridSearchCV complet).
 - Le report inclut alors un fallback de stabilité via `cv_fallback_for_models`.
+- En comparaison multi-runs, ce cas peut recevoir un malus contrôlé:
+  `adjusted_selection_score = best_selection_score - DISTILBERT_PROXY_PENALTY`.
+
+Remarque graphique:
+- `runs_comparison_overview.png` utilise une échelle Y zoomée sur `[0.6, 0.8]`
+  pour rendre les différences entre runs plus lisibles.
 
 Le notebook inclut un interpréteur de résultats (via `Code/result_interpreter.py`) qui affiche un diagnostic synthétique après exécution.

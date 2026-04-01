@@ -17,13 +17,13 @@
   "best_model_cv_f1_macro_scores": [
     0.7304579514121734
   ],
-  "best_model_selection_score": 0.7411926155126333,
+  "best_model_selection_score": 0.7399998750570267,
   "model_selection_method": {
     "formula": "selection_score = w_val * val_f1_macro + w_test * test_f1_macro + w_cv * cv_f1_macro_mean",
     "weights": {
-      "validation": 0.35,
-      "test": 0.45,
-      "cv": 0.2
+      "validation": 0.45,
+      "test": 0.4,
+      "cv": 0.15
     },
     "why_this_formula": "Le F1 test reçoit le plus de poids pour refléter la performance hors entraînement; la validation sert de garde-fou pendant le tuning; la CV ajoute une mesure de stabilité.",
     "tie_break_rule": "En cas d'égalité, choisir le meilleur f1_macro test puis accuracy test.",
@@ -33,14 +33,14 @@
     "cv_fallback_explanation": "Pour les modèles deep learning coûteux (ex. DistilBERT), le terme CV peut être approché par le score validation afin de garder un temps d'exécution raisonnable."
   },
   "model_selection_scores": {
-    "NaiveBayes": 0.5195812040852507,
-    "LogisticRegression": 0.7291695186131812,
-    "LinearSVC": 0.7265133795746662,
-    "KNN": 0.3572576894225955,
-    "DecisionTree": 0.6965337045174536,
-    "RandomForest": 0.7325455428141164,
-    "MLPClassifier": 0.574706422908869,
-    "DistilBERT": 0.7411926155126333
+    "NaiveBayes": 0.5196362924365732,
+    "LogisticRegression": 0.7287419079958689,
+    "LinearSVC": 0.7251756590989752,
+    "KNN": 0.35711250403995676,
+    "DecisionTree": 0.6959880305917647,
+    "RandomForest": 0.7334419921951126,
+    "MLPClassifier": 0.5754275433741558,
+    "DistilBERT": 0.7399998750570267
   },
   "model_selection_ranking": [
     "DistilBERT",
@@ -62,7 +62,7 @@
     "MLPClassifier": "Réseau de neurones dense classique pour satisfaire explicitement l'exigence NN.",
     "DistilBERT": "Modèle Transformer pré-entraîné qui capte mieux le contexte sémantique des tweets; souvent plus performant sur la détection de nuances offensantes/haineuses."
   },
-  "best_model_selection_explanation": "Le modèle DistilBERT obtient le meilleur score global pondéré (0.7412) en combinant validation, test et CV. Il est retenu pour son compromis entre performance et robustesse.",
+  "best_model_selection_explanation": "Le modèle DistilBERT obtient le meilleur score global pondéré (0.7400) en combinant validation, test et CV. Il est retenu pour son compromis entre performance et robustesse.",
   "distilbert_included": true,
   "distilbert_note": "DistilBERT inclus dans la comparaison.",
   "expected_models": [
@@ -117,9 +117,9 @@
     "cv_folds": 3,
     "scoring": "f1_macro",
     "selection_weights": [
-      0.35,
       0.45,
-      0.2
+      0.4,
+      0.15
     ],
     "random_state": 42
   },
@@ -190,7 +190,7 @@
         0.5099172629039945
       ],
       "cv_f1_macro_mean": 0.5151887023908361,
-      "selection_score": 0.5195812040852507,
+      "selection_score": 0.5196362924365732,
       "feature_config": {
         "representation": "TF-IDF sparse vectors",
         "tfidf_ngram_range": [
@@ -269,7 +269,7 @@
         0.7330403522677438
       ],
       "cv_f1_macro_mean": 0.7273416152444523,
-      "selection_score": 0.7291695186131812,
+      "selection_score": 0.7287419079958689,
       "feature_config": {
         "representation": "TF-IDF sparse vectors",
         "tfidf_ngram_range": [
@@ -348,7 +348,7 @@
         0.7374343803457314
       ],
       "cv_f1_macro_mean": 0.7268089331602751,
-      "selection_score": 0.7265133795746662,
+      "selection_score": 0.7251756590989752,
       "feature_config": {
         "representation": "TF-IDF sparse vectors",
         "tfidf_ngram_range": [
@@ -428,7 +428,7 @@
         0.334787413350782
       ],
       "cv_f1_macro_mean": 0.3630545081767589,
-      "selection_score": 0.3572576894225955,
+      "selection_score": 0.35711250403995676,
       "feature_config": {
         "representation": "TF-IDF sparse vectors",
         "tfidf_ngram_range": [
@@ -510,7 +510,7 @@
         0.7018971145203987
       ],
       "cv_f1_macro_mean": 0.6933208652652562,
-      "selection_score": 0.6965337045174536,
+      "selection_score": 0.6959880305917647,
       "feature_config": {
         "representation": "TF-IDF sparse vectors",
         "tfidf_ngram_range": [
@@ -592,7 +592,7 @@
         0.7373609162580118
       ],
       "cv_f1_macro_mean": 0.7254795028744687,
-      "selection_score": 0.7325455428141164,
+      "selection_score": 0.7334419921951126,
       "feature_config": {
         "representation": "TF-IDF sparse vectors",
         "tfidf_ngram_range": [
@@ -677,7 +677,7 @@
         0.5770848687008464
       ],
       "cv_f1_macro_mean": 0.5703144296647736,
-      "selection_score": 0.574706422908869,
+      "selection_score": 0.5754275433741558,
       "feature_config": {
         "representation": "TF-IDF sparse vectors",
         "tfidf_ngram_range": [
@@ -752,7 +752,7 @@
       },
       "cv_f1_macro_scores": [],
       "cv_f1_macro_mean": 0.7304579514121734,
-      "selection_score": 0.7411926155126333,
+      "selection_score": 0.7399998750570267,
       "feature_config": {
         "representation": "Transformer embeddings",
         "tfidf_ngram_range": null,

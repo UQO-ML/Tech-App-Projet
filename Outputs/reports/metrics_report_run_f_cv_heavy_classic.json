@@ -1,0 +1,705 @@
+{
+  "dataset_path": "/home/kilo/Work/Cours - UQO/Technique d'Apprentissage/Tech-App-Devoir-II/Data/labeled_data.csv",
+  "n_samples": 24783,
+  "best_model": "RandomForest",
+  "best_model_validation_metrics": {
+    "accuracy": 0.872932634126664,
+    "precision_macro": 0.7008470242981123,
+    "recall_macro": 0.7826437451437451,
+    "f1_macro": 0.7342119016669986
+  },
+  "best_model_test_metrics": {
+    "accuracy": 0.8737139398829937,
+    "precision_macro": 0.6988606166549651,
+    "recall_macro": 0.7612085870435589,
+    "f1_macro": 0.725082427229971
+  },
+  "best_model_cv_f1_macro_scores": [
+    0.7383292459227522,
+    0.7191439621287189,
+    0.7186819517762392,
+    0.7325361393997406,
+    0.7409934662873422
+  ],
+  "best_model_selection_score": 0.7309187536476265,
+  "model_selection_method": {
+    "formula": "selection_score = w_val * val_f1_macro + w_test * test_f1_macro + w_cv * cv_f1_macro_mean",
+    "weights": {
+      "validation": 0.4,
+      "test": 0.15,
+      "cv": 0.45
+    },
+    "why_this_formula": "Le F1 test reçoit le plus de poids pour refléter la performance hors entraînement; la validation sert de garde-fou pendant le tuning; la CV ajoute une mesure de stabilité.",
+    "tie_break_rule": "En cas d'égalité, choisir le meilleur f1_macro test puis accuracy test.",
+    "cv_fallback_for_models": [],
+    "cv_fallback_explanation": "Pour les modèles deep learning coûteux (ex. DistilBERT), le terme CV peut être approché par le score validation afin de garder un temps d'exécution raisonnable."
+  },
+  "model_selection_scores": {
+    "NaiveBayes": 0.5201523139875954,
+    "LogisticRegression": 0.7286048753867812,
+    "LinearSVC": 0.7260715514909852,
+    "KNN": 0.367474196772607,
+    "DecisionTree": 0.6932655403869981,
+    "RandomForest": 0.7309187536476265,
+    "MLPClassifier": 0.5992234444643103
+  },
+  "model_selection_ranking": [
+    "RandomForest",
+    "LogisticRegression",
+    "LinearSVC",
+    "DecisionTree",
+    "MLPClassifier",
+    "NaiveBayes",
+    "KNN"
+  ],
+  "model_rationales": {
+    "NaiveBayes": "Baseline rapide en texte; robuste avec des comptes/poids TF-IDF.",
+    "LogisticRegression": "Très adaptée aux données textuelles clairsemées; excellent compromis performance/interprétabilité.",
+    "LinearSVC": "SVM linéaire performant sur grands espaces de features TF-IDF.",
+    "KNN": "Référence non paramétrique utile comme comparaison.",
+    "DecisionTree": "Modèle interprétable pour analyser des règles décisionnelles.",
+    "RandomForest": "Ensemble d'arbres plus stable qu'un arbre simple; capture des interactions non linéaires.",
+    "MLPClassifier": "Réseau de neurones dense classique pour satisfaire explicitement l'exigence NN.",
+    "DistilBERT": "Modèle Transformer pré-entraîné qui capte mieux le contexte sémantique des tweets; souvent plus performant sur la détection de nuances offensantes/haineuses."
+  },
+  "best_model_selection_explanation": "Le modèle RandomForest obtient le meilleur score global pondéré (0.7309) en combinant validation, test et CV. Il est retenu pour son compromis entre performance et robustesse.",
+  "distilbert_included": false,
+  "distilbert_note": "DistilBERT ignoré: dépendances deep learning non disponibles dans l'environnement courant.",
+  "expected_models": [
+    "NaiveBayes",
+    "LogisticRegression",
+    "LinearSVC",
+    "KNN",
+    "DecisionTree",
+    "RandomForest",
+    "MLPClassifier"
+  ],
+  "trained_models": [
+    "NaiveBayes",
+    "LogisticRegression",
+    "LinearSVC",
+    "KNN",
+    "DecisionTree",
+    "RandomForest",
+    "MLPClassifier"
+  ],
+  "model_execution_status": {
+    "NaiveBayes": "trained",
+    "LogisticRegression": "trained",
+    "LinearSVC": "trained",
+    "KNN": "trained",
+    "DecisionTree": "trained",
+    "RandomForest": "trained",
+    "MLPClassifier": "trained"
+  },
+  "artifacts_generated": {
+    "figures_dir": "/home/kilo/Work/Cours - UQO/Technique d'Apprentissage/Tech-App-Devoir-II/Outputs/figures",
+    "reports_dir": "/home/kilo/Work/Cours - UQO/Technique d'Apprentissage/Tech-App-Devoir-II/Outputs/reports",
+    "models_dir": "/home/kilo/Work/Cours - UQO/Technique d'Apprentissage/Tech-App-Devoir-II/Outputs/models",
+    "main_figures": [
+      "models_compilation_overview.png",
+      "models_status_overview.png",
+      "confusion_matrices_all_models.png",
+      "models_comparison_test.png",
+      "learning_curve_best_model.png",
+      "feature_importance_best_model.png"
+    ]
+  },
+  "run_config": {
+    "max_samples": null,
+    "distilbert_epochs": 1,
+    "include_distilbert": false,
+    "test_size": 0.2,
+    "val_size": 0.1,
+    "cv_folds": 5,
+    "scoring": "f1_macro",
+    "selection_weights": [
+      0.4,
+      0.15,
+      0.45
+    ],
+    "random_state": 42
+  },
+  "all_models": {
+    "NaiveBayes": {
+      "status": "trained",
+      "error": null,
+      "model_why": "Baseline rapide en texte; robuste avec des comptes/poids TF-IDF.",
+      "tuning": {
+        "best_params": {
+          "clf__alpha": 0.5,
+          "tfidf__min_df": 5,
+          "tfidf__ngram_range": [
+            1,
+            2
+          ]
+        },
+        "best_cv_score": 0.519232775279519
+      },
+      "validation_metrics": {
+        "accuracy": 0.8467123840258168,
+        "precision_macro": 0.7936148429198876,
+        "recall_macro": 0.4942586926961927,
+        "f1_macro": 0.5190993398758891
+      },
+      "test_metrics": {
+        "accuracy": 0.8456727859592496,
+        "precision_macro": 0.8703446995482395,
+        "recall_macro": 0.49193982683501475,
+        "f1_macro": 0.521908210334494
+      },
+      "classification_report_test": {
+        "hate_speech": {
+          "precision": 0.875,
+          "recall": 0.024475524475524476,
+          "f1-score": 0.047619047619047616,
+          "support": 286.0
+        },
+        "offensive_language": {
+          "precision": 0.840929203539823,
+          "recall": 0.9903595622720167,
+          "f1-score": 0.9095477386934674,
+          "support": 3838.0
+        },
+        "neither": {
+          "precision": 0.8951048951048951,
+          "recall": 0.460984393757503,
+          "f1-score": 0.6085578446909667,
+          "support": 833.0
+        },
+        "accuracy": 0.8456727859592496,
+        "macro avg": {
+          "precision": 0.8703446995482395,
+          "recall": 0.49193982683501475,
+          "f1-score": 0.521908210334494,
+          "support": 4957.0
+        },
+        "weighted avg": {
+          "precision": 0.8519989228985715,
+          "recall": 0.8456727859592496,
+          "f1-score": 0.809237836060551,
+          "support": 4957.0
+        }
+      },
+      "cv_f1_macro_scores": [
+        0.5379262542498626,
+        0.5183899644875685,
+        0.5063678672897,
+        0.5209340746480842,
+        0.5188968002921812
+      ],
+      "cv_f1_macro_mean": 0.5205029921934793,
+      "selection_score": 0.5201523139875954,
+      "feature_config": {
+        "representation": "TF-IDF sparse vectors",
+        "tfidf_ngram_range": [
+          1,
+          2
+        ],
+        "tfidf_min_df": 5,
+        "tfidf_max_features": null,
+        "deep_model_name": null,
+        "max_length": null
+      }
+    },
+    "LogisticRegression": {
+      "status": "trained",
+      "error": null,
+      "model_why": "Très adaptée aux données textuelles clairsemées; excellent compromis performance/interprétabilité.",
+      "tuning": {
+        "best_params": {
+          "clf__C": 2.0,
+          "tfidf__min_df": 2,
+          "tfidf__ngram_range": [
+            1,
+            2
+          ]
+        },
+        "best_cv_score": 0.7294123255490311
+      },
+      "validation_metrics": {
+        "accuracy": 0.8721258572004841,
+        "precision_macro": 0.694558154645874,
+        "recall_macro": 0.769626554001554,
+        "f1_macro": 0.7257251414947863
+      },
+      "test_metrics": {
+        "accuracy": 0.8737139398829937,
+        "precision_macro": 0.702305353969309,
+        "recall_macro": 0.77484600431601,
+        "f1_macro": 0.7326608800913679
+      },
+      "classification_report_test": {
+        "hate_speech": {
+          "precision": 0.38242894056847543,
+          "recall": 0.5174825174825175,
+          "f1-score": 0.4398216939078752,
+          "support": 286.0
+        },
+        "offensive_language": {
+          "precision": 0.9561084707855745,
+          "recall": 0.8910891089108911,
+          "f1-score": 0.9224544841537424,
+          "support": 3838.0
+        },
+        "neither": {
+          "precision": 0.7683786505538771,
+          "recall": 0.9159663865546218,
+          "f1-score": 0.8357064622124863,
+          "support": 833.0
+        },
+        "accuracy": 0.8737139398829937,
+        "macro avg": {
+          "precision": 0.702305353969309,
+          "recall": 0.77484600431601,
+          "f1-score": 0.7326608800913679,
+          "support": 4957.0
+        },
+        "weighted avg": {
+          "precision": 0.8914622561607825,
+          "recall": 0.8737139398829937,
+          "f1-score": 0.8800308246243126,
+          "support": 4957.0
+        }
+      },
+      "cv_f1_macro_scores": [
+        0.732782889906849,
+        0.7327543194601548,
+        0.722432612527359,
+        0.7240356733233502,
+        0.7370576911729704
+      ],
+      "cv_f1_macro_mean": 0.7298126372781367,
+      "selection_score": 0.7286048753867812,
+      "feature_config": {
+        "representation": "TF-IDF sparse vectors",
+        "tfidf_ngram_range": [
+          1,
+          2
+        ],
+        "tfidf_min_df": 2,
+        "tfidf_max_features": null,
+        "deep_model_name": null,
+        "max_length": null
+      }
+    },
+    "LinearSVC": {
+      "status": "trained",
+      "error": null,
+      "model_why": "SVM linéaire performant sur grands espaces de features TF-IDF.",
+      "tuning": {
+        "best_params": {
+          "clf__C": 0.5,
+          "tfidf__min_df": 2,
+          "tfidf__ngram_range": [
+            1,
+            1
+          ]
+        },
+        "best_cv_score": 0.7326111967168892
+      },
+      "validation_metrics": {
+        "accuracy": 0.8781766841468334,
+        "precision_macro": 0.6977885920873986,
+        "recall_macro": 0.740339695027195,
+        "f1_macro": 0.7169409028668116
+      },
+      "test_metrics": {
+        "accuracy": 0.8876336493847085,
+        "precision_macro": 0.7193235914786289,
+        "recall_macro": 0.7507752208992788,
+        "f1_macro": 0.7338272820871716
+      },
+      "classification_report_test": {
+        "hate_speech": {
+          "precision": 0.4033333333333333,
+          "recall": 0.4230769230769231,
+          "f1-score": 0.4129692832764505,
+          "support": 286.0
+        },
+        "offensive_language": {
+          "precision": 0.9469860064585576,
+          "recall": 0.9168837936425221,
+          "f1-score": 0.931691818903892,
+          "support": 3838.0
+        },
+        "neither": {
+          "precision": 0.8076514346439958,
+          "recall": 0.9123649459783914,
+          "f1-score": 0.8568207440811725,
+          "support": 833.0
+        },
+        "accuracy": 0.8876336493847085,
+        "macro avg": {
+          "precision": 0.7193235914786289,
+          "recall": 0.7507752208992788,
+          "f1-score": 0.7338272820871716,
+          "support": 4957.0
+        },
+        "weighted avg": {
+          "precision": 0.8922048156505398,
+          "recall": 0.8876336493847085,
+          "f1-score": 0.8891817824873551,
+          "support": 4957.0
+        }
+      },
+      "cv_f1_macro_scores": [
+        0.7372235969804241,
+        0.7265675428254363,
+        0.7244343811412367,
+        0.7273261297920915,
+        0.7424605496073089
+      ],
+      "cv_f1_macro_mean": 0.7316024400692995,
+      "selection_score": 0.7260715514909852,
+      "feature_config": {
+        "representation": "TF-IDF sparse vectors",
+        "tfidf_ngram_range": [
+          1,
+          1
+        ],
+        "tfidf_min_df": 2,
+        "tfidf_max_features": null,
+        "deep_model_name": null,
+        "max_length": null
+      }
+    },
+    "KNN": {
+      "status": "trained",
+      "error": null,
+      "model_why": "Référence non paramétrique utile comme comparaison.",
+      "tuning": {
+        "best_params": {
+          "clf__n_neighbors": 11,
+          "clf__weights": "distance",
+          "tfidf__min_df": 2,
+          "tfidf__ngram_range": [
+            1,
+            1
+          ]
+        },
+        "best_cv_score": 0.3713154369425323
+      },
+      "validation_metrics": {
+        "accuracy": 0.5465913674868899,
+        "precision_macro": 0.3806884919894941,
+        "recall_macro": 0.40215496309246307,
+        "f1_macro": 0.3668216700701555
+      },
+      "test_metrics": {
+        "accuracy": 0.5600161387936252,
+        "precision_macro": 0.380512371136094,
+        "recall_macro": 0.3945456010672926,
+        "f1_macro": 0.36691949876720625
+      },
+      "classification_report_test": {
+        "hate_speech": {
+          "precision": 0.07407407407407407,
+          "recall": 0.25874125874125875,
+          "f1-score": 0.11517509727626458,
+          "support": 286.0
+        },
+        "offensive_language": {
+          "precision": 0.8125823451910409,
+          "recall": 0.6427826993225638,
+          "f1-score": 0.7177771312190864,
+          "support": 3838.0
+        },
+        "neither": {
+          "precision": 0.25488069414316705,
+          "recall": 0.28211284513805523,
+          "f1-score": 0.2678062678062678,
+          "support": 833.0
+        },
+        "accuracy": 0.5600161387936252,
+        "macro avg": {
+          "precision": 0.380512371136094,
+          "recall": 0.3945456010672926,
+          "f1-score": 0.36691949876720625,
+          "support": 4957.0
+        },
+        "weighted avg": {
+          "precision": 0.6762541545793138,
+          "recall": 0.5600161387936252,
+          "f1-score": 0.6073938528389119,
+          "support": 4957.0
+        }
+      },
+      "cv_f1_macro_scores": [
+        0.41739342323744594,
+        0.4010137811397776,
+        0.33635694306502967,
+        0.34887164318506025,
+        0.33755980858895174
+      ],
+      "cv_f1_macro_mean": 0.368239119843253,
+      "selection_score": 0.367474196772607,
+      "feature_config": {
+        "representation": "TF-IDF sparse vectors",
+        "tfidf_ngram_range": [
+          1,
+          1
+        ],
+        "tfidf_min_df": 2,
+        "tfidf_max_features": null,
+        "deep_model_name": null,
+        "max_length": null
+      }
+    },
+    "DecisionTree": {
+      "status": "trained",
+      "error": null,
+      "model_why": "Modèle interprétable pour analyser des règles décisionnelles.",
+      "tuning": {
+        "best_params": {
+          "clf__ccp_alpha": 0.0,
+          "clf__max_depth": 40,
+          "clf__min_samples_leaf": 1,
+          "clf__min_samples_split": 5,
+          "tfidf__min_df": 5,
+          "tfidf__ngram_range": [
+            1,
+            1
+          ]
+        },
+        "best_cv_score": 0.6834708536203233
+      },
+      "validation_metrics": {
+        "accuracy": 0.8483259378781767,
+        "precision_macro": 0.6594446537317483,
+        "recall_macro": 0.7591880341880343,
+        "f1_macro": 0.6952593360676435
+      },
+      "test_metrics": {
+        "accuracy": 0.8559612668952996,
+        "precision_macro": 0.6630531677809615,
+        "recall_macro": 0.7425017686336388,
+        "f1_macro": 0.6942416957265461
+      },
+      "classification_report_test": {
+        "hate_speech": {
+          "precision": 0.2833333333333333,
+          "recall": 0.4160839160839161,
+          "f1-score": 0.3371104815864023,
+          "support": 286.0
+        },
+        "offensive_language": {
+          "precision": 0.9570200573065902,
+          "recall": 0.870244919228765,
+          "f1-score": 0.9115720524017468,
+          "support": 3838.0
+        },
+        "neither": {
+          "precision": 0.7488061127029608,
+          "recall": 0.9411764705882353,
+          "f1-score": 0.8340425531914893,
+          "support": 833.0
+        },
+        "accuracy": 0.8559612668952996,
+        "macro avg": {
+          "precision": 0.6630531677809615,
+          "recall": 0.7425017686336388,
+          "f1-score": 0.6942416957265461,
+          "support": 4957.0
+        },
+        "weighted avg": {
+          "precision": 0.8831615503646547,
+          "recall": 0.8559612668952996,
+          "f1-score": 0.8653993507484619,
+          "support": 4957.0
+        }
+      },
+      "cv_f1_macro_scores": [
+        0.694536935121317,
+        0.691986891699364,
+        0.6775668102264527,
+        0.692717245832516,
+        0.6990315793532252
+      ],
+      "cv_f1_macro_mean": 0.691167892446575,
+      "selection_score": 0.6932655403869981,
+      "feature_config": {
+        "representation": "TF-IDF sparse vectors",
+        "tfidf_ngram_range": [
+          1,
+          1
+        ],
+        "tfidf_min_df": 5,
+        "tfidf_max_features": null,
+        "deep_model_name": null,
+        "max_length": null
+      }
+    },
+    "RandomForest": {
+      "status": "trained",
+      "error": null,
+      "model_why": "Ensemble d'arbres plus stable qu'un arbre simple; capture des interactions non linéaires.",
+      "tuning": {
+        "best_params": {
+          "clf__max_depth": null,
+          "clf__max_features": "sqrt",
+          "clf__min_samples_leaf": 2,
+          "clf__n_estimators": 200,
+          "tfidf__min_df": 5,
+          "tfidf__ngram_range": [
+            1,
+            1
+          ]
+        },
+        "best_cv_score": 0.7261935875345522
+      },
+      "validation_metrics": {
+        "accuracy": 0.872932634126664,
+        "precision_macro": 0.7008470242981123,
+        "recall_macro": 0.7826437451437451,
+        "f1_macro": 0.7342119016669986
+      },
+      "test_metrics": {
+        "accuracy": 0.8737139398829937,
+        "precision_macro": 0.6988606166549651,
+        "recall_macro": 0.7612085870435589,
+        "f1_macro": 0.725082427229971
+      },
+      "classification_report_test": {
+        "hate_speech": {
+          "precision": 0.4055727554179567,
+          "recall": 0.458041958041958,
+          "f1-score": 0.4302134646962233,
+          "support": 286.0
+        },
+        "offensive_language": {
+          "precision": 0.957738595018192,
+          "recall": 0.8916102136529442,
+          "f1-score": 0.9234921063284307,
+          "support": 3838.0
+        },
+        "neither": {
+          "precision": 0.7332704995287465,
+          "recall": 0.9339735894357744,
+          "f1-score": 0.8215417106652587,
+          "support": 833.0
+        },
+        "accuracy": 0.8737139398829937,
+        "macro avg": {
+          "precision": 0.6988606166549651,
+          "recall": 0.7612085870435589,
+          "f1-score": 0.725082427229971,
+          "support": 4957.0
+        },
+        "weighted avg": {
+          "precision": 0.8881599479194681,
+          "recall": 0.8737139398829937,
+          "f1-score": 0.8778995360048009,
+          "support": 4957.0
+        }
+      },
+      "cv_f1_macro_scores": [
+        0.7383292459227522,
+        0.7191439621287189,
+        0.7186819517762392,
+        0.7325361393997406,
+        0.7409934662873422
+      ],
+      "cv_f1_macro_mean": 0.7299369531029586,
+      "selection_score": 0.7309187536476265,
+      "feature_config": {
+        "representation": "TF-IDF sparse vectors",
+        "tfidf_ngram_range": [
+          1,
+          1
+        ],
+        "tfidf_min_df": 5,
+        "tfidf_max_features": null,
+        "deep_model_name": null,
+        "max_length": null
+      }
+    },
+    "MLPClassifier": {
+      "status": "trained",
+      "error": null,
+      "model_why": "Réseau de neurones dense classique pour satisfaire explicitement l'exigence NN.",
+      "tuning": {
+        "best_params": {
+          "clf__alpha": 0.001,
+          "clf__hidden_layer_sizes": [
+            256,
+            128
+          ],
+          "clf__learning_rate_init": 0.001,
+          "svd__n_components": 40,
+          "tfidf__min_df": 2,
+          "tfidf__ngram_range": [
+            1,
+            2
+          ]
+        },
+        "best_cv_score": 0.5957836595528064
+      },
+      "validation_metrics": {
+        "accuracy": 0.8515530455828964,
+        "precision_macro": 0.7178758569931439,
+        "recall_macro": 0.607240675990676,
+        "f1_macro": 0.6018270776896185
+      },
+      "test_metrics": {
+        "accuracy": 0.8616098446641114,
+        "precision_macro": 0.7205225117453334,
+        "recall_macro": 0.6043767962878493,
+        "f1_macro": 0.6023701797882745
+      },
+      "classification_report_test": {
+        "hate_speech": {
+          "precision": 0.5681818181818182,
+          "recall": 0.08741258741258741,
+          "f1-score": 0.15151515151515152,
+          "support": 286.0
+        },
+        "offensive_language": {
+          "precision": 0.9076417004048583,
+          "recall": 0.9346013548723293,
+          "f1-score": 0.9209242618741977,
+          "support": 3838.0
+        },
+        "neither": {
+          "precision": 0.6857440166493236,
+          "recall": 0.7911164465786314,
+          "f1-score": 0.7346711259754738,
+          "support": 833.0
+        },
+        "accuracy": 0.8616098446641114,
+        "macro avg": {
+          "precision": 0.7205225117453334,
+          "recall": 0.6043767962878493,
+          "f1-score": 0.6023701797882745,
+          "support": 4957.0
+        },
+        "weighted avg": {
+          "precision": 0.850767321368314,
+          "recall": 0.8616098446641114,
+          "f1-score": 0.84523334644827,
+          "support": 4957.0
+        }
+      },
+      "cv_f1_macro_scores": [
+        0.6226212751663399,
+        0.6041652865165358,
+        0.5882745838923299,
+        0.57360411283293,
+        0.5906357018165495
+      ],
+      "cv_f1_macro_mean": 0.5958601920449371,
+      "selection_score": 0.5992234444643103,
+      "feature_config": {
+        "representation": "TF-IDF sparse vectors",
+        "tfidf_ngram_range": [
+          1,
+          2
+        ],
+        "tfidf_min_df": 2,
+        "tfidf_max_features": null,
+        "deep_model_name": null,
+        "max_length": null
+      }
+    }
+  }
+}

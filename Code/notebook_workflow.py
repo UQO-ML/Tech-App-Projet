@@ -64,11 +64,12 @@ def build_models_table(report: dict[str, Any]) -> pd.DataFrame:
     return pd.DataFrame(rows).sort_values(["status", "selection_score"], ascending=[True, False])
 
 
-def build_runs_comparison_table(reports_dir: str | Path) -> pd.DataFrame:
+def build_runs_comparison_table(reports_dir: str | Path, distilbert_proxy_penalty: float = 0.01) -> pd.DataFrame:
     """Construit la table de comparaison inter-runs depuis les reports.
 
     Paramètres:
         reports_dir: Dossier contenant `metrics_report_run_*.json`.
+        distilbert_proxy_penalty: Malus appliqué quand un run inclut DistilBERT avec CV proxy.
 
     Retour:
         DataFrame trié par score global décroissant.
@@ -77,25 +78,37 @@ def build_runs_comparison_table(reports_dir: str | Path) -> pd.DataFrame:
     rows: list[dict[str, Any]] = []
     for path in run_report_files:
         run_report = load_report(path)
+        include_distilbert = bool(run_report.get("run_config", {}).get("include_distilbert", False))
+        cv_fallback_models = run_report.get("model_selection_method", {}).get("cv_fallback_for_models", [])
+        distilbert_cv_proxy = include_distilbert and ("DistilBERT" in cv_fallback_models)
+        # Compensation réaliste: léger malus de prudence quand DistilBERT utilise un CV proxy.
+        fairness_penalty = float(distilbert_proxy_penalty) if distilbert_cv_proxy else 0.0
+        base_score = run_report.get("best_model_selection_score")
+        adjusted_score = None if base_score is None else float(base_score - fairness_penalty)
         rows.append(
             {
                 "run": path.stem.replace("metrics_report_", ""),
                 "best_model": run_report.get("best_model"),
-                "best_selection_score": run_report.get("best_model_selection_score"),
+                "best_selection_score": base_score,
+                "adjusted_selection_score": adjusted_score,
                 "best_test_f1_macro": run_report.get("best_model_test_metrics", {}).get("f1_macro"),
+                "include_distilbert": include_distilbert,
+                "distilbert_cv_proxy": distilbert_cv_proxy,
+                "fairness_penalty": fairness_penalty,
                 "distilbert_note": run_report.get("distilbert_note"),
             }
         )
     if not rows:
         return pd.DataFrame()
-    return pd.DataFrame(rows).sort_values("best_selection_score", ascending=False)
+    return pd.DataFrame(rows).sort_values("adjusted_selection_score", ascending=False)
 
 
-def run_all_configs(runs: dict[str, dict[str, Any]]) -> dict[str, Any]:
+def run_all_configs(runs: dict[str, dict[str, Any]], distilbert_proxy_penalty: float = 0.01) -> dict[str, Any]:
     """Exécute tous les runs, snapshot les artefacts, et active le meilleur run.
 
     Paramètres:
         runs: Dictionnaire des runs à exécuter (`why`, `config`).
+        distilbert_proxy_penalty: Malus de prudence appliqué aux runs DistilBERT avec CV proxy.
 
     Retour:
         Dictionnaire contenant artefacts par run, run de référence et table de comparaison.
@@ -135,18 +148,29 @@ def run_all_configs(runs: dict[str, dict[str, Any]]) -> dict[str, Any]:
         shutil.copyfile(report_src, run_report_path)
         run_report = load_report(run_report_path)
 
+        include_distilbert = bool(run_config.get("include_distilbert", False))
+        cv_fallback_models = run_report.get("model_selection_method", {}).get("cv_fallback_for_models", [])
+        distilbert_cv_proxy = include_distilbert and ("DistilBERT" in cv_fallback_models)
+        fairness_penalty = float(distilbert_proxy_penalty) if distilbert_cv_proxy else 0.0
+        base_score = run_report.get("best_model_selection_score")
+        adjusted_score = None if base_score is None else float(base_score - fairness_penalty)
+
         run_summaries.append(
             {
                 "run": run_name,
                 "best_model": run_report.get("best_model"),
-                "best_selection_score": run_report.get("best_model_selection_score"),
+                "best_selection_score": base_score,
+                "adjusted_selection_score": adjusted_score,
                 "best_test_f1_macro": run_report.get("best_model_test_metrics", {}).get("f1_macro"),
+                "include_distilbert": include_distilbert,
+                "distilbert_cv_proxy": distilbert_cv_proxy,
+                "fairness_penalty": fairness_penalty,
                 "report_path": str(run_report_path),
             }
         )
         print(f"Report run sauvegarde: {run_report_path}")
 
-    run_summary_df = pd.DataFrame(run_summaries).sort_values("best_selection_score", ascending=False)
+    run_summary_df = pd.DataFrame(run_summaries).sort_values("adjusted_selection_score", ascending=False)
     best_run = str(run_summary_df.iloc[0]["run"])
     best_run_dir = runs_root / best_run
     best_artifacts = all_artifacts[best_run]
@@ -173,4 +197,5 @@ def run_all_configs(runs: dict[str, dict[str, Any]]) -> dict[str, Any]:
         "all_artifacts": all_artifacts,
         "runs_root": runs_root,
         "figure_names": DEFAULT_FIGURE_NAMES,
+        "distilbert_proxy_penalty": float(distilbert_proxy_penalty),
     }

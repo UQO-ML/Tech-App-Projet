@@ -27,6 +27,9 @@ Le pipeline complet est dans les scripts Python du dossier `Code/`, puis appelé
   - calcule les métriques (`accuracy`, `precision`, `recall`, `f1`);
   - génère les figures demandées;
   - sauvegarde les modèles et rapports JSON.
+- `Code/result_interpreter.py`
+  - contient l'interpréteur de résultats (diagnostic par modèle, statuts, recommandations);
+  - est appelé directement depuis le notebook pour éviter de garder cette logique en cellule.
 - `Code/main.py`
   - orchestre toutes les étapes;
   - produit les sorties dans `Outputs/`.
@@ -71,4 +74,4 @@ Remarque DistilBERT:
 - `best_cv_score` est vide (`NaN`) car DistilBERT est entraîné en fine-tuning direct (pas de GridSearchCV complet).
 - Le report inclut alors un fallback de stabilité via `cv_fallback_for_models`.
 
-Le notebook inclut un interpréteur de résultats qui affiche un diagnostic synthétique après exécution.
+Le notebook inclut un interpréteur de résultats (via `Code/result_interpreter.py`) qui affiche un diagnostic synthétique après exécution.

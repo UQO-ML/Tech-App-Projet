@@ -42,9 +42,27 @@ Utilise ce gabarit pour produire `Rapport_INF6243_NomEtudiants.pdf`.
   - `SCORING`, `SELECTION_WEIGHTS`, `RANDOM_STATE`.
 - Expliquer l'impact attendu de chaque constante sur temps d'exécution et qualité des résultats.
 
+### 5.2 Stratégie multi-runs (A/B/C)
+- **Run A — data_balance**:
+  - objectif: baseline robuste en maximisant la couverture de données (`max_samples=None`);
+  - intérêt: mieux observer l'effet sur la classe minoritaire `hate_speech`.
+- **Run B — classic_focus**:
+  - objectif: isoler la performance des modèles classiques (`include_distilbert=False`);
+  - intérêt: comparer des approches homogènes avec CV complète et coût réduit.
+- **Run C — distilbert_focus**:
+  - objectif: tester une hypothèse deep learning différente (`distilbert_epochs` plus élevé);
+  - intérêt: mesurer si plus d'entraînement améliore le rappel/F1 macro sans confondre les facteurs.
+- Justifier pourquoi ces runs sont différents:
+  - chaque run modifie un levier principal;
+  - cela évite des conclusions ambiguës dues à trop de changements simultanés.
+
 ## 6. Résultats et discussion
 - Tableau comparatif complet des scores (validation + test + CV moyen) pour tous les modèles.
 - Tableau de statut d'exécution (trained/skipped/failed) avec causes (`error_or_reason`).
+- Tableau de comparaison inter-runs (`metrics_report_run_*.json`) avec:
+  - meilleur modèle par run;
+  - score de sélection du meilleur;
+  - F1 macro test du meilleur.
 - Figure `models_comparison_test.png`.
 - Figure `models_compilation_overview.png`.
 - Figure `models_status_overview.png`.

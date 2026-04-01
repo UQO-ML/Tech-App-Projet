@@ -17,6 +17,7 @@ Tech-App-Devoir-II/
 │   ├── preprocessing.py
 │   ├── models.py
 │   ├── utils.py
+│   ├── result_interpreter.py
 │   └── model_zoo/
 ├── Data/
 │   ├── labeled_data.csv
@@ -103,7 +104,7 @@ Note DistilBERT:
 - si `transformers/torch/datasets` ne sont pas disponibles, le pipeline continue avec les modèles classiques.
 - `best_cv_score` peut être `NaN` pour DistilBERT car il n'est pas optimisé via `GridSearchCV`; la stabilité est couverte par le fallback documenté dans `model_selection_method`.
 
-Le notebook inclut aussi un **interpréteur de résultats** qui imprime:
+Le notebook inclut aussi un **interpréteur de résultats** (script dédié `Code/result_interpreter.py`) qui imprime:
 - le meilleur modèle et son score global;
 - la répartition des statuts d'exécution de tous les modèles;
 - un top-3 des modèles entraînés;

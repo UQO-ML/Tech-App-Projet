@@ -10,13 +10,14 @@ Projet de classification de tweets en 3 classes:
 ```text
 Tech-App-Devoir-II/
 ├── main.py
+├── notebook_principal.ipynb
 ├── requirements.txt
 ├── Code/
 │   ├── main.py
 │   ├── preprocessing.py
 │   ├── models.py
 │   ├── utils.py
-│   └── notebook_principal.ipynb
+│   └── model_zoo/
 ├── Data/
 │   ├── labeled_data.csv
 │   └── lien_vers_dataset.txt
@@ -44,11 +45,17 @@ python main.py
 ```
 
 ### Option 2 — Notebook
-Ouvrir `Code/notebook_principal.ipynb` et exécuter les cellules.
+Ouvrir `notebook_principal.ipynb` (racine du projet) et exécuter les cellules.
 
-Dans le notebook, la cellule `RUN_CONFIG` permet de régler:
-- `max_samples`
-- `distilbert_epochs`
+Dans le notebook, chaque paramètre de `RUN_CONFIG` est défini via une constante dédiée (commentée):
+- `MAX_SAMPLES`: `int` (>0) ou `None` pour 100% des données;
+- `DISTILBERT_EPOCHS`: `int` (ex: 1 rapide, 2-4 plus long);
+- `INCLUDE_DISTILBERT`: `bool`;
+- `TEST_SIZE` et `VAL_SIZE`: `float` entre 0 et 1;
+- `CV_FOLDS`: `int` (ex: 3, 5, 10);
+- `SCORING`: métrique sklearn (ex: `f1_macro`, `accuracy`);
+- `SELECTION_WEIGHTS`: tuple `(validation, test, cv)` (somme idéalement = 1.0);
+- `RANDOM_STATE`: seed de reproductibilité.
 
 ## Ce que le pipeline produit
 
@@ -61,10 +68,11 @@ Dans le notebook, la cellule `RUN_CONFIG` permet de régler:
   - compilation des matrices de confusion (tous les modèles)
   - comparaison des modèles
   - compilation synthèse comparative globale
+  - couverture de statuts pour tous les modèles (trained/skipped/failed)
   - courbe d’apprentissage
   - importance des features (si supportée)
 - `Outputs/reports/eda_summary.json`
-- `Outputs/reports/metrics_report.json`
+- `Outputs/reports/metrics_report.json` (inclut `all_models`, statuts, erreurs éventuelles et métriques disponibles pour tous les modèles attendus)
 - `Outputs/models/best_model.joblib`
   - si meilleur modèle deep learning: `Outputs/reports/best_model_deep_learning_note.json`
 
@@ -76,6 +84,7 @@ Dans le notebook, la cellule `RUN_CONFIG` permet de régler:
 - KNN
 - Decision Tree
 - Random Forest
+- MLPClassifier
 - DistilBERT (fine-tuning, si dépendances deep learning installées)
 
 Chaque modèle est entraîné avec `GridSearchCV` et évalué avec:
@@ -93,3 +102,9 @@ Note DistilBERT:
 - entraîné via fine-tuning direct (pas de GridSearchCV complet pour limiter le coût de calcul);
 - si `transformers/torch/datasets` ne sont pas disponibles, le pipeline continue avec les modèles classiques.
 - `best_cv_score` peut être `NaN` pour DistilBERT car il n'est pas optimisé via `GridSearchCV`; la stabilité est couverte par le fallback documenté dans `model_selection_method`.
+
+Le notebook inclut aussi un **interpréteur de résultats** qui imprime:
+- le meilleur modèle et son score global;
+- la répartition des statuts d'exécution de tous les modèles;
+- un top-3 des modèles entraînés;
+- les modèles à améliorer selon un seuil simple de `f1_macro`.

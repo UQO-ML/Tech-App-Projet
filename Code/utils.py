@@ -365,6 +365,49 @@ def plot_models_compilation(
     plt.close()
 
 
+def plot_model_status_overview(
+    all_models_report: dict[str, dict[str, Any]],
+    save_path: str | Path,
+) -> None:
+    """Trace un aperçu des statuts d'exécution pour tous les modèles attendus.
+
+    Paramètres:
+        all_models_report: Dictionnaire complet du report par modèle.
+        save_path: Chemin de sortie PNG.
+    """
+    rows = []
+    for model_name, payload in all_models_report.items():
+        rows.append(
+            {
+                "model": model_name,
+                "status": payload.get("status", "unknown"),
+            }
+        )
+    frame = pd.DataFrame(rows)
+    frame["status_code"] = frame["status"].map({"trained": 1, "skipped": 0, "failed": -1}).fillna(0)
+
+    fig, axes = plt.subplots(1, 2, figsize=(13, 4))
+    sns.countplot(data=frame, x="status", order=["trained", "skipped", "failed"], ax=axes[0])
+    axes[0].set_title("Nombre de modèles par statut")
+    axes[0].set_xlabel("Statut")
+    axes[0].set_ylabel("Nombre")
+
+    sns.barplot(data=frame, x="model", y="status_code", hue="status", dodge=False, ax=axes[1])
+    axes[1].set_title("Statut de chaque modèle")
+    axes[1].set_xlabel(MODEL_LABEL)
+    axes[1].set_ylabel("Code statut")
+    axes[1].set_yticks([-1, 0, 1])
+    axes[1].set_yticklabels(["failed", "skipped", "trained"])
+    axes[1].tick_params(axis="x", rotation=25)
+    if axes[1].legend_ is not None:
+        axes[1].legend_.remove()
+
+    fig.suptitle("Couverture de tous les modèles", fontsize=14)
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=150)
+    plt.close()
+
+
 def plot_learning_curves(estimator: Any, X: pd.Series, y: pd.Series, save_path: str | Path) -> None:
     """Trace les courbes d'apprentissage du modèle fourni.
 
@@ -374,6 +417,21 @@ def plot_learning_curves(estimator: Any, X: pd.Series, y: pd.Series, save_path: 
         y: Labels.
         save_path: Chemin de sortie PNG.
     """
+    if getattr(estimator, "skip_cv", False):
+        plt.figure(figsize=(8, 4))
+        plt.text(
+            0.5,
+            0.5,
+            "Courbe d'apprentissage non tracée pour ce modèle\n(cross-validation trop coûteuse / non compatible).",
+            ha="center",
+            va="center",
+        )
+        plt.axis("off")
+        plt.tight_layout()
+        plt.savefig(save_path, dpi=150)
+        plt.close()
+        return
+
     train_sizes, train_scores, valid_scores = learning_curve(
         estimator,
         X,

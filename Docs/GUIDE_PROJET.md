@@ -9,7 +9,7 @@ Le projet classe des tweets dans 3 classes:
 - `1` : langage offensant (`offensive_language`)
 - `2` : ni haineux ni offensant (`neither`)
 
-Le pipeline complet est dans les scripts Python du dossier `Code/`, puis appelé depuis le notebook `Code/notebook_principal.ipynb`.
+Le pipeline complet est dans les scripts Python du dossier `Code/`, puis appelé depuis le notebook racine `notebook_principal.ipynb`.
 
 ## 2) Qui fait quoi ?
 
@@ -49,15 +49,19 @@ python main.py
 
 Ou dans le notebook, exécuter les cellules de haut en bas.
 
-Le notebook contient une cellule `RUN_CONFIG` pour ajuster facilement:
-- la taille d'échantillon (`max_samples`);
-- le nombre d'epochs DistilBERT (`distilbert_epochs`).
+Le notebook contient des constantes (une par paramètre) pour ajuster facilement:
+- `MAX_SAMPLES`, `DISTILBERT_EPOCHS`, `INCLUDE_DISTILBERT`;
+- `TEST_SIZE`, `VAL_SIZE`, `CV_FOLDS`;
+- `SCORING`, `SELECTION_WEIGHTS`, `RANDOM_STATE`.
+
+Chaque constante est commentée dans le notebook pour préciser son impact et les valeurs recommandées.
 
 ## 5) Sorties générées
 
 Le pipeline crée automatiquement:
 - `Outputs/figures/` : graphiques EDA, matrices de confusion, comparaison de modèles, learning curve;
 - `Outputs/figures/models_compilation_overview.png` : vue comparative globale de tous les modèles;
+- `Outputs/figures/models_status_overview.png` : couverture de tous les modèles attendus (trained/skipped/failed);
 - `Outputs/figures/confusion_matrices_all_models.png` : compilation des matrices de confusion;
 - `Outputs/reports/eda_summary.json` : résumé EDA;
 - `Outputs/reports/metrics_report.json` : résultats détaillés de tous les modèles;
@@ -66,3 +70,5 @@ Le pipeline crée automatiquement:
 Remarque DistilBERT:
 - `best_cv_score` est vide (`NaN`) car DistilBERT est entraîné en fine-tuning direct (pas de GridSearchCV complet).
 - Le report inclut alors un fallback de stabilité via `cv_fallback_for_models`.
+
+Le notebook inclut un interpréteur de résultats qui affiche un diagnostic synthétique après exécution.

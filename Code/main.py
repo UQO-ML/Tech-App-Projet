@@ -24,12 +24,12 @@ def _prepare_outputs() -> None:
     utils.ensure_dir(utils.REPORTS_DIR)
 
 
-def _sample_dataframe(df: pd.DataFrame, max_samples: int | None) -> pd.DataFrame:
+def _sample_dataframe(df: pd.DataFrame, max_samples: int | None, random_state: int) -> pd.DataFrame:
     """Sous-échantillonne le dataset en conservant l'équilibre des classes."""
     if max_samples is None or not (0 < max_samples < len(df)):
         return df
     ratio = max_samples / len(df)
-    return df.groupby("class", group_keys=False).sample(frac=ratio, random_state=RANDOM_STATE).reset_index(drop=True)
+    return df.groupby("class", group_keys=False).sample(frac=ratio, random_state=random_state).reset_index(drop=True)
 
 
 def _build_empty_model_report(status: str, error: str | None, model_why: str, tuning_info: dict[str, Any], val_metrics: dict[str, Any]) -> dict[str, Any]:
@@ -125,6 +125,8 @@ def _compute_selection_scores(
     x_train_val: pd.Series,
     y_train_val: pd.Series,
     full_report: dict[str, dict[str, Any]],
+    cv_folds: int,
+    selection_weights: tuple[float, float, float],
 ) -> tuple[dict[str, float], dict[str, list[float]], list[str]]:
     """Calcule CV, score pondéré de sélection et fallback CV éventuel."""
     model_selection_scores: dict[str, float] = {}
@@ -134,7 +136,7 @@ def _compute_selection_scores(
     for model_name in trained_model_names:
         result = results[model_name]
         estimator = result["estimator"]
-        cv_scores = models.cross_validate_estimator(estimator, x_train_val, y_train_val, cv=5)
+        cv_scores = models.cross_validate_estimator(estimator, x_train_val, y_train_val, cv=cv_folds)
         if cv_scores:
             model_cv_scores[model_name] = cv_scores
             cv_mean = float(sum(cv_scores) / len(cv_scores))
@@ -146,7 +148,8 @@ def _compute_selection_scores(
 
         val_f1 = result["val_metrics"]["f1_macro"]
         test_f1 = test_metrics[model_name]["f1_macro"]
-        model_selection_scores[model_name] = float((0.35 * val_f1) + (0.40 * test_f1) + (0.25 * cv_mean))
+        w_val, w_test, w_cv = selection_weights
+        model_selection_scores[model_name] = float((w_val * val_f1) + (w_test * test_f1) + (w_cv * cv_mean))
         full_report[model_name]["cv_f1_macro_scores"] = cv_scores
         full_report[model_name]["cv_f1_macro_mean"] = cv_mean
         full_report[model_name]["selection_score"] = model_selection_scores[model_name]
@@ -186,6 +189,13 @@ def run_pipeline(
     data_path: str | Path = DATA_PATH,
     max_samples: int | None = None,
     distilbert_epochs: int = 1,
+    include_distilbert: bool = True,
+    test_size: float = 0.2,
+    val_size: float = 0.1,
+    cv_folds: int = 5,
+    scoring: str = "f1_macro",
+    selection_weights: tuple[float, float, float] = (0.35, 0.40, 0.25),
+    random_state: int = RANDOM_STATE,
 ) -> dict[str, Any]:
     """Exécute le pipeline complet de classification et retourne les artefacts produits.
 
@@ -193,6 +203,13 @@ def run_pipeline(
         data_path: Chemin vers le fichier de données.
         max_samples: Taille maximale d'échantillon (stratifié) pour accélérer les essais.
         distilbert_epochs: Nombre d'epochs utilisé pour DistilBERT.
+        include_distilbert: Active ou non DistilBERT dans la comparaison.
+        test_size: Proportion du jeu de test.
+        val_size: Proportion du jeu de validation.
+        cv_folds: Nombre de folds pour la validation croisée.
+        scoring: Métrique utilisée pour GridSearchCV.
+        selection_weights: Pondérations `(validation, test, cv)` pour le score final.
+        random_state: Seed globale.
 
     Retour:
         Dictionnaire avec le meilleur modèle, le chemin du report et les dossiers de sortie.
@@ -203,7 +220,7 @@ def run_pipeline(
 
     raw_df = prep.load_data(data_path)
     df = prep.clean_data(raw_df)
-    df = _sample_dataframe(df, max_samples)
+    df = _sample_dataframe(df, max_samples, random_state=random_state)
     summary = prep.exploratory_summary(df, target_column="class")
     utils.save_json(summary, utils.REPORTS_DIR / "eda_summary.json")
 
@@ -220,9 +237,9 @@ def run_pipeline(
     x_train, x_val, x_test, y_train, y_val, y_test = prep.train_val_test_split(
         x,
         y,
-        test_size=0.2,
-        val_size=0.1,
-        random_state=RANDOM_STATE,
+        test_size=test_size,
+        val_size=val_size,
+        random_state=random_state,
     )
 
     # Entraînement des modèles classiques + DistilBERT (si dépendances disponibles)
@@ -231,15 +248,17 @@ def run_pipeline(
         y_train=y_train,
         x_val=x_val,
         y_val=y_val,
-        random_state=RANDOM_STATE,
-        include_distilbert=True,
+        random_state=random_state,
+        include_distilbert=include_distilbert,
         distilbert_epochs=distilbert_epochs,
+        cv_folds=cv_folds,
+        scoring=scoring,
     )
-    expected_model_names = models.get_expected_model_names(include_distilbert=True)
+    expected_model_names = models.get_expected_model_names(include_distilbert=include_distilbert)
     distilbert_status = results.get("DistilBERT", {}).get("status", "skipped")
     distilbert_enabled = distilbert_status == "trained"
 
-    model_rationales = models.get_model_rationales(RANDOM_STATE)
+    model_rationales = models.get_model_rationales(random_state)
     test_metrics, full_report, confusion_by_model, trained_model_names = _evaluate_models(
         expected_model_names=expected_model_names,
         results=results,
@@ -267,6 +286,8 @@ def run_pipeline(
         x_train_val=x_train_val,
         y_train_val=y_train_val,
         full_report=full_report,
+        cv_folds=cv_folds,
+        selection_weights=selection_weights,
     )
 
     if not model_selection_scores:
@@ -291,6 +312,10 @@ def run_pipeline(
         model_selection_scores=model_selection_scores,
         save_path=utils.FIGURES_DIR / "models_compilation_overview.png",
     )
+    utils.plot_model_status_overview(
+        all_models_report=full_report,
+        save_path=utils.FIGURES_DIR / "models_status_overview.png",
+    )
 
     utils.plot_learning_curves(best_estimator, x_train_val, y_train_val, utils.FIGURES_DIR / "learning_curve_best_model.png")
     utils.plot_feature_importance_from_pipeline(best_estimator, utils.FIGURES_DIR / "feature_importance_best_model.png")
@@ -306,7 +331,8 @@ def run_pipeline(
         "best_model_cv_f1_macro_scores": best_cv_scores,
         "best_model_selection_score": model_selection_scores[best_model_name],
         "model_selection_method": {
-            "formula": "selection_score = 0.35 * val_f1_macro + 0.40 * test_f1_macro + 0.25 * cv_f1_macro_mean",
+            "formula": "selection_score = w_val * val_f1_macro + w_test * test_f1_macro + w_cv * cv_f1_macro_mean",
+            "weights": {"validation": selection_weights[0], "test": selection_weights[1], "cv": selection_weights[2]},
             "why_this_formula": (
                 "Le F1 test reçoit le plus de poids pour refléter la performance hors entraînement; "
                 "la validation sert de garde-fou pendant le tuning; la CV ajoute une mesure de stabilité."
@@ -337,6 +363,7 @@ def run_pipeline(
             "models_dir": str(utils.MODELS_DIR),
             "main_figures": [
                 "models_compilation_overview.png",
+                "models_status_overview.png",
                 "confusion_matrices_all_models.png",
                 "models_comparison_test.png",
                 "learning_curve_best_model.png",
@@ -346,7 +373,13 @@ def run_pipeline(
         "run_config": {
             "max_samples": max_samples,
             "distilbert_epochs": distilbert_epochs,
-            "random_state": RANDOM_STATE,
+            "include_distilbert": include_distilbert,
+            "test_size": test_size,
+            "val_size": val_size,
+            "cv_folds": cv_folds,
+            "scoring": scoring,
+            "selection_weights": selection_weights,
+            "random_state": random_state,
         },
         "all_models": full_report,
     }

@@ -26,22 +26,42 @@ Utilise ce gabarit pour produire `Rapport_INF6243_NomEtudiants.pdf`.
 
 ## 5. Méthodologie
 - Représentation texte: TF-IDF.
-- Modèles: Naive Bayes, Logistic Regression, Linear SVC, Random Forest.
-- Hyperparamètres: GridSearchCV.
+- Modèles classiques: Naive Bayes, Logistic Regression, Linear SVC, KNN, Decision Tree, Random Forest, MLPClassifier.
+- Modèle deep learning: DistilBERT (fine-tuning supervisé, si dépendances disponibles).
+- Hyperparamètres:
+  - GridSearchCV pour les modèles classiques;
+  - réglages contrôlés pour DistilBERT (epochs, max_length, batch sizes).
 - Métriques: accuracy, précision macro, rappel macro, F1 macro, confusion matrix.
-- Validation croisée: k-fold sur le meilleur modèle.
+- Validation croisée: k-fold pour les modèles compatibles sklearn; fallback validation documenté pour DistilBERT (coût computationnel).
+- Critère de sélection final: score pondéré (validation/test/CV) + règle de tie-break.
+
+### 5.1 Configuration expérimentale (notebook)
+- Détailler les constantes utilisées:
+  - `MAX_SAMPLES`, `DISTILBERT_EPOCHS`, `INCLUDE_DISTILBERT`;
+  - `TEST_SIZE`, `VAL_SIZE`, `CV_FOLDS`;
+  - `SCORING`, `SELECTION_WEIGHTS`, `RANDOM_STATE`.
+- Expliquer l'impact attendu de chaque constante sur temps d'exécution et qualité des résultats.
 
 ## 6. Résultats et discussion
-- Tableau comparatif des scores (validation + test).
+- Tableau comparatif complet des scores (validation + test + CV moyen) pour tous les modèles.
+- Tableau de statut d'exécution (trained/skipped/failed) avec causes (`error_or_reason`).
 - Figure `models_comparison_test.png`.
+- Figure `models_compilation_overview.png`.
+- Figure `models_status_overview.png`.
 - Matrices de confusion.
+- Figure `confusion_matrices_all_models.png`.
 - Analyse d’erreurs: classes confondues et explications possibles.
+- Sortie de l'interpréteur du notebook:
+  - top-3 des modèles,
+  - diagnostic de généralisation (écart validation vs test),
+  - diagnostic de stabilité (écart CV vs test),
+  - recommandations de tuning.
 - Discussion: points forts/faibles des modèles.
 
 ## 7. Conclusion
 - Meilleur modèle retenu et justification.
 - Limites actuelles.
-- Améliorations futures (embeddings, deep learning, nettoyage avancé, équilibrage).
+- Améliorations futures (optimisation DistilBERT, calibration des seuils, équilibrage avancé, augmentation de données).
 
 ## 8. Références
 - Articles/docs utilisés.

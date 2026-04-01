@@ -24,25 +24,28 @@ Utilise ce plan pour `Presentation_INF6243_NomEtudiants.pptx`.
 - Nettoyage texte
 - TF-IDF
 - Split train/val/test
+- Paramétrage expérimental via constantes du notebook (`RUN_CONFIG`)
 
 ## Slide 6 — Modèles testés
-- Naive Bayes
-- Logistic Regression
-- Linear SVC
-- Random Forest
-- Hyperparamètres (GridSearchCV)
+- Modèles classiques: Naive Bayes, Logistic Regression, Linear SVC, KNN, Decision Tree, Random Forest, MLPClassifier
+- Modèle deep learning: DistilBERT
+- Hyperparamètres: GridSearchCV (classiques) + réglages DistilBERT (epochs)
 
 ## Slide 7 — Résultats globaux
 - Graphique comparatif des modèles
 - Choix de la métrique principale (F1 macro)
+- Figure de compilation globale (`models_compilation_overview.png`)
+- Couverture de tous les modèles et statuts (`models_status_overview.png`)
 
 ## Slide 8 — Analyse détaillée
 - Matrice de confusion du meilleur modèle
+- Matrices de confusion de tous les modèles (`confusion_matrices_all_models.png`)
 - Exemples d’erreurs typiques
+- Interpréteur de résultats du notebook (diagnostic + recommandations)
 
 ## Slide 9 — Modèle final
 - Meilleur modèle retenu
-- Validation croisée (k-fold)
+- Validation croisée (k-fold) et fallback DistilBERT expliqué
 - Termes influents (feature importance)
 
 ## Slide 10 — Conclusion et perspectives

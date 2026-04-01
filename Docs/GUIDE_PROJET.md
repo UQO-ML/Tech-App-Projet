@@ -30,6 +30,11 @@ Le pipeline complet est dans les scripts Python du dossier `Code/`, puis appelé
 - `Code/result_interpreter.py`
   - contient l'interpréteur de résultats (diagnostic par modèle, statuts, recommandations);
   - est appelé directement depuis le notebook pour éviter de garder cette logique en cellule.
+- `Code/report_markdown.py`
+  - génère des versions Markdown lisibles des reports JSON (`metrics_report*.md`, `runs_comparison_overview.md`).
+- `Code/run_pipeline_subprocess.py`
+  - exécute un run pipeline dans un process Python isolé;
+  - sert de worker pour limiter l'empreinte mémoire entre runs.
 - `Code/main.py`
   - orchestre toutes les étapes;
   - produit les sorties dans `Outputs/`.
@@ -69,6 +74,9 @@ Le pipeline crée automatiquement:
 - `Outputs/figures/confusion_matrices_all_models.png` : compilation des matrices de confusion;
 - `Outputs/reports/eda_summary.json` : résumé EDA;
 - `Outputs/reports/metrics_report.json` : résultats détaillés de tous les modèles;
+- `Outputs/reports/metrics_report.md` : synthèse lisible humain du report principal;
+- `Outputs/reports/metrics_report_<run_name>.md` : synthèse lisible par run;
+- `Outputs/reports/runs_comparison_overview.md` : synthèse lisible de la comparaison inter-runs;
 - `Outputs/models/best_model.joblib` : meilleur modèle sauvegardé.
 
 Remarque DistilBERT:

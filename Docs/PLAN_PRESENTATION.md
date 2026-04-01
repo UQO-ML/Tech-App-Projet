@@ -40,6 +40,7 @@ Utilise ce plan pour `Presentation_INF6243_NomEtudiants.pptx`.
 - Couverture de tous les modèles et statuts (`models_status_overview.png`)
 - Tableau comparatif des meilleurs résultats par run (`metrics_report_run_*.json`)
 - Mentionner le score ajusté (`adjusted_selection_score`) pour les runs DistilBERT en CV proxy
+- Montrer les versions Markdown lisibles (`metrics_report.md`, `runs_comparison_overview.md`)
 
 ## Slide 8 — Analyse détaillée
 - Matrice de confusion du meilleur modèle
@@ -52,6 +53,7 @@ Utilise ce plan pour `Presentation_INF6243_NomEtudiants.pptx`.
 - Meilleur modèle retenu
 - Validation croisée (k-fold) et fallback DistilBERT expliqué
 - Termes influents (feature importance)
+- Expliquer que les runs sont exécutés en subprocess isolés pour limiter la mémoire
 
 ## Slide 10 — Conclusion et perspectives
 - Résumé en 3 points

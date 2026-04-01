@@ -18,6 +18,8 @@ Tech-App-Devoir-II/
 │   ├── models.py
 │   ├── utils.py
 │   ├── result_interpreter.py
+│   ├── report_markdown.py
+│   ├── run_pipeline_subprocess.py
 │   └── model_zoo/
 ├── Data/
 │   ├── labeled_data.csv
@@ -78,6 +80,9 @@ Pour la comparaison multi-runs, une règle dédiée est aussi paramétrable:
   - importance des features (si supportée)
 - `Outputs/reports/eda_summary.json`
 - `Outputs/reports/metrics_report.json` (inclut `all_models`, statuts, erreurs éventuelles et métriques disponibles pour tous les modèles attendus)
+- `Outputs/reports/metrics_report.md` (version lisible humain du report principal)
+- `Outputs/reports/metrics_report_<run_name>.md` (version lisible par run)
+- `Outputs/reports/runs_comparison_overview.md` (tableau lisible de comparaison inter-runs)
 - `Outputs/models/best_model.joblib`
   - si meilleur modèle deep learning: `Outputs/reports/best_model_deep_learning_note.json`
 
@@ -119,3 +124,9 @@ Le notebook inclut aussi un **interpréteur de résultats** (script dédié `Cod
 - la répartition des statuts d'exécution de tous les modèles;
 - un top-3 des modèles entraînés;
 - les modèles à améliorer selon un seuil simple de `f1_macro`.
+
+## Exécution multi-runs en subprocess
+
+Les runs de `run_all_configs()` sont exécutés dans des subprocess Python isolés
+via `Code/run_pipeline_subprocess.py`. Cette stratégie limite les pics mémoire
+car chaque process libère ses ressources à la fin du run.

@@ -56,9 +56,15 @@ Utilise ce gabarit pour produire `Rapport_INF6243_NomEtudiants.pdf`.
 - Justifier pourquoi ces runs sont différents:
   - chaque run modifie un levier principal;
   - cela évite des conclusions ambiguës dues à trop de changements simultanés.
+- Mentionner l'exécution isolée par subprocess pour réduire l'empreinte mémoire
+  tout en conservant les mêmes artefacts.
 
 ## 6. Résultats et discussion
 - Tableau comparatif complet des scores (validation + test + CV moyen) pour tous les modèles.
+- Versions Markdown lisibles humain des artefacts:
+  - `metrics_report.md`,
+  - `metrics_report_<run_name>.md`,
+  - `runs_comparison_overview.md`.
 - Tableau de statut d'exécution (trained/skipped/failed) avec causes (`error_or_reason`).
 - Tableau de comparaison inter-runs (`metrics_report_run_*.json`) avec:
   - meilleur modèle par run;

@@ -54,15 +54,26 @@ Dans le notebook, chaque paramètre de `RUN_CONFIG` est défini via une constant
 - `MAX_SAMPLES`: `int` (>0) ou `None` pour 100% des données;
 - `DISTILBERT_EPOCHS`: `int` (ex: 1 rapide, 2-4 plus long);
 - `INCLUDE_DISTILBERT`: `bool`;
+- `ALGORITHM_SWITCHES`: dict `{nom_modele: bool}` pour activer/désactiver chaque algorithme;
 - `TEST_SIZE` et `VAL_SIZE`: `float` entre 0 et 1;
 - `CV_FOLDS`: `int` (ex: 3, 5, 10);
 - `SCORING`: métrique sklearn (ex: `f1_macro`, `accuracy`);
-- `SELECTION_WEIGHTS`: tuple `(validation, test, cv)` (somme idéalement = 1.0);
+- `MODEL_PARAM_OVERRIDES`: dict de paramètres fixes par modèle (surtout DistilBERT);
+- `MODEL_GRID_OVERRIDES`: dict de surcharge de grilles GridSearch par modèle classique;
+- `SELECTION_WEIGHTS`: tuple `(validation, test, cv, hate_recall)` (somme idéalement = 1.0);
+- `HATE_RECALL_FLOOR`: seuil minimal de recall pour `hate_speech` sur test;
+- `HATE_RECALL_PENALTY`: pénalité appliquée si le seuil n'est pas atteint;
 - `RANDOM_STATE`: seed de reproductibilité.
 
 Pour la comparaison multi-runs, une règle dédiée est aussi paramétrable:
 - `DISTILBERT_PROXY_PENALTY`: `float` (recommandé: `0.00` à `0.05`) appliqué comme malus
   aux runs où DistilBERT est évalué avec CV proxy.
+
+Guideline overrides:
+- `MODEL_PARAM_OVERRIDES["DistilBERT"]["epochs"]`: 1-5 (plus grand = plus long, parfois plus performant);
+- `MODEL_PARAM_OVERRIDES["DistilBERT"]["batch_size"]`: 8/16/32 (plus petit = moins de mémoire);
+- `MODEL_PARAM_OVERRIDES["DistilBERT"]["max_length"]`: 96-256 (plus grand = plus de contexte, plus de coût);
+- `MODEL_GRID_OVERRIDES["MLPClassifier"]`: ajouter/modifier des listes de valeurs (`clf__alpha`, `hidden_layer_sizes`, etc.) pour explorer plus large ou accélérer.
 
 ## Ce que le pipeline produit
 
@@ -94,19 +105,29 @@ Pour la comparaison multi-runs, une règle dédiée est aussi paramétrable:
 - KNN
 - Decision Tree
 - Random Forest
+- AdaBoost
 - MLPClassifier
 - DistilBERT (fine-tuning, si dépendances deep learning installées)
 
 Chaque modèle est entraîné avec `GridSearchCV` et évalué avec:
 - accuracy
+- balanced accuracy
 - précision macro
 - rappel macro
 - F1 macro
+- F1 par classe (dont `hate_speech`)
 - matrice de confusion
-- validation croisée (k-fold) pour le meilleur modèle
+- validation croisée (k-fold) et IC95 (`mean ± std`) pour les modèles classiques
 
 Sélection finale du meilleur modèle via score pondéré:
-`0.35 * val_f1_macro + 0.40 * test_f1_macro + 0.25 * cv_f1_macro_mean`.
+`w_val * val_f1_macro + w_test * test_f1_macro + w_cv * cv_f1_macro_mean + w_hate * hate_recall_test`
+avec une pénalité optionnelle si `hate_recall_test` est sous `HATE_RECALL_FLOOR`.
+La `precision_macro` reste un indicateur diagnostique, mais n'est pas un critère principal de sélection.
+
+Le pipeline produit aussi une matrice d'erreurs textuelles pour le meilleur modèle:
+- `Outputs/reports/error_cases_best_model.json`
+- `Outputs/reports/error_cases_best_model.md`
+avec des exemples de faux négatifs/faux positifs sur `hate_speech`.
 
 Note DistilBERT:
 - entraîné via fine-tuning direct (pas de GridSearchCV complet pour limiter le coût de calcul);

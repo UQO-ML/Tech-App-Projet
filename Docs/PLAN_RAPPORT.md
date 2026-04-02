@@ -26,22 +26,26 @@ Utilise ce gabarit pour produire `Rapport_INF6243_NomEtudiants.pdf`.
 
 ## 5. Méthodologie
 - Représentation texte: TF-IDF.
-- Modèles classiques: Naive Bayes, Logistic Regression, Linear SVC, KNN, Decision Tree, Random Forest, MLPClassifier.
+- Modèles classiques: Naive Bayes, Logistic Regression, Linear SVC, KNN, Decision Tree, Random Forest, AdaBoost, MLPClassifier.
 - Modèle deep learning: DistilBERT (fine-tuning supervisé, si dépendances disponibles).
 - Hyperparamètres:
   - GridSearchCV pour les modèles classiques;
   - réglages contrôlés pour DistilBERT (epochs, max_length, batch sizes).
-- Métriques: accuracy, précision macro, rappel macro, F1 macro, confusion matrix.
-- Validation croisée: k-fold pour les modèles compatibles sklearn; fallback validation documenté pour DistilBERT (coût computationnel).
+- Métriques: accuracy, balanced accuracy, précision macro, rappel macro, F1 macro, F1 par classe, confusion matrix.
+- Validation croisée: k-fold pour les modèles compatibles sklearn; ajouter IC95 (`mean ± std`); fallback validation documenté pour DistilBERT (coût computationnel).
 - Critère de sélection final: score pondéré (validation/test/CV) + règle de tie-break.
 
 ### 5.1 Configuration expérimentale (notebook)
 - Détailler les constantes utilisées:
   - `MAX_SAMPLES`, `DISTILBERT_EPOCHS`, `INCLUDE_DISTILBERT`;
+  - `ALGORITHM_SWITCHES` (activation fine par algorithme);
   - `TEST_SIZE`, `VAL_SIZE`, `CV_FOLDS`;
-  - `SCORING`, `SELECTION_WEIGHTS`, `RANDOM_STATE`;
+  - `SCORING`, `SELECTION_WEIGHTS`, `HATE_RECALL_FLOOR`, `HATE_RECALL_PENALTY`, `RANDOM_STATE`;
   - `DISTILBERT_PROXY_PENALTY` (règle de compensation DistilBERT CV proxy).
 - Expliquer l'impact attendu de chaque constante sur temps d'exécution et qualité des résultats.
+- Expliciter la politique de scoring:
+  - score pondéré `(val, test, cv, hate_recall)`;
+  - pénalité conditionnelle si `hate_recall_test` est sous le seuil défini.
 
 ### 5.2 Stratégie multi-runs (A/B/C)
 - **Run A — data_balance**:
@@ -76,6 +80,9 @@ Utilise ce gabarit pour produire `Rapport_INF6243_NomEtudiants.pdf`.
 - Matrices de confusion.
 - Figure `confusion_matrices_all_models.png`.
 - Figure `runs_comparison_overview.png` (échelle zoomée entre 0.6 et 0.8).
+- Analyse textuelle d'erreurs du meilleur modèle:
+  - faux négatifs/faux positifs `hate_speech`,
+  - extraits de tweets mal classés (`error_cases_best_model.json/.md`).
 - Analyse d’erreurs: classes confondues et explications possibles.
 - Sortie de l'interpréteur du notebook:
   - top-3 des modèles,

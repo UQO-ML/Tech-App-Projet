@@ -58,8 +58,12 @@ def report_to_markdown(report: dict[str, Any]) -> str:
     lines.append(
         f"- Poids: validation={_fmt(method.get('weights', {}).get('validation'))}, "
         f"test={_fmt(method.get('weights', {}).get('test'))}, "
-        f"cv={_fmt(method.get('weights', {}).get('cv'))}"
+        f"cv={_fmt(method.get('weights', {}).get('cv'))}, "
+        f"hate_recall={_fmt(method.get('weights', {}).get('hate_recall'))}"
     )
+    lines.append(f"- Seuil hate_recall: `{_fmt(method.get('hate_recall_floor'))}`")
+    lines.append(f"- Pénalité hate_recall: `{_fmt(method.get('hate_recall_penalty'))}`")
+    lines.append(f"- Politique précision: `{method.get('precision_policy', 'N/A')}`")
     lines.append(f"- Modèles avec CV proxy: `{method.get('cv_fallback_for_models', [])}`")
     lines.append("")
     lines.append("## Configuration du run")
@@ -67,21 +71,39 @@ def report_to_markdown(report: dict[str, Any]) -> str:
         "max_samples",
         "distilbert_epochs",
         "include_distilbert",
+        "algorithm_switches",
         "test_size",
         "val_size",
         "cv_folds",
         "scoring",
+        "model_param_overrides",
+        "model_grid_overrides",
         "selection_weights",
+        "hate_recall_floor",
+        "hate_recall_penalty",
         "random_state",
     ):
         lines.append(f"- {key}: `{cfg.get(key, 'N/A')}`")
     lines.append("")
     lines.append("## Détail par modèle")
     lines.append("")
-    lines.append("| Modèle | Status | Selection score | Val F1 | Test F1 | CV mean | Erreur |")
-    lines.append("|---|---:|---:|---:|---:|---:|---|")
+    lines.append(
+        "| Modèle | Status | Selection score | Balanced Acc | Val F1 | Test F1 | "
+        "CV mean ± CI95 | Hate recall | Hate F1 | Pénalité appliquée | Erreur |"
+    )
+    lines.append("|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|")
     for model_name in report.get("expected_models", []):
         payload = report.get("all_models", {}).get(model_name, {})
+        selection_components = payload.get("selection_components", {})
+        cls_report = payload.get("classification_report_test", {})
+        cv_mean = payload.get("cv_f1_macro_mean")
+        cv_ci95 = payload.get("cv_f1_macro_ci95")
+        if cv_mean is None:
+            cv_mean_ci = "n/a"
+        elif cv_ci95 is None:
+            cv_mean_ci = f"{_fmt(cv_mean)} ± n/a"
+        else:
+            cv_mean_ci = f"{_fmt(cv_mean)} ± {_fmt(cv_ci95)}"
         lines.append(
             "| "
             + " | ".join(
@@ -89,14 +111,22 @@ def report_to_markdown(report: dict[str, Any]) -> str:
                     model_name,
                     str(payload.get("status", "N/A")),
                     _fmt(payload.get("selection_score")),
+                    _fmt(payload.get("test_metrics", {}).get("balanced_accuracy")),
                     _fmt(payload.get("validation_metrics", {}).get("f1_macro")),
                     _fmt(payload.get("test_metrics", {}).get("f1_macro")),
-                    _fmt(payload.get("cv_f1_macro_mean")),
+                    cv_mean_ci,
+                    _fmt(selection_components.get("hate_recall_test")),
+                    _fmt(cls_report.get("hate_speech", {}).get("f1-score")),
+                    _fmt(selection_components.get("penalty_applied")),
                     str(payload.get("error", "") or ""),
                 ]
             )
             + " |"
         )
+    lines.append("")
+    lines.append("## Analyse d'erreurs textuelles")
+    lines.append("- Fichier JSON: `Outputs/reports/error_cases_best_model.json`")
+    lines.append("- Fichier Markdown: `Outputs/reports/error_cases_best_model.md`")
     lines.append("")
     return "\n".join(lines)
 

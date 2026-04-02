@@ -19,12 +19,12 @@ Le pipeline complet est dans les scripts Python du dossier `Code/`, puis appelé
   - crée des variables EDA (`tweet_length`, `word_count`);
   - prépare le split `train/validation/test`.
 - `Code/models.py`
-  - définit plusieurs modèles pertinents pour texte (`NaiveBayes`, `LogisticRegression`, `LinearSVC`, `KNN`, `DecisionTree`, `RandomForest`, `DistilBERT`);
+  - définit plusieurs modèles pertinents pour texte (`NaiveBayes`, `LogisticRegression`, `LinearSVC`, `KNN`, `DecisionTree`, `RandomForest`, `AdaBoost`, `MLPClassifier`, `DistilBERT`);
   - applique GridSearchCV pour régler les hyperparamètres;
   - applique aussi un fine-tuning DistilBERT (si dépendances deep installées);
   - calcule un score global de sélection pour retenir le meilleur modèle.
 - `Code/utils.py`
-  - calcule les métriques (`accuracy`, `precision`, `recall`, `f1`);
+  - calcule les métriques (`accuracy`, `balanced_accuracy`, `precision`, `recall`, `f1`);
   - génère les figures demandées;
   - sauvegarde les modèles et rapports JSON.
 - `Code/result_interpreter.py`
@@ -59,11 +59,29 @@ Ou dans le notebook, exécuter les cellules de haut en bas.
 
 Le notebook contient des constantes (une par paramètre) pour ajuster facilement:
 - `MAX_SAMPLES`, `DISTILBERT_EPOCHS`, `INCLUDE_DISTILBERT`;
+- `ALGORITHM_SWITCHES` pour activer/désactiver finement chaque algorithme;
 - `TEST_SIZE`, `VAL_SIZE`, `CV_FOLDS`;
-- `SCORING`, `SELECTION_WEIGHTS`, `RANDOM_STATE`.
+- `SCORING`, `SELECTION_WEIGHTS`, `HATE_RECALL_FLOOR`, `HATE_RECALL_PENALTY`, `RANDOM_STATE`.
+- `MODEL_PARAM_OVERRIDES`:
+  - paramètres fixes par modèle (ex: DistilBERT epochs, batch_size, max_length, learning_rate).
+  - utile pour itérer rapidement des profils deep learning sans toucher le code source.
+- `MODEL_GRID_OVERRIDES`:
+  - surcharge des grilles de recherche par modèle classique (MLP, AdaBoost, etc.).
+  - utile pour élargir/réduire la recherche selon le budget de calcul.
 - `DISTILBERT_PROXY_PENALTY` pour la comparaison inter-runs.
 
 Chaque constante est commentée dans le notebook pour préciser son impact et les valeurs recommandées.
+Pour les overrides, conserver des valeurs pragmatiques:
+- DistilBERT `epochs`: 1-3 pour itérations courtes, 4-5 pour consolidation;
+- DistilBERT `batch_size`: 8 si mémoire limitée, 16 compromis, 32 si GPU confortable;
+- DistilBERT `max_length`: 128 par défaut, 160/192 si besoin de plus de contexte;
+- Grilles classiques: éviter une explosion combinatoire (temps x mémoire).
+
+Politique de scoring (sélection du meilleur modèle):
+- Score de base: `w_val * val_f1_macro + w_test * test_f1_macro + w_cv * cv_f1_macro_mean + w_hate * hate_recall_test`.
+- Garde-fou minoritaire: si `hate_recall_test < HATE_RECALL_FLOOR`, une pénalité `HATE_RECALL_PENALTY` est soustraite.
+- Objectif: éviter de retenir un modèle qui optimise seulement le score global mais rate la classe `hate_speech`.
+- `precision_macro` est suivie comme indicateur diagnostique, pas comme critère principal.
 
 ## 5) Sorties générées
 
@@ -77,6 +95,7 @@ Le pipeline crée automatiquement:
 - `Outputs/reports/metrics_report.md` : synthèse lisible humain du report principal;
 - `Outputs/reports/metrics_report_<run_name>.md` : synthèse lisible par run;
 - `Outputs/reports/runs_comparison_overview.md` : synthèse lisible de la comparaison inter-runs;
+- `Outputs/reports/error_cases_best_model.json` et `.md` : exemples textuels FP/FN pour le meilleur modèle;
 - `Outputs/models/best_model.joblib` : meilleur modèle sauvegardé.
 
 Remarque DistilBERT:

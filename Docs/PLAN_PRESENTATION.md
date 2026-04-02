@@ -25,17 +25,20 @@ Utilise ce plan pour `Presentation_INF6243_NomEtudiants.pptx`.
 - TF-IDF
 - Split train/val/test
 - Paramétrage expérimental via constantes du notebook (`RUN_CONFIG`)
+- Montrer le contrôle fin `ALGORITHM_SWITCHES` (activation/désactivation par algorithme)
+- Expliquer la politique de scoring: poids `(val, test, cv, hate_recall)` + pénalité sous seuil
 - Introduire la logique **multi-runs** (A/B/C) et le principe "un levier principal par run"
 - Ajouter la règle `DISTILBERT_PROXY_PENALTY` pour la compensation du CV proxy DistilBERT
 
 ## Slide 6 — Modèles testés
-- Modèles classiques: Naive Bayes, Logistic Regression, Linear SVC, KNN, Decision Tree, Random Forest, MLPClassifier
+- Modèles classiques: Naive Bayes, Logistic Regression, Linear SVC, KNN, Decision Tree, Random Forest, AdaBoost, MLPClassifier
 - Modèle deep learning: DistilBERT
 - Hyperparamètres: GridSearchCV (classiques) + réglages DistilBERT (epochs)
 
 ## Slide 7 — Résultats globaux
 - Graphique comparatif des modèles
 - Choix de la métrique principale (F1 macro)
+- Mentionner `balanced_accuracy` et F1 par classe (`hate_speech`) comme diagnostics clés
 - Figure de compilation globale (`models_compilation_overview.png`)
 - Couverture de tous les modèles et statuts (`models_status_overview.png`)
 - Tableau comparatif des meilleurs résultats par run (`metrics_report_run_*.json`)
@@ -46,6 +49,7 @@ Utilise ce plan pour `Presentation_INF6243_NomEtudiants.pptx`.
 - Matrice de confusion du meilleur modèle
 - Matrices de confusion de tous les modèles (`confusion_matrices_all_models.png`)
 - Exemples d’erreurs typiques
+- Montrer 1-2 extraits FP/FN du fichier `error_cases_best_model.md`
 - Interpréteur de résultats du notebook (diagnostic + recommandations)
 - Vue inter-runs zoomée (`runs_comparison_overview.png`, axe Y 0.6-0.8)
 

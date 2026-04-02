@@ -24,6 +24,15 @@ DEFAULT_FIGURE_NAMES = [
 ]
 
 
+def _distilbert_enabled_from_run_config(run_config: dict[str, Any]) -> bool:
+    """Détermine si DistilBERT est réellement activé dans un run."""
+    include_distilbert = bool(run_config.get("include_distilbert", False))
+    switches = run_config.get("algorithm_switches", {})
+    if isinstance(switches, dict) and "DistilBERT" in switches:
+        return bool(switches.get("DistilBERT"))
+    return include_distilbert
+
+
 def _run_pipeline_subprocess(run_name: str, run_config: dict[str, Any], project_root: Path) -> dict[str, Any]:
     """Exécute `run_pipeline` dans un subprocess Python isolé.
 
@@ -96,15 +105,25 @@ def build_models_table(report: dict[str, Any]) -> pd.DataFrame:
     rows: list[dict[str, Any]] = []
     for model_name in report.get("expected_models", []):
         payload = report.get("all_models", {}).get(model_name, {})
+        test_cls_report = payload.get("classification_report_test", {})
+        selection_components = payload.get("selection_components", {})
         rows.append(
             {
                 "model": model_name,
                 "status": payload.get("status"),
                 "error_or_reason": payload.get("error"),
                 "selection_score": payload.get("selection_score"),
+                "balanced_accuracy": payload.get("test_metrics", {}).get("balanced_accuracy"),
                 "val_f1_macro": payload.get("validation_metrics", {}).get("f1_macro"),
                 "test_f1_macro": payload.get("test_metrics", {}).get("f1_macro"),
                 "cv_f1_macro_mean": payload.get("cv_f1_macro_mean"),
+                "cv_f1_macro_std": payload.get("cv_f1_macro_std"),
+                "cv_f1_macro_ci95": payload.get("cv_f1_macro_ci95"),
+                "hate_recall_test": selection_components.get("hate_recall_test"),
+                "hate_f1_test": test_cls_report.get("hate_speech", {}).get("f1-score"),
+                "offensive_f1_test": test_cls_report.get("offensive_language", {}).get("f1-score"),
+                "neither_f1_test": test_cls_report.get("neither", {}).get("f1-score"),
+                "penalty_applied": selection_components.get("penalty_applied"),
                 "representation": payload.get("feature_config", {}).get("representation"),
                 "best_cv_score": payload.get("tuning", {}).get("best_cv_score"),
                 "best_params": str(payload.get("tuning", {}).get("best_params", {})),
@@ -127,7 +146,7 @@ def build_runs_comparison_table(reports_dir: str | Path, distilbert_proxy_penalt
     rows: list[dict[str, Any]] = []
     for path in run_report_files:
         run_report = load_report(path)
-        include_distilbert = bool(run_report.get("run_config", {}).get("include_distilbert", False))
+        include_distilbert = _distilbert_enabled_from_run_config(run_report.get("run_config", {}))
         cv_fallback_models = run_report.get("model_selection_method", {}).get("cv_fallback_for_models", [])
         distilbert_cv_proxy = include_distilbert and ("DistilBERT" in cv_fallback_models)
         # Compensation réaliste: léger malus de prudence quand DistilBERT utilise un CV proxy.
@@ -199,7 +218,7 @@ def run_all_configs(runs: dict[str, dict[str, Any]], distilbert_proxy_penalty: f
         save_report_markdown(run_report_path, reports_src / f"metrics_report_{run_name}.md")
         run_report = load_report(run_report_path)
 
-        include_distilbert = bool(run_config.get("include_distilbert", False))
+        include_distilbert = _distilbert_enabled_from_run_config(run_config)
         cv_fallback_models = run_report.get("model_selection_method", {}).get("cv_fallback_for_models", [])
         distilbert_cv_proxy = include_distilbert and ("DistilBERT" in cv_fallback_models)
         fairness_penalty = float(distilbert_proxy_penalty) if distilbert_cv_proxy else 0.0

@@ -1,5 +1,6 @@
 """Exports du zoo de modèles."""
 
+from .adaboost_model import AdaBoostModel
 from .decision_tree_model import DecisionTreeModel
 from .distilbert_model import DistilBertTextClassifier, build_distilbert_tuning, distilbert_deps_available
 from .knn_model import KNNModel
@@ -17,6 +18,7 @@ CLASSIC_MODEL_BUILDERS = [
     KNNModel,
     DecisionTreeModel,
     RandomForestModel,
+    AdaBoostModel,
     MLPModel,
 ]
 

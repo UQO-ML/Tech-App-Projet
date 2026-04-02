@@ -14,6 +14,7 @@ import pandas as pd
 import seaborn as sns
 from sklearn.metrics import (
     accuracy_score,
+    balanced_accuracy_score,
     classification_report,
     confusion_matrix,
     precision_recall_fscore_support,
@@ -64,7 +65,7 @@ def compute_metrics(y_true: pd.Series, y_pred: np.ndarray) -> dict[str, float]:
         y_pred: Labels prédits.
 
     Retour:
-        Dictionnaire avec accuracy, precision_macro, recall_macro, f1_macro.
+        Dictionnaire avec accuracy, balanced_accuracy, precision_macro, recall_macro, f1_macro.
     """
     precision, recall, f1, _ = precision_recall_fscore_support(
         y_true,
@@ -74,6 +75,7 @@ def compute_metrics(y_true: pd.Series, y_pred: np.ndarray) -> dict[str, float]:
     )
     return {
         "accuracy": float(accuracy_score(y_true, y_pred)),
+        "balanced_accuracy": float(balanced_accuracy_score(y_true, y_pred)),
         "precision_macro": float(precision),
         "recall_macro": float(recall),
         "f1_macro": float(f1),

@@ -52,6 +52,8 @@ def report_to_markdown(report: dict[str, Any]) -> str:
     lines.append(f"- trained: `{counts['trained']}`")
     lines.append(f"- skipped: `{counts['skipped']}`")
     lines.append(f"- failed: `{counts['failed']}`")
+    lines.append(f"- modèles attendus: `{report.get('expected_models', [])}`")
+    lines.append(f"- modèles entraînés: `{report.get('trained_models', [])}`")
     lines.append("")
     lines.append("## Méthode de sélection")
     lines.append(f"- Formule: `{method.get('formula', 'N/A')}`")
@@ -127,6 +129,8 @@ def report_to_markdown(report: dict[str, Any]) -> str:
     lines.append("## Analyse d'erreurs textuelles")
     lines.append("- Fichier JSON: `Outputs/reports/error_cases_best_model.json`")
     lines.append("- Fichier Markdown: `Outputs/reports/error_cases_best_model.md`")
+    lines.append("- Résumé features par modèle: `Outputs/reports/feature_importance_summary.json`")
+    lines.append("- Heatmap comparative: `Outputs/figures/feature_importance_comparison_models.png`")
     lines.append("")
     return "\n".join(lines)
 

@@ -7,7 +7,12 @@ from typing import Any
 from sklearn.model_selection import GridSearchCV, cross_val_score
 
 from model_zoo import CLASSIC_MODEL_BUILDERS
-from model_zoo import DistilBertTextClassifier, build_distilbert_tuning, distilbert_deps_available
+from model_zoo import (
+    DistilBertTextClassifier,
+    build_distilbert_tuning,
+    cuml_classic_deps_available,
+    distilbert_deps_available,
+)
 from utils import compute_metrics
 
 
@@ -82,6 +87,17 @@ def _build_failed_result(error_message: str) -> dict[str, Any]:
     }
 
 
+def _build_skipped_result(reason_message: str) -> dict[str, Any]:
+    """Construit une structure de résultat standard pour un modèle ignoré."""
+    return {
+        "status": "skipped",
+        "estimator": None,
+        "val_metrics": {},
+        "tuning": {},
+        "error": reason_message,
+    }
+
+
 def _build_trained_result(estimator: Any, y_val, y_val_pred, tuning: dict[str, Any]) -> dict[str, Any]:
     """Construit une structure de résultat standard après entraînement réussi."""
     return {
@@ -91,6 +107,11 @@ def _build_trained_result(estimator: Any, y_val, y_val_pred, tuning: dict[str, A
         "tuning": tuning,
         "error": None,
     }
+
+
+def _is_gpu_classic_model(model_name: str) -> bool:
+    """Retourne True pour les modèles classiques basés GPU (suffixe `GPU`)."""
+    return model_name.endswith("GPU")
 
 
 def get_expected_model_names(
@@ -147,12 +168,15 @@ def train_with_grid_search(
     """
     model_entry = get_models(random_state=random_state)[model_name]
     effective_grid = _merge_param_grid(model_entry["param_grid"], grid_override)
+    # Les grilles GPU (cuML) sont sensibles au parallélisme CPU (contention CUDA/mémoire).
+    # On force `n_jobs=1` pour ces modèles afin d'éviter les échecs intermittents.
+    n_jobs = 1 if _is_gpu_classic_model(model_name) else -1
     search = GridSearchCV(
         estimator=model_entry["pipeline"],
         param_grid=effective_grid,
         cv=cv,
         scoring=scoring,
-        n_jobs=-1,
+        n_jobs=n_jobs,
         verbose=0,
     )
     search.fit(x_train, y_train)
@@ -281,6 +305,11 @@ def train_all_models(
     for model_name in get_models(random_state=random_state):
         if not switches.get(model_name, True):
             continue
+        if _is_gpu_classic_model(model_name) and not cuml_classic_deps_available():
+            results[model_name] = _build_skipped_result(
+                "Dépendances GPU classiques manquantes: cuML/cupy non disponibles."
+            )
+            continue
         try:
             results[model_name] = _train_single_classic_model(
                 model_name=model_name,
@@ -351,4 +380,10 @@ def get_model_rationales(
             "Modèle Transformer pré-entraîné qui capte mieux le contexte sémantique des tweets; "
             "souvent plus performant sur la détection de nuances offensantes/haineuses."
         )
+    for model_name in rationales:
+        if _is_gpu_classic_model(model_name):
+            rationales[model_name] = (
+                f"{rationales[model_name]} Variante GPU (cuML) utile pour comparer "
+                "les gains de temps et l'impact des hyperparamètres en environnement CUDA."
+            )
     return rationales

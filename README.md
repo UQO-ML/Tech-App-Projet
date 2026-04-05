@@ -20,6 +20,7 @@ Tech-App-Devoir-II/
 │   ├── result_interpreter.py
 │   ├── report_markdown.py
 │   ├── run_pipeline_subprocess.py
+│   ├── run_configs.py
 │   └── model_zoo/
 ├── Data/
 │   ├── labeled_data.csv
@@ -50,20 +51,13 @@ python main.py
 ### Option 2 — Notebook
 Ouvrir `notebook_principal.ipynb` (racine du projet) et exécuter les cellules.
 
-Dans le notebook, chaque paramètre de `RUN_CONFIG` est défini via une constante dédiée (commentée):
-- `MAX_SAMPLES`: `int` (>0) ou `None` pour 100% des données;
-- `DISTILBERT_EPOCHS`: `int` (ex: 1 rapide, 2-4 plus long);
-- `INCLUDE_DISTILBERT`: `bool`;
-- `ALGORITHM_SWITCHES`: dict `{nom_modele: bool}` pour activer/désactiver chaque algorithme;
-- `TEST_SIZE` et `VAL_SIZE`: `float` entre 0 et 1;
-- `CV_FOLDS`: `int` (ex: 3, 5, 10);
-- `SCORING`: métrique sklearn (ex: `f1_macro`, `accuracy`);
-- `MODEL_PARAM_OVERRIDES`: dict de paramètres fixes par modèle (surtout DistilBERT);
-- `MODEL_GRID_OVERRIDES`: dict de surcharge de grilles GridSearch par modèle classique;
-- `SELECTION_WEIGHTS`: tuple `(validation, test, cv, hate_recall)` (somme idéalement = 1.0);
-- `HATE_RECALL_FLOOR`: seuil minimal de recall pour `hate_speech` sur test;
-- `HATE_RECALL_PENALTY`: pénalité appliquée si le seuil n'est pas atteint;
-- `RANDOM_STATE`: seed de reproductibilité.
+Dans le notebook, la configuration est pilotée par quelques constantes haut niveau:
+- `RUN_MATRIX`: `"default"` ou `"exhaustive"`;
+- `DISTILBERT_PROXY_PENALTY`: malus appliqué aux runs avec DistilBERT en CV proxy;
+- `DISTILBERT_PROFILES_ENABLED`, `MLP_PROFILES_ENABLED`, `ADABOOST_PROFILES_ENABLED`: profils activés;
+- `GPU_MODELS_ENABLED`, `GPU_PROFILES_ENABLED`: activation des modèles/profils GPU.
+
+Les détails de grilles et d'hyperparamètres sont centralisés dans `Code/run_configs.py` (source unique CLI + notebook).
 
 Pour la comparaison multi-runs, une règle dédiée est aussi paramétrable:
 - `DISTILBERT_PROXY_PENALTY`: `float` (recommandé: `0.00` à `0.05`) appliqué comme malus
@@ -74,6 +68,12 @@ Guideline overrides:
 - `MODEL_PARAM_OVERRIDES["DistilBERT"]["batch_size"]`: 8/16/32 (plus petit = moins de mémoire);
 - `MODEL_PARAM_OVERRIDES["DistilBERT"]["max_length"]`: 96-256 (plus grand = plus de contexte, plus de coût);
 - `MODEL_GRID_OVERRIDES["MLPClassifier"]`: ajouter/modifier des listes de valeurs (`clf__alpha`, `hidden_layer_sizes`, etc.) pour explorer plus large ou accélérer.
+- `MODEL_GRID_OVERRIDES["<ModelGPU>"]`: ajuster les grilles des modèles GPU (`LogisticRegressionGPU`, `LinearSVCGPU`, `KNNGPU`, `RandomForestGPU`).
+
+Configuration centralisée des runs:
+- les matrices de runs (`default` / `exhaustive`) sont définies dans `Code/run_configs.py`;
+- `main.py` et le notebook réutilisent la même source pour éviter la duplication;
+- les runs incompatibles avec l'environnement courant (ex: cuML absent, DistilBERT deps absentes) sont filtrés automatiquement.
 
 ## Ce que le pipeline produit
 
@@ -88,12 +88,14 @@ Guideline overrides:
   - compilation synthèse comparative globale
   - couverture de statuts pour tous les modèles (trained/skipped/failed)
   - courbe d’apprentissage
-  - importance des features (si supportée)
+  - importance des features du meilleur modèle (`feature_importance_best_model.png`)
+  - heatmap de contribution des features entre modèles (`feature_importance_comparison_models.png`)
 - `Outputs/reports/eda_summary.json`
 - `Outputs/reports/metrics_report.json` (inclut `all_models`, statuts, erreurs éventuelles et métriques disponibles pour tous les modèles attendus)
 - `Outputs/reports/metrics_report.md` (version lisible humain du report principal)
 - `Outputs/reports/metrics_report_<run_name>.md` (version lisible par run)
 - `Outputs/reports/runs_comparison_overview.md` (tableau lisible de comparaison inter-runs)
+- `Outputs/reports/feature_importance_summary.json` (top termes influents par modèle entraîné)
 - `Outputs/models/best_model.joblib`
   - si meilleur modèle deep learning: `Outputs/reports/best_model_deep_learning_note.json`
 
@@ -108,6 +110,10 @@ Guideline overrides:
 - AdaBoost
 - MLPClassifier
 - DistilBERT (fine-tuning, si dépendances deep learning installées)
+- LogisticRegressionGPU (cuML)
+- LinearSVCGPU (cuML)
+- KNNGPU (cuML)
+- RandomForestGPU (cuML)
 
 Chaque modèle est entraîné avec `GridSearchCV` et évalué avec:
 - accuracy
@@ -136,6 +142,11 @@ Note DistilBERT:
 - lors de la comparaison inter-runs, un score ajusté est utilisé:
   `adjusted_selection_score = best_selection_score - DISTILBERT_PROXY_PENALTY`
   quand DistilBERT est en mode CV proxy.
+
+Note GPU classiques (cuML):
+- les modèles GPU sont intégrés dans la pipeline comme les autres via `model_zoo`;
+- si les dépendances cuML/cupy sont absentes, les runs GPU-only sont ignorés dans l'orchestration multi-runs;
+- dans le report, `feature_config.backend` indique le backend (`cpu_sklearn`, `gpu_cuml`, `gpu_torch`).
 
 La figure `runs_comparison_overview.png` est volontairement zoomée sur l'intervalle `[0.6, 0.8]`
 pour mieux visualiser les écarts fins entre runs.

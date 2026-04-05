@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+import time
 from pathlib import Path
 from typing import Any
 
@@ -58,8 +59,18 @@ def _build_empty_model_report(status: str, error: str | None, model_why: str, tu
 def _build_feature_config(model_name: str, tuning_info: dict[str, Any]) -> dict[str, Any]:
     """Extrait les métadonnées de représentation (TF-IDF/Transformer)."""
     best_params = tuning_info.get("best_params", {}) if isinstance(tuning_info, dict) else {}
+    if model_name == "DistilBERT":
+        representation = "Transformer embeddings"
+        backend = "gpu_torch"
+    elif model_name.endswith("GPU"):
+        representation = "TF-IDF + SVD dense vectors"
+        backend = "gpu_cuml"
+    else:
+        representation = "TF-IDF sparse vectors"
+        backend = "cpu_sklearn"
     return {
-        "representation": "Transformer embeddings" if model_name == "DistilBERT" else "TF-IDF sparse vectors",
+        "representation": representation,
+        "backend": backend,
         "tfidf_ngram_range": best_params.get("tfidf__ngram_range"),
         "tfidf_min_df": best_params.get("tfidf__min_df"),
         "tfidf_max_features": best_params.get("tfidf__max_features"),
@@ -406,13 +417,30 @@ def run_pipeline(
     Retour:
         Dictionnaire avec le meilleur modèle, le chemin du report et les dossiers de sortie.
     """
+    phase_times: dict[str, float] = {}
+    pipeline_start = time.perf_counter()
+
+    def _tic() -> float:
+        return time.perf_counter()
+
+    def _toc(phase_name: str, start_time: float) -> None:
+        elapsed = time.perf_counter() - start_time
+        phase_times[phase_name] = float(elapsed)
+        print(f"[timing] {phase_name}: {elapsed:.2f}s")
+
+    t0 = _tic()
     _prepare_outputs()
     device = utils.get_device()
     print(f"Device détecté (pour deep learning): {device}")
+    _toc("prepare_outputs_and_device", t0)
 
+    t0 = _tic()
     raw_df = prep.load_data(data_path)
     df = prep.clean_data(raw_df)
     df = _sample_dataframe(df, max_samples, random_state=random_state)
+    _toc("load_clean_sample_data", t0)
+
+    t0 = _tic()
     summary = prep.exploratory_summary(df, target_column="class")
     utils.save_json(summary, utils.REPORTS_DIR / "eda_summary.json")
 
@@ -422,8 +450,10 @@ def run_pipeline(
     utils.plot_numeric_correlation(df, utils.FIGURES_DIR / "correlation_heatmap.png")
     utils.plot_text_length(df, prep.CLASS_LABELS, utils.FIGURES_DIR / "tweet_length_histogram.png")
     utils.plot_word_count_boxplot(df, prep.CLASS_LABELS, utils.FIGURES_DIR / "word_count_boxplot.png")
+    _toc("eda_summary_and_figures", t0)
 
     # Split train / val / test
+    t0 = _tic()
     x = df["clean_tweet"]
     y = df["class"]
     x_train, x_val, x_test, y_train, y_val, y_test = prep.train_val_test_split(
@@ -433,8 +463,10 @@ def run_pipeline(
         val_size=val_size,
         random_state=random_state,
     )
+    _toc("split_train_val_test", t0)
 
     # Entraînement des modèles classiques + DistilBERT (si dépendances disponibles)
+    t0 = _tic()
     results = models.train_all_models(
         x_train=x_train,
         y_train=y_train,
@@ -449,6 +481,9 @@ def run_pipeline(
         model_param_overrides=model_param_overrides,
         model_grid_overrides=model_grid_overrides,
     )
+    _toc("train_models", t0)
+
+    t0 = _tic()
     resolved_switches = models.resolve_algorithm_switches(
         include_distilbert=include_distilbert,
         algorithm_switches=algorithm_switches,
@@ -474,7 +509,9 @@ def run_pipeline(
         x_test=x_test,
         y_test=y_test,
     )
+    _toc("evaluate_on_test", t0)
 
+    t0 = _tic()
     if test_metrics:
         utils.plot_models_comparison(test_metrics, utils.FIGURES_DIR / "models_comparison_test.png")
     if confusion_by_model:
@@ -483,8 +520,10 @@ def run_pipeline(
             class_names=prep.CLASS_LABELS,
             save_path=utils.FIGURES_DIR / "confusion_matrices_all_models.png",
         )
+    _toc("evaluation_figures", t0)
 
     # Validation croisée k-fold sur train+val pour tous les modèles
+    t0 = _tic()
     x_train_val = pd.concat([x_train, x_val], axis=0)
     y_train_val = pd.concat([y_train, y_val], axis=0)
     normalized_weights = _normalize_selection_weights(selection_weights)
@@ -500,6 +539,7 @@ def run_pipeline(
         hate_recall_floor=hate_recall_floor,
         hate_recall_penalty=hate_recall_penalty,
     )
+    _toc("cv_and_selection_scores", t0)
 
     if not model_selection_scores:
         raise RuntimeError("Aucun modèle n'a pu être entraîné. Vérifier les dépendances et les données.")
@@ -519,6 +559,7 @@ def run_pipeline(
     best_cv_scores = model_cv_scores[best_model_name]
     best_y_pred_test = best_estimator.predict(x_test)
 
+    t0 = _tic()
     utils.plot_models_compilation(
         report_by_model={name: full_report[name] for name in trained_model_names},
         model_selection_scores=model_selection_scores,
@@ -531,14 +572,37 @@ def run_pipeline(
 
     utils.plot_learning_curves(best_estimator, x_train_val, y_train_val, utils.FIGURES_DIR / "learning_curve_best_model.png")
     utils.plot_feature_importance_from_pipeline(best_estimator, utils.FIGURES_DIR / "feature_importance_best_model.png")
+    trained_estimators = {
+        model_name: results[model_name]["estimator"]
+        for model_name in trained_model_names
+        if results.get(model_name, {}).get("estimator") is not None
+    }
+    utils.plot_feature_importance_comparison(
+        model_pipelines=trained_estimators,
+        save_path=utils.FIGURES_DIR / "feature_importance_comparison_models.png",
+        top_k_per_model=15,
+        max_terms_union=40,
+    )
+    _toc("best_model_figures", t0)
 
+    t0 = _tic()
     model_path = _save_best_model_artifact(best_model_name, best_estimator)
     distilbert_note = _build_distilbert_note(distilbert_status, results)
     error_cases = _build_error_cases_report(x_test=x_test, y_test=y_test, y_pred=pd.Series(best_y_pred_test))
     error_cases_json_path = utils.save_json(error_cases, utils.REPORTS_DIR / "error_cases_best_model.json")
+    feature_importance_summary = utils.build_feature_importance_summary_by_model(
+        model_pipelines=trained_estimators,
+        top_k_per_model=15,
+    )
+    feature_importance_summary_path = utils.save_json(
+        {"by_model": feature_importance_summary},
+        utils.REPORTS_DIR / "feature_importance_summary.json",
+    )
     error_cases_md_path = utils.REPORTS_DIR / "error_cases_best_model.md"
     error_cases_md_path.write_text(_error_cases_to_markdown(error_cases), encoding="utf-8")
+    _toc("save_artifacts_and_error_analysis", t0)
 
+    t0 = _tic()
     global_report = {
         "dataset_path": str(data_path),
         "n_samples": int(df.shape[0]),
@@ -597,6 +661,7 @@ def run_pipeline(
             "models_dir": str(utils.MODELS_DIR),
             "error_cases_json": str(error_cases_json_path),
             "error_cases_markdown": str(error_cases_md_path),
+            "feature_importance_summary_json": str(feature_importance_summary_path),
             "main_figures": [
                 "models_compilation_overview.png",
                 "models_status_overview.png",
@@ -604,6 +669,7 @@ def run_pipeline(
                 "models_comparison_test.png",
                 "learning_curve_best_model.png",
                 "feature_importance_best_model.png",
+                "feature_importance_comparison_models.png",
             ],
         },
         "run_config": {
@@ -624,6 +690,11 @@ def run_pipeline(
         },
         "all_models": full_report,
     }
+    _toc("save_final_report", t0)
+
+    phase_times["pipeline_total"] = float(time.perf_counter() - pipeline_start)
+    print(f"[timing] pipeline_total: {phase_times['pipeline_total']:.2f}s")
+    global_report["timing_seconds"] = phase_times
     report_path = utils.save_json(global_report, utils.REPORTS_DIR / "metrics_report.json")
 
     return {

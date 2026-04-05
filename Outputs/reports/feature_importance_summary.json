@@ -1,0 +1,66 @@
+{
+  "by_model": {
+    "AdaBoost": [
+      {
+        "term": "bitch",
+        "importance": 0.30347861564652145
+      },
+      {
+        "term": "bitches",
+        "importance": 0.16601073367071223
+      },
+      {
+        "term": "hoes",
+        "importance": 0.11130377048819591
+      },
+      {
+        "term": "pussy",
+        "importance": 0.10830422984103263
+      },
+      {
+        "term": "hoe",
+        "importance": 0.08018824757562307
+      },
+      {
+        "term": "faggot",
+        "importance": 0.05459924038095317
+      },
+      {
+        "term": "nigga",
+        "importance": 0.02672238486940611
+      },
+      {
+        "term": "niggas",
+        "importance": 0.018396714058984596
+      },
+      {
+        "term": "white",
+        "importance": 0.015615972647133483
+      },
+      {
+        "term": "nigger",
+        "importance": 0.015208515689826979
+      },
+      {
+        "term": "bird",
+        "importance": 0.013058878932477308
+      },
+      {
+        "term": "charlie",
+        "importance": 0.012846359161387138
+      },
+      {
+        "term": "ass",
+        "importance": 0.00754115943347128
+      },
+      {
+        "term": "dyke",
+        "importance": 0.00666806671032121
+      },
+      {
+        "term": "ugly",
+        "importance": 0.0059988839986100774
+      }
+    ]
+  }
+}

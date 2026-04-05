@@ -20,6 +20,7 @@ Le pipeline complet est dans les scripts Python du dossier `Code/`, puis appelé
   - prépare le split `train/validation/test`.
 - `Code/models.py`
   - définit plusieurs modèles pertinents pour texte (`NaiveBayes`, `LogisticRegression`, `LinearSVC`, `KNN`, `DecisionTree`, `RandomForest`, `AdaBoost`, `MLPClassifier`, `DistilBERT`);
+  - intègre aussi 4 variantes GPU (`LogisticRegressionGPU`, `LinearSVCGPU`, `KNNGPU`, `RandomForestGPU`) basées sur cuML;
   - applique GridSearchCV pour régler les hyperparamètres;
   - applique aussi un fine-tuning DistilBERT (si dépendances deep installées);
   - calcule un score global de sélection pour retenir le meilleur modèle.
@@ -35,6 +36,10 @@ Le pipeline complet est dans les scripts Python du dossier `Code/`, puis appelé
 - `Code/run_pipeline_subprocess.py`
   - exécute un run pipeline dans un process Python isolé;
   - sert de worker pour limiter l'empreinte mémoire entre runs.
+- `Code/run_configs.py`
+  - centralise les matrices de runs pour le notebook et la CLI;
+  - définit les profils de tuning explicites (DistilBERT, MLP, AdaBoost et modèles GPU);
+  - filtre les runs incompatibles (dépendances absentes) avant exécution.
 - `Code/main.py`
   - orchestre toutes les étapes;
   - produit les sorties dans `Outputs/`.
@@ -57,18 +62,15 @@ python main.py
 
 Ou dans le notebook, exécuter les cellules de haut en bas.
 
-Le notebook contient des constantes (une par paramètre) pour ajuster facilement:
-- `MAX_SAMPLES`, `DISTILBERT_EPOCHS`, `INCLUDE_DISTILBERT`;
-- `ALGORITHM_SWITCHES` pour activer/désactiver finement chaque algorithme;
-- `TEST_SIZE`, `VAL_SIZE`, `CV_FOLDS`;
-- `SCORING`, `SELECTION_WEIGHTS`, `HATE_RECALL_FLOOR`, `HATE_RECALL_PENALTY`, `RANDOM_STATE`.
-- `MODEL_PARAM_OVERRIDES`:
-  - paramètres fixes par modèle (ex: DistilBERT epochs, batch_size, max_length, learning_rate).
-  - utile pour itérer rapidement des profils deep learning sans toucher le code source.
-- `MODEL_GRID_OVERRIDES`:
-  - surcharge des grilles de recherche par modèle classique (MLP, AdaBoost, etc.).
-  - utile pour élargir/réduire la recherche selon le budget de calcul.
-- `DISTILBERT_PROXY_PENALTY` pour la comparaison inter-runs.
+Le notebook expose des constantes de pilotage, puis délègue les détails à `Code/run_configs.py`:
+- `RUN_MATRIX` pour choisir la matrice (`default` ou `exhaustive`);
+- `DISTILBERT_PROXY_PENALTY` pour la comparaison inter-runs;
+- `DISTILBERT_PROFILES_ENABLED`, `MLP_PROFILES_ENABLED`, `ADABOOST_PROFILES_ENABLED`;
+- `GPU_MODELS_ENABLED`, `GPU_PROFILES_ENABLED`.
+
+Le notebook ne porte plus la logique détaillée de génération des runs:
+- il appelle directement `get_exhaustive_runs()` / `filter_incompatible_runs()` depuis `Code/run_configs.py`;
+- la maintenance des profils de tuning est donc centralisée côté scripts.
 
 Chaque constante est commentée dans le notebook pour préciser son impact et les valeurs recommandées.
 Pour les overrides, conserver des valeurs pragmatiques:
@@ -90,11 +92,14 @@ Le pipeline crée automatiquement:
 - `Outputs/figures/models_compilation_overview.png` : vue comparative globale de tous les modèles;
 - `Outputs/figures/models_status_overview.png` : couverture de tous les modèles attendus (trained/skipped/failed);
 - `Outputs/figures/confusion_matrices_all_models.png` : compilation des matrices de confusion;
+- `Outputs/figures/feature_importance_best_model.png` : termes influents du meilleur modèle;
+- `Outputs/figures/feature_importance_comparison_models.png` : comparaison inter-modèles des contributions de features;
 - `Outputs/reports/eda_summary.json` : résumé EDA;
 - `Outputs/reports/metrics_report.json` : résultats détaillés de tous les modèles;
 - `Outputs/reports/metrics_report.md` : synthèse lisible humain du report principal;
 - `Outputs/reports/metrics_report_<run_name>.md` : synthèse lisible par run;
 - `Outputs/reports/runs_comparison_overview.md` : synthèse lisible de la comparaison inter-runs;
+- `Outputs/reports/feature_importance_summary.json` : top features influentes par modèle entraîné;
 - `Outputs/reports/error_cases_best_model.json` et `.md` : exemples textuels FP/FN pour le meilleur modèle;
 - `Outputs/models/best_model.joblib` : meilleur modèle sauvegardé.
 
@@ -103,6 +108,11 @@ Remarque DistilBERT:
 - Le report inclut alors un fallback de stabilité via `cv_fallback_for_models`.
 - En comparaison multi-runs, ce cas peut recevoir un malus contrôlé:
   `adjusted_selection_score = best_selection_score - DISTILBERT_PROXY_PENALTY`.
+
+Remarque GPU classiques:
+- les 4 modèles GPU cuML sont évalués comme les autres via la même structure de report;
+- leur backend est explicite dans `feature_config.backend = "gpu_cuml"`;
+- si cuML/cupy n'est pas disponible, les runs GPU-only sont automatiquement exclus de la matrice active.
 
 Remarque graphique:
 - `runs_comparison_overview.png` utilise une échelle Y zoomée sur `[0.6, 0.8]`

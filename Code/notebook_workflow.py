@@ -21,6 +21,8 @@ DEFAULT_FIGURE_NAMES = [
     "confusion_matrices_all_models.png",
     "models_comparison_test.png",
     "learning_curve_best_model.png",
+    "feature_importance_best_model.png",
+    "feature_importance_comparison_models.png",
 ]
 
 
@@ -183,6 +185,7 @@ def run_all_configs(runs: dict[str, dict[str, Any]], distilbert_proxy_penalty: f
     """
     all_artifacts: dict[str, dict[str, Any]] = {}
     run_summaries: list[dict[str, Any]] = []
+    failed_runs: list[dict[str, str]] = []
     runs_root = Path("Outputs") / "runs"
     runs_root.mkdir(parents=True, exist_ok=True)
     project_root = Path(__file__).resolve().parents[1]
@@ -194,7 +197,13 @@ def run_all_configs(runs: dict[str, dict[str, Any]], distilbert_proxy_penalty: f
         print("Pourquoi:", run_ctx["why"])
         print("Configuration:", run_config)
 
-        run_artifacts = _run_pipeline_subprocess(run_name=run_name, run_config=run_config, project_root=project_root)
+        try:
+            run_artifacts = _run_pipeline_subprocess(run_name=run_name, run_config=run_config, project_root=project_root)
+        except Exception as exc:
+            error_message = str(exc)
+            print(f"Run ignoré (échec): {run_name} -> {error_message}")
+            failed_runs.append({"run": run_name, "error": error_message})
+            continue
         all_artifacts[run_name] = run_artifacts
 
         outputs_dir = Path(run_artifacts["outputs_dir"])
@@ -240,6 +249,12 @@ def run_all_configs(runs: dict[str, dict[str, Any]], distilbert_proxy_penalty: f
         )
         print(f"Report run sauvegarde: {run_report_path}")
 
+    if not run_summaries:
+        raise RuntimeError(
+            "Aucun run n'a abouti. "
+            f"Runs en échec: {failed_runs}"
+        )
+
     run_summary_df = pd.DataFrame(run_summaries).sort_values("adjusted_selection_score", ascending=False)
     best_run = str(run_summary_df.iloc[0]["run"])
     best_run_dir = runs_root / best_run
@@ -267,6 +282,7 @@ def run_all_configs(runs: dict[str, dict[str, Any]], distilbert_proxy_penalty: f
         "best_run": best_run,
         "run_summary_df": run_summary_df,
         "all_artifacts": all_artifacts,
+        "failed_runs": failed_runs,
         "runs_root": runs_root,
         "figure_names": DEFAULT_FIGURE_NAMES,
         "distilbert_proxy_penalty": float(distilbert_proxy_penalty),

@@ -1,0 +1,14 @@
+# Rolling latest base stack (resolved at build time).
+numpy
+pandas
+scipy
+joblib
+scikit-learn
+matplotlib
+seaborn
+jupyterlab
+ipykernel
+torch
+transformers
+datasets
+accelerate

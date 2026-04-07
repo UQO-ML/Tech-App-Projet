@@ -1,0 +1,5 @@
+# Frozen RAPIDS stack (experimental pins).
+cuml-cu12==26.2.0
+cupy-cuda12x==14.0.1
+numba==0.61.2
+numba-cuda==0.22.2

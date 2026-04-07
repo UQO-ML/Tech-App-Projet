@@ -1,0 +1,37 @@
+services:
+  pipeline:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        CUDA_IMAGE_TAG: "${CUDA_IMAGE_TAG:-12.6.3-cudnn-runtime-ubuntu24.04}"
+        ENABLE_RAPIDS: "${ENABLE_RAPIDS:-0}"
+        REQUIREMENTS_MODE: "${REQUIREMENTS_MODE:-freeze}"
+    image: tech-app-devoir-ii:latest
+    working_dir: /workspace
+    volumes:
+      - ..:/workspace
+      - pip-cache:/root/.cache/pip
+      - hf-cache:/root/.cache/huggingface
+    environment:
+      PYTHONUNBUFFERED: "1"
+      MPLBACKEND: "Agg"
+      TZ: "${TZ:-Etc/UTC}"
+      NVIDIA_VISIBLE_DEVICES: "${NVIDIA_VISIBLE_DEVICES:-all}"
+      NVIDIA_DRIVER_CAPABILITIES: "${NVIDIA_DRIVER_CAPABILITIES:-compute,utility}"
+      NVIDIA_DISABLE_REQUIRE: "${NVIDIA_DISABLE_REQUIRE:-1}"
+    gpus:
+      - driver: nvidia
+        count: all
+        capabilities: [compute, utility]
+    mem_limit: "${PIPELINE_MEM_LIMIT:-24g}"
+    memswap_limit: "${PIPELINE_MEMSWAP_LIMIT:-24g}"
+    shm_size: "${PIPELINE_SHM_SIZE:-8g}"
+    cpus: "${PIPELINE_CPUS:-12.0}"
+    command: >
+      bash -lc "python main.py --run-matrix default"
+    restart: "no"
+
+volumes:
+  pip-cache:
+  hf-cache:

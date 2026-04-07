@@ -1,0 +1,47 @@
+FROM archlinux:latest
+
+ARG ENABLE_RAPIDS=0
+ARG REQUIREMENTS_MODE=freeze
+ARG PYTHON_VERSION=3.11
+
+ENV PIP_NO_CACHE_DIR=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    VENV_PATH=/opt/venv \
+    PATH=/root/.local/bin:/opt/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+RUN pacman -Syu --noconfirm && \
+    pacman -S --noconfirm --needed \
+      base-devel \
+      git \
+      curl \
+      ca-certificates && \
+    pacman -Scc --noconfirm
+
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+RUN uv python install ${PYTHON_VERSION} && \
+    uv venv --python ${PYTHON_VERSION} --seed ${VENV_PATH}
+
+WORKDIR /tmp/build
+
+COPY docker/requirements.base.txt /tmp/build/requirements.base.txt
+COPY docker/requirements.rapids.txt /tmp/build/requirements.rapids.txt
+COPY docker/requirements.base.lock.txt /tmp/build/requirements.base.lock.txt
+COPY docker/requirements.rapids.lock.txt /tmp/build/requirements.rapids.lock.txt
+
+RUN python -m pip install --upgrade pip setuptools wheel && \
+    if [ "${REQUIREMENTS_MODE}" = "freeze" ]; then \
+      BASE_REQ="/tmp/build/requirements.base.lock.txt"; \
+      RAPIDS_REQ="/tmp/build/requirements.rapids.lock.txt"; \
+    else \
+      BASE_REQ="/tmp/build/requirements.base.txt"; \
+      RAPIDS_REQ="/tmp/build/requirements.rapids.txt"; \
+    fi && \
+    python -m pip install -r "${BASE_REQ}" && \
+    if [ "${ENABLE_RAPIDS}" = "1" ]; then \
+      python -m pip install -r "${RAPIDS_REQ}"; \
+    fi
+
+WORKDIR /workspace
+
+CMD ["bash"]

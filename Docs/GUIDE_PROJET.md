@@ -62,6 +62,48 @@ python main.py
 
 Ou dans le notebook, exécuter les cellules de haut en bas.
 
+### Exécution Docker (recommandée pour environnement GPU durable)
+
+Deux compositions sont disponibles dans `docker/`:
+- `docker-compose.simple.yml`: notebook Jupyter + shell manuel;
+- `docker-compose.pipeline.yml`: pipeline minimale puis arrêt.
+
+Pré-requis:
+- Docker + Compose;
+- driver NVIDIA;
+- NVIDIA Container Toolkit.
+
+Build image:
+
+```bash
+docker compose -f docker/docker-compose.simple.yml build
+```
+
+Notebook Jupyter (conteneur GPU):
+
+```bash
+docker compose -f docker/docker-compose.simple.yml up notebook
+```
+
+Accès notebook:
+- URL: `http://localhost:8888`
+- token par défaut: `techapp` (surcharge via variable `JUPYTER_TOKEN`).
+
+Shell manuel dans le conteneur:
+
+```bash
+docker compose -f docker/docker-compose.simple.yml run --rm shell
+```
+
+Exécution pipeline minimale (puis exit):
+
+```bash
+docker compose -f docker/docker-compose.pipeline.yml run --rm pipeline
+```
+
+Ce service applique des bornes mémoire/CPU et lance:
+`python main.py --run-matrix default`.
+
 Le notebook expose des constantes de pilotage, puis délègue les détails à `Code/run_configs.py`:
 - `RUN_MATRIX` pour choisir la matrice (`default` ou `exhaustive`);
 - `DISTILBERT_PROXY_PENALTY` pour la comparaison inter-runs;

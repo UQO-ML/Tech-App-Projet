@@ -41,6 +41,110 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
+## Exécution Docker (GPU)
+
+Des fichiers prêts à l'emploi sont fournis dans `docker/`:
+- `docker/docker-compose.simple.yml`: usage interactif (Jupyter + shell manuel);
+- `docker/docker-compose.pipeline.yml`: exécution pipeline minimale puis arrêt.
+- `docker/Dockerfile`: image CUDA/NVIDIA (recommandée pour GPU).
+- `docker/Dockerfile.arch`: variante base Arch Linux.
+- `docker/Dockerfile.fedora`: variante base Fedora (compatible écosystème Red Hat).
+
+### Prérequis machine
+
+- Docker + plugin Compose;
+- driver NVIDIA compatible;
+- NVIDIA Container Toolkit configuré pour Docker.
+
+Test rapide GPU Docker:
+
+```bash
+docker run --rm --gpus all nvidia/cuda:12.6.3-cudnn-runtime-ubuntu24.04 nvidia-smi
+```
+
+Build manuel d'une variante de Dockerfile:
+
+```bash
+docker build -f docker/Dockerfile.arch -t tech-app-devoir-ii:arch .
+docker build -f docker/Dockerfile.fedora -t tech-app-devoir-ii:fedora .
+```
+
+Avec requirements figés (défaut) ou latest:
+
+```bash
+docker build -f docker/Dockerfile.arch --build-arg REQUIREMENTS_MODE=freeze -t tech-app-devoir-ii:arch .
+docker build -f docker/Dockerfile.fedora --build-arg REQUIREMENTS_MODE=latest -t tech-app-devoir-ii:fedora .
+```
+
+Note versioning Docker:
+- `docker/requirements.base.txt` et `docker/requirements.rapids.txt` sont en mode *rolling latest* (pas de pin), donc les versions les plus récentes disponibles sont installées au moment du build;
+- des versions figées sont aussi fournies:
+  - `docker/requirements.base.lock.txt`
+  - `docker/requirements.rapids.lock.txt`
+  et le `docker/Dockerfile` les utilise par défaut (`REQUIREMENTS_MODE=freeze`).
+
+Build en mode figé (défaut):
+
+```bash
+docker compose -f docker/docker-compose.simple.yml build
+```
+
+Build en mode latest:
+
+```bash
+REQUIREMENTS_MODE=latest docker compose -f docker/docker-compose.simple.yml build
+```
+
+### 1) Mode simple: notebook ou shell manuel
+
+Depuis la racine du projet:
+
+```bash
+docker compose -f docker/docker-compose.simple.yml build
+docker compose -f docker/docker-compose.simple.yml up notebook
+```
+
+Puis ouvrir Jupyter:
+- URL: `http://localhost:8888`
+- token par défaut: `techapp` (modifiable via `JUPYTER_TOKEN`).
+
+Pour un shell interactif dans le même environnement conteneurisé:
+
+```bash
+docker compose -f docker/docker-compose.simple.yml run --rm shell
+```
+
+Exemple dans ce shell:
+
+```bash
+python main.py --run-matrix default
+```
+
+### 2) Mode pipeline minimal (run puis exit)
+
+```bash
+docker compose -f docker/docker-compose.pipeline.yml build
+docker compose -f docker/docker-compose.pipeline.yml run --rm pipeline
+```
+
+Ce mode:
+- utilise le GPU;
+- applique des bornes mémoire/CPU via Compose;
+- lance `python main.py --run-matrix default`;
+- s'arrête automatiquement en fin d'exécution.
+
+### Option RAPIDS/cuML (expérimentale)
+
+L'image Docker installe par défaut la stack stable (`docker/requirements.base.txt`).
+Pour ajouter RAPIDS/cuML au build:
+
+```bash
+ENABLE_RAPIDS=1 docker compose -f docker/docker-compose.simple.yml build
+```
+
+Même logique pour `docker-compose.pipeline.yml`.
+Sur GPU très récents, cette option reste plus fragile que la stack stable.
+
 ## Exécution
 
 ### Option 1 — Script

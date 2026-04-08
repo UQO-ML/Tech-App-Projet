@@ -1,25 +1,25 @@
 {
-  "dataset_path": "/home/kilo/Work/Cours - UQO/Technique d'Apprentissage/Tech-App-Devoir-II/Data/labeled_data.csv",
+  "dataset_path": "/workspace/Data/labeled_data.csv",
   "n_samples": 24783,
   "best_model": "DistilBERT",
   "best_model_validation_metrics": {
-    "accuracy": 0.9108511496571198,
-    "balanced_accuracy": 0.7525980963480964,
-    "precision_macro": 0.7597826695010069,
-    "recall_macro": 0.7525980963480964,
-    "f1_macro": 0.7552276377563626
+    "accuracy": 0.9112545381202097,
+    "balanced_accuracy": 0.7586162101787103,
+    "precision_macro": 0.7641665900915838,
+    "recall_macro": 0.7586162101787103,
+    "f1_macro": 0.7606561307061938
   },
   "best_model_test_metrics": {
-    "accuracy": 0.9130522493443615,
-    "balanced_accuracy": 0.7497456738592484,
-    "precision_macro": 0.7803331258004796,
-    "recall_macro": 0.7497456738592484,
-    "f1_macro": 0.7629995631800818
+    "accuracy": 0.9128505144240469,
+    "balanced_accuracy": 0.7495201005147974,
+    "precision_macro": 0.778049909780952,
+    "recall_macro": 0.7495201005147974,
+    "f1_macro": 0.7618443325552805
   },
   "best_model_cv_f1_macro_scores": [
-    0.7552276377563626
+    0.7606561307061938
   ],
-  "best_model_selection_score": 0.7058914231015566,
+  "best_model_selection_score": 0.7073476771545847,
   "model_selection_method": {
     "formula": "selection_score = w_val * val_f1_macro + w_test * test_f1_macro + w_cv * cv_f1_macro_mean + w_hate * hate_recall_test - penalty_if(hate_recall_test < hate_recall_floor)",
     "weights": {
@@ -39,7 +39,7 @@
     "cv_fallback_explanation": "Pour les modèles deep learning coûteux (ex. DistilBERT), le terme CV peut être approché par le score validation afin de garder un temps d'exécution raisonnable."
   },
   "model_selection_scores": {
-    "DistilBERT": 0.7058914231015566
+    "DistilBERT": 0.7073476771545847
   },
   "model_selection_ranking": [
     "DistilBERT"
@@ -47,7 +47,7 @@
   "model_rationales": {
     "DistilBERT": "Modèle Transformer pré-entraîné qui capte mieux le contexte sémantique des tweets; souvent plus performant sur la détection de nuances offensantes/haineuses."
   },
-  "best_model_selection_explanation": "Le modèle DistilBERT obtient le meilleur score global pondéré (0.7059) en combinant validation, test, CV et rappel `hate_speech` (avec pénalité éventuelle sous seuil). Il est retenu pour son compromis entre performance et robustesse.",
+  "best_model_selection_explanation": "Le modèle DistilBERT obtient le meilleur score global pondéré (0.7073) en combinant validation, test, CV et rappel `hate_speech` (avec pénalité éventuelle sous seuil). Il est retenu pour son compromis entre performance et robustesse.",
   "distilbert_included": true,
   "distilbert_note": "DistilBERT inclus dans la comparaison.",
   "expected_models": [
@@ -60,12 +60,12 @@
     "DistilBERT": "trained"
   },
   "artifacts_generated": {
-    "figures_dir": "/home/kilo/Work/Cours - UQO/Technique d'Apprentissage/Tech-App-Devoir-II/Outputs/figures",
-    "reports_dir": "/home/kilo/Work/Cours - UQO/Technique d'Apprentissage/Tech-App-Devoir-II/Outputs/reports",
-    "models_dir": "/home/kilo/Work/Cours - UQO/Technique d'Apprentissage/Tech-App-Devoir-II/Outputs/models",
-    "error_cases_json": "/home/kilo/Work/Cours - UQO/Technique d'Apprentissage/Tech-App-Devoir-II/Outputs/reports/error_cases_best_model.json",
-    "error_cases_markdown": "/home/kilo/Work/Cours - UQO/Technique d'Apprentissage/Tech-App-Devoir-II/Outputs/reports/error_cases_best_model.md",
-    "feature_importance_summary_json": "/home/kilo/Work/Cours - UQO/Technique d'Apprentissage/Tech-App-Devoir-II/Outputs/reports/feature_importance_summary.json",
+    "figures_dir": "/workspace/Outputs/figures",
+    "reports_dir": "/workspace/Outputs/reports",
+    "models_dir": "/workspace/Outputs/models",
+    "error_cases_json": "/workspace/Outputs/reports/error_cases_best_model.json",
+    "error_cases_markdown": "/workspace/Outputs/reports/error_cases_best_model.md",
+    "feature_importance_summary_json": "/workspace/Outputs/reports/feature_importance_summary.json",
     "main_figures": [
       "models_compilation_overview.png",
       "models_status_overview.png",
@@ -136,55 +136,55 @@
         "note": "DistilBERT entraîné via fine-tuning direct (pas de GridSearchCV pour limiter le coût)."
       },
       "validation_metrics": {
-        "accuracy": 0.9108511496571198,
-        "balanced_accuracy": 0.7525980963480964,
-        "precision_macro": 0.7597826695010069,
-        "recall_macro": 0.7525980963480964,
-        "f1_macro": 0.7552276377563626
+        "accuracy": 0.9112545381202097,
+        "balanced_accuracy": 0.7586162101787103,
+        "precision_macro": 0.7641665900915838,
+        "recall_macro": 0.7586162101787103,
+        "f1_macro": 0.7606561307061938
       },
       "test_metrics": {
-        "accuracy": 0.9130522493443615,
-        "balanced_accuracy": 0.7497456738592484,
-        "precision_macro": 0.7803331258004796,
-        "recall_macro": 0.7497456738592484,
-        "f1_macro": 0.7629995631800818
+        "accuracy": 0.9128505144240469,
+        "balanced_accuracy": 0.7495201005147974,
+        "precision_macro": 0.778049909780952,
+        "recall_macro": 0.7495201005147974,
+        "f1_macro": 0.7618443325552805
       },
       "classification_report_test": {
         "hate_speech": {
-          "precision": 0.5110132158590308,
-          "recall": 0.40559440559440557,
-          "f1-score": 0.4522417153996101,
+          "precision": 0.5043859649122807,
+          "recall": 0.4020979020979021,
+          "f1-score": 0.4474708171206226,
           "support": 286.0
         },
         "offensive_language": {
-          "precision": 0.9417650076962545,
-          "recall": 0.9564877540385618,
-          "f1-score": 0.9490692864529473,
+          "precision": 0.9422039558181351,
+          "recall": 0.955706096925482,
+          "f1-score": 0.9489069978010607,
           "support": 3838.0
         },
         "neither": {
-          "precision": 0.8882211538461539,
-          "recall": 0.8871548619447779,
-          "f1-score": 0.8876876876876877,
+          "precision": 0.8875598086124402,
+          "recall": 0.8907563025210085,
+          "f1-score": 0.8891551827441582,
           "support": 833.0
         },
-        "accuracy": 0.9130522493443615,
+        "accuracy": 0.9128505144240469,
         "macro avg": {
-          "precision": 0.7803331258004796,
-          "recall": 0.7497456738592484,
-          "f1-score": 0.7629995631800818,
+          "precision": 0.778049909780952,
+          "recall": 0.7495201005147974,
+          "f1-score": 0.7618443325552805,
           "support": 4957.0
         },
         "weighted avg": {
-          "precision": 0.9079144846535715,
-          "recall": 0.9130522493443615,
-          "f1-score": 0.9100893475599241,
+          "precision": 0.9077608410266447,
+          "recall": 0.9128505144240469,
+          "f1-score": 0.9099350370148988,
           "support": 4957.0
         }
       },
       "cv_f1_macro_scores": [],
-      "cv_f1_macro_mean": 0.7552276377563626,
-      "selection_score": 0.7058914231015566,
+      "cv_f1_macro_mean": 0.7606561307061938,
+      "selection_score": 0.7073476771545847,
       "feature_config": {
         "representation": "Transformer embeddings",
         "backend": "gpu_torch",
@@ -197,13 +197,13 @@
       "cv_f1_macro_std": null,
       "cv_f1_macro_ci95": null,
       "selection_components": {
-        "val_f1_macro": 0.7552276377563626,
-        "test_f1_macro": 0.7629995631800818,
-        "cv_f1_macro_mean": 0.7552276377563626,
+        "val_f1_macro": 0.7606561307061938,
+        "test_f1_macro": 0.7618443325552805,
+        "cv_f1_macro_mean": 0.7606561307061938,
         "cv_f1_macro_std": null,
         "cv_f1_macro_ci95": null,
         "cv_ci95_available": false,
-        "hate_recall_test": 0.40559440559440557,
+        "hate_recall_test": 0.4020979020979021,
         "weights": {
           "validation": 0.3,
           "test": 0.4,
@@ -213,23 +213,23 @@
         "hate_recall_floor": 0.4,
         "hate_recall_penalty": 0.03,
         "penalty_applied": 0.0,
-        "score_before_penalty": 0.7058914231015566,
-        "score_after_penalty": 0.7058914231015566
+        "score_before_penalty": 0.7073476771545847,
+        "score_after_penalty": 0.7073476771545847
       }
     }
   },
   "timing_seconds": {
-    "prepare_outputs_and_device": 0.5993694649951067,
-    "load_clean_sample_data": 0.11631001500063576,
-    "eda_summary_and_figures": 0.440344583010301,
-    "split_train_val_test": 0.006320421991404146,
-    "train_models": 24.18704700100352,
-    "evaluate_on_test": 1.9276217680016998,
-    "evaluation_figures": 0.0987322439905256,
-    "cv_and_selection_scores": 0.00023531500482931733,
-    "best_model_figures": 0.3194347209937405,
-    "save_artifacts_and_error_analysis": 0.002063166000880301,
-    "save_final_report": 1.3286015018820763e-05,
-    "pipeline_total": 29.585199140012264
+    "prepare_outputs_and_device": 0.5172142679948593,
+    "load_clean_sample_data": 0.18781692000629846,
+    "eda_summary_and_figures": 0.5212572969903704,
+    "split_train_val_test": 0.0064949799998430535,
+    "train_models": 26.72682275698753,
+    "evaluate_on_test": 1.6639558320021024,
+    "evaluation_figures": 0.12287656500120647,
+    "cv_and_selection_scores": 0.0002503149880794808,
+    "best_model_figures": 0.3425363950082101,
+    "save_artifacts_and_error_analysis": 0.002149261999875307,
+    "save_final_report": 1.8035003449767828e-05,
+    "pipeline_total": 31.70848801500688
   }
 }

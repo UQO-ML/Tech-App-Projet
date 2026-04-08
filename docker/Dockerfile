@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.7
-ARG CUDA_IMAGE_TAG=12.6.3-cudnn-runtime-ubuntu24.04
+ARG CUDA_IMAGE_TAG=12.9.1-cudnn-runtime-ubuntu24.04
 FROM nvidia/cuda:${CUDA_IMAGE_TAG}
 
 ARG ENABLE_RAPIDS=0
@@ -14,7 +14,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
     MPLBACKEND=Agg \
     VENV_PATH=/opt/venv \
-    PATH=/opt/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    PATH=/opt/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
+    LD_LIBRARY_PATH=/opt/venv/lib/python3.12/site-packages/libcuml/lib64:/opt/venv/lib/python3.12/site-packages/libraft/lib64:/opt/venv/lib/python3.12/site-packages/libcuvs/lib64:/opt/venv/lib/python3.12/site-packages/nvidia/nvjitlink/lib:/opt/venv/lib/python3.12/site-packages/nvidia/cusparse/lib:/opt/venv/lib/python3.12/site-packages/nvidia/cusolver/lib:/opt/venv/lib/python3.12/site-packages/nvidia/cublas/lib:/opt/venv/lib/python3.12/site-packages/nvidia/cuda_runtime/lib:/opt/venv/lib/python3.12/site-packages/nvidia/cuda_nvrtc/lib:/usr/local/nvidia/lib:/usr/local/nvidia/lib64
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
@@ -49,8 +50,9 @@ RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
       RAPIDS_REQ="/tmp/build/requirements.rapids.txt"; \
     fi && \
     python -m pip install --prefer-binary -r "${BASE_REQ}" && \
+    python -m pip install --prefer-binary --index-url https://download.pytorch.org/whl/cu129 "torch==2.8.0" && \
     if [ "${ENABLE_RAPIDS}" = "1" ]; then \
-      python -m pip install --prefer-binary -r "${RAPIDS_REQ}"; \
+      python -m pip install --prefer-binary --upgrade --upgrade-strategy eager -r "${RAPIDS_REQ}"; \
     fi
 
 RUN if ! getent group "${GID}" >/dev/null; then \

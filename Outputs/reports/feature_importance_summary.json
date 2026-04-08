@@ -1,65 +1,189 @@
 {
   "by_model": {
-    "AdaBoost": [
+    "LogisticRegression": [
       {
         "term": "bitch",
-        "importance": 0.30347861564652145
+        "importance": 9.708472810898972
       },
       {
         "term": "bitches",
-        "importance": 0.16601073367071223
-      },
-      {
-        "term": "hoes",
-        "importance": 0.11130377048819591
+        "importance": 7.390075608167954
       },
       {
         "term": "pussy",
-        "importance": 0.10830422984103263
+        "importance": 5.987938562031048
       },
       {
-        "term": "hoe",
-        "importance": 0.08018824757562307
+        "term": "hoes",
+        "importance": 5.627332380179212
       },
       {
         "term": "faggot",
-        "importance": 0.05459924038095317
-      },
-      {
-        "term": "nigga",
-        "importance": 0.02672238486940611
-      },
-      {
-        "term": "niggas",
-        "importance": 0.018396714058984596
-      },
-      {
-        "term": "white",
-        "importance": 0.015615972647133483
-      },
-      {
-        "term": "nigger",
-        "importance": 0.015208515689826979
+        "importance": 4.654270175683483
       },
       {
         "term": "bird",
-        "importance": 0.013058878932477308
-      },
-      {
-        "term": "charlie",
-        "importance": 0.012846359161387138
+        "importance": 4.379105308105275
       },
       {
         "term": "ass",
-        "importance": 0.00754115943347128
+        "importance": 4.210978973231828
       },
       {
-        "term": "dyke",
-        "importance": 0.00666806671032121
+        "term": "hoe",
+        "importance": 4.180130378424374
       },
       {
-        "term": "ugly",
-        "importance": 0.0059988839986100774
+        "term": "faggots",
+        "importance": 4.141377635013359
+      },
+      {
+        "term": "fuck",
+        "importance": 4.1168548971158305
+      },
+      {
+        "term": "charlie",
+        "importance": 4.053247884139776
+      },
+      {
+        "term": "nigga",
+        "importance": 3.9978271557316867
+      },
+      {
+        "term": "nigger",
+        "importance": 3.863283321500239
+      },
+      {
+        "term": "shit",
+        "importance": 3.7757106640352625
+      },
+      {
+        "term": "fucking",
+        "importance": 3.667056137087023
+      }
+    ],
+    "RandomForest": [
+      {
+        "term": "bitch",
+        "importance": 0.10344146526914189
+      },
+      {
+        "term": "bitches",
+        "importance": 0.043062593079008976
+      },
+      {
+        "term": "faggot",
+        "importance": 0.033727633499328655
+      },
+      {
+        "term": "pussy",
+        "importance": 0.030486185382656805
+      },
+      {
+        "term": "hoes",
+        "importance": 0.02937159581396292
+      },
+      {
+        "term": "hoe",
+        "importance": 0.021868923958948155
+      },
+      {
+        "term": "trash",
+        "importance": 0.020803916818112445
+      },
+      {
+        "term": "nigger",
+        "importance": 0.017975381461662124
+      },
+      {
+        "term": "bird",
+        "importance": 0.01601932405586416
+      },
+      {
+        "term": "white",
+        "importance": 0.01561278559359325
+      },
+      {
+        "term": "charlie",
+        "importance": 0.014231388644187397
+      },
+      {
+        "term": "fag",
+        "importance": 0.014041556167857351
+      },
+      {
+        "term": "you",
+        "importance": 0.013315220406416589
+      },
+      {
+        "term": "fuck",
+        "importance": 0.01209717239970335
+      },
+      {
+        "term": "nigga",
+        "importance": 0.01199674112332123
+      }
+    ],
+    "LogisticRegressionGPU": [
+      {
+        "term": "rt",
+        "importance": 2.05244476251341
+      },
+      {
+        "term": "bitches",
+        "importance": 1.843394824512864
+      },
+      {
+        "term": "bitch",
+        "importance": 1.773121492262544
+      },
+      {
+        "term": "is",
+        "importance": 1.7649187074562867
+      },
+      {
+        "term": "the",
+        "importance": 1.7162032496562871
+      },
+      {
+        "term": "trash",
+        "importance": 1.6747802505665539
+      },
+      {
+        "term": "hoes",
+        "importance": 1.6479360147214999
+      },
+      {
+        "term": "you",
+        "importance": 1.6278934230574014
+      },
+      {
+        "term": "pussy",
+        "importance": 1.6082168033695157
+      },
+      {
+        "term": "to",
+        "importance": 1.5888196049036407
+      },
+      {
+        "term": "my",
+        "importance": 1.566298018522609
+      },
+      {
+        "term": "ass",
+        "importance": 1.5142814375110483
+      },
+      {
+        "term": "these",
+        "importance": 1.5071832823390339
+      },
+      {
+        "term": "in",
+        "importance": 1.3718498062811686
+      },
+      {
+        "term": "that",
+        "importance": 1.3662287998318177
       }
     ]
   }

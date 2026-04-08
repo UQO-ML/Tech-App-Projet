@@ -2,8 +2,8 @@
 
 ## Résumé global
 - Modèle retenu: `DistilBERT`
-- Score de sélection: `0.7059`
-- F1 macro test du meilleur: `0.7630`
+- Score de sélection: `0.7073`
+- F1 macro test du meilleur: `0.7618`
 - Échantillons: `24783`
 
 ## Statuts d'exécution
@@ -41,7 +41,7 @@
 
 | Modèle | Status | Selection score | Balanced Acc | Val F1 | Test F1 | CV mean ± CI95 | Hate recall | Hate F1 | Pénalité appliquée | Erreur |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
-| DistilBERT | trained | 0.7059 | 0.7497 | 0.7552 | 0.7630 | 0.7552 ± n/a | 0.4056 | 0.4522 | 0.0000 |  |
+| DistilBERT | trained | 0.7073 | 0.7495 | 0.7607 | 0.7618 | 0.7607 ± n/a | 0.4021 | 0.4475 | 0.0000 |  |
 
 ## Analyse d'erreurs textuelles
 - Fichier JSON: `Outputs/reports/error_cases_best_model.json`

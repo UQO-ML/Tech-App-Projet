@@ -1,5 +1,5 @@
 {
-  "dataset_path": "/home/kilo/Work/Cours - UQO/Technique d'Apprentissage/Tech-App-Devoir-II/Data/labeled_data.csv",
+  "dataset_path": "/workspace/Data/labeled_data.csv",
   "n_samples": 24783,
   "best_model": "AdaBoost",
   "best_model_validation_metrics": {
@@ -62,12 +62,12 @@
     "AdaBoost": "trained"
   },
   "artifacts_generated": {
-    "figures_dir": "/home/kilo/Work/Cours - UQO/Technique d'Apprentissage/Tech-App-Devoir-II/Outputs/figures",
-    "reports_dir": "/home/kilo/Work/Cours - UQO/Technique d'Apprentissage/Tech-App-Devoir-II/Outputs/reports",
-    "models_dir": "/home/kilo/Work/Cours - UQO/Technique d'Apprentissage/Tech-App-Devoir-II/Outputs/models",
-    "error_cases_json": "/home/kilo/Work/Cours - UQO/Technique d'Apprentissage/Tech-App-Devoir-II/Outputs/reports/error_cases_best_model.json",
-    "error_cases_markdown": "/home/kilo/Work/Cours - UQO/Technique d'Apprentissage/Tech-App-Devoir-II/Outputs/reports/error_cases_best_model.md",
-    "feature_importance_summary_json": "/home/kilo/Work/Cours - UQO/Technique d'Apprentissage/Tech-App-Devoir-II/Outputs/reports/feature_importance_summary.json",
+    "figures_dir": "/workspace/Outputs/figures",
+    "reports_dir": "/workspace/Outputs/reports",
+    "models_dir": "/workspace/Outputs/models",
+    "error_cases_json": "/workspace/Outputs/reports/error_cases_best_model.json",
+    "error_cases_markdown": "/workspace/Outputs/reports/error_cases_best_model.md",
+    "feature_importance_summary_json": "/workspace/Outputs/reports/feature_importance_summary.json",
     "main_figures": [
       "models_compilation_overview.png",
       "models_status_overview.png",
@@ -292,17 +292,17 @@
     }
   },
   "timing_seconds": {
-    "prepare_outputs_and_device": 0.7112758689909242,
-    "load_clean_sample_data": 0.11718855699291453,
-    "eda_summary_and_figures": 0.40910320199327543,
-    "split_train_val_test": 0.006266373995458707,
-    "train_models": 1238.570416358998,
-    "evaluate_on_test": 0.08613175700884312,
-    "evaluation_figures": 0.0982890359882731,
-    "cv_and_selection_scores": 1.3486778160149697,
-    "best_model_figures": 44.173363160021836,
-    "save_artifacts_and_error_analysis": 0.06101923299138434,
-    "save_final_report": 2.1351006580516696e-05,
-    "pipeline_total": 1285.6190514779883
+    "prepare_outputs_and_device": 0.61389724300534,
+    "load_clean_sample_data": 0.18882994299929123,
+    "eda_summary_and_figures": 0.7040344039996853,
+    "split_train_val_test": 0.0064683779928600416,
+    "train_models": 1311.859212070005,
+    "evaluate_on_test": 0.11768516499432735,
+    "evaluation_figures": 0.13000238600943703,
+    "cv_and_selection_scores": 1.1891827840008773,
+    "best_model_figures": 46.42237754199596,
+    "save_artifacts_and_error_analysis": 0.06410300100105815,
+    "save_final_report": 2.1390995243564248e-05,
+    "pipeline_total": 1361.3322956439952
   }
 }

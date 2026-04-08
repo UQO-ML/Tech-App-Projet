@@ -1,5 +1,5 @@
 {
-  "dataset_path": "/home/kilo/Work/Cours - UQO/Technique d'Apprentissage/Tech-App-Devoir-II/Data/labeled_data.csv",
+  "dataset_path": "/workspace/Data/labeled_data.csv",
   "n_samples": 24783,
   "best_model": "LogisticRegression",
   "best_model_validation_metrics": {
@@ -23,7 +23,7 @@
     0.7240356733233502,
     0.7370576911729704
   ],
-  "best_model_selection_score": 0.6977337555584197,
+  "best_model_selection_score": 0.6977337555584195,
   "model_selection_method": {
     "formula": "selection_score = w_val * val_f1_macro + w_test * test_f1_macro + w_cv * cv_f1_macro_mean + w_hate * hate_recall_test - penalty_if(hate_recall_test < hate_recall_floor)",
     "weights": {
@@ -43,96 +43,57 @@
     "cv_fallback_explanation": "Pour les modèles deep learning coûteux (ex. DistilBERT), le terme CV peut être approché par le score validation afin de garder un temps d'exécution raisonnable."
   },
   "model_selection_scores": {
-    "NaiveBayes": 0.41616960268986414,
-    "LogisticRegression": 0.6977337555584197,
-    "LinearSVC": 0.6817038460659519,
-    "KNN": 0.32092733836940823,
-    "DecisionTree": 0.6522085602264865,
+    "LogisticRegression": 0.6977337555584195,
     "RandomForest": 0.6887361043574748,
-    "AdaBoost": 0.44812509420659896,
     "MLPClassifier": 0.49366161275365705,
-    "KNNGPU": 0.4215056087293818,
-    "DistilBERT": 0.6059690673763155
+    "LogisticRegressionGPU": 0.5449413370080688,
+    "DistilBERT": 0.5970220952106918
   },
   "model_selection_ranking": [
     "LogisticRegression",
     "RandomForest",
-    "LinearSVC",
-    "DecisionTree",
     "DistilBERT",
-    "MLPClassifier",
-    "AdaBoost",
-    "KNNGPU",
-    "NaiveBayes",
-    "KNN"
+    "LogisticRegressionGPU",
+    "MLPClassifier"
   ],
   "model_rationales": {
-    "NaiveBayes": "Baseline rapide en texte; robuste avec des comptes/poids TF-IDF.",
     "LogisticRegression": "Très adaptée aux données textuelles clairsemées; excellent compromis performance/interprétabilité.",
-    "LinearSVC": "SVM linéaire performant sur grands espaces de features TF-IDF.",
-    "KNN": "Référence non paramétrique utile comme comparaison.",
-    "DecisionTree": "Modèle interprétable pour analyser des règles décisionnelles.",
     "RandomForest": "Ensemble d'arbres plus stable qu'un arbre simple; capture des interactions non linéaires.",
-    "AdaBoost": "Boosting séquentiel de classifieurs faibles pour réduire le biais; peut capturer des frontières plus complexes qu'un arbre unique.",
     "MLPClassifier": "Réseau de neurones dense classique pour satisfaire explicitement l'exigence NN.",
     "LogisticRegressionGPU": "Alternative GPU de Logistic Regression via cuML: utile pour accélérer les runs sur des représentations textuelles denses après réduction SVD. Variante GPU (cuML) utile pour comparer les gains de temps et l'impact des hyperparamètres en environnement CUDA.",
-    "LinearSVCGPU": "Version GPU du classifieur linéaire (cuML), pertinente pour des comparaisons directes avec LinearSVC sklearn sur de gros lots de runs. Variante GPU (cuML) utile pour comparer les gains de temps et l'impact des hyperparamètres en environnement CUDA.",
-    "KNNGPU": "KNN GPU via cuML: souvent plus rapide que la version CPU sur des embeddings denses, utile pour explorer des profils voisins à grand volume. Variante GPU (cuML) utile pour comparer les gains de temps et l'impact des hyperparamètres en environnement CUDA.",
-    "RandomForestGPU": "Version GPU de Random Forest via cuML: utile pour réduire le temps des grilles arbres tout en conservant une logique de modèle non linéaire. Variante GPU (cuML) utile pour comparer les gains de temps et l'impact des hyperparamètres en environnement CUDA.",
     "DistilBERT": "Modèle Transformer pré-entraîné qui capte mieux le contexte sémantique des tweets; souvent plus performant sur la détection de nuances offensantes/haineuses."
   },
   "best_model_selection_explanation": "Le modèle LogisticRegression obtient le meilleur score global pondéré (0.6977) en combinant validation, test, CV et rappel `hate_speech` (avec pénalité éventuelle sous seuil). Il est retenu pour son compromis entre performance et robustesse.",
   "distilbert_included": true,
   "distilbert_note": "DistilBERT inclus dans la comparaison.",
   "expected_models": [
-    "NaiveBayes",
     "LogisticRegression",
-    "LinearSVC",
-    "KNN",
-    "DecisionTree",
     "RandomForest",
-    "AdaBoost",
     "MLPClassifier",
     "LogisticRegressionGPU",
-    "LinearSVCGPU",
-    "KNNGPU",
-    "RandomForestGPU",
     "DistilBERT"
   ],
   "trained_models": [
-    "NaiveBayes",
     "LogisticRegression",
-    "LinearSVC",
-    "KNN",
-    "DecisionTree",
     "RandomForest",
-    "AdaBoost",
     "MLPClassifier",
-    "KNNGPU",
+    "LogisticRegressionGPU",
     "DistilBERT"
   ],
   "model_execution_status": {
-    "NaiveBayes": "trained",
     "LogisticRegression": "trained",
-    "LinearSVC": "trained",
-    "KNN": "trained",
-    "DecisionTree": "trained",
     "RandomForest": "trained",
-    "AdaBoost": "trained",
     "MLPClassifier": "trained",
-    "LogisticRegressionGPU": "failed",
-    "LinearSVCGPU": "failed",
-    "KNNGPU": "trained",
-    "RandomForestGPU": "failed",
+    "LogisticRegressionGPU": "trained",
     "DistilBERT": "trained"
   },
   "artifacts_generated": {
-    "figures_dir": "/home/kilo/Work/Cours - UQO/Technique d'Apprentissage/Tech-App-Devoir-II/Outputs/figures",
-    "reports_dir": "/home/kilo/Work/Cours - UQO/Technique d'Apprentissage/Tech-App-Devoir-II/Outputs/reports",
-    "models_dir": "/home/kilo/Work/Cours - UQO/Technique d'Apprentissage/Tech-App-Devoir-II/Outputs/models",
-    "error_cases_json": "/home/kilo/Work/Cours - UQO/Technique d'Apprentissage/Tech-App-Devoir-II/Outputs/reports/error_cases_best_model.json",
-    "error_cases_markdown": "/home/kilo/Work/Cours - UQO/Technique d'Apprentissage/Tech-App-Devoir-II/Outputs/reports/error_cases_best_model.md",
-    "feature_importance_summary_json": "/home/kilo/Work/Cours - UQO/Technique d'Apprentissage/Tech-App-Devoir-II/Outputs/reports/feature_importance_summary.json",
+    "figures_dir": "/workspace/Outputs/figures",
+    "reports_dir": "/workspace/Outputs/reports",
+    "models_dir": "/workspace/Outputs/models",
+    "error_cases_json": "/workspace/Outputs/reports/error_cases_best_model.json",
+    "error_cases_markdown": "/workspace/Outputs/reports/error_cases_best_model.md",
+    "feature_importance_summary_json": "/workspace/Outputs/reports/feature_importance_summary.json",
     "main_figures": [
       "models_compilation_overview.png",
       "models_status_overview.png",
@@ -148,18 +109,18 @@
     "distilbert_epochs": 1,
     "include_distilbert": true,
     "algorithm_switches": {
-      "NaiveBayes": true,
+      "NaiveBayes": false,
       "LogisticRegression": true,
-      "LinearSVC": true,
-      "KNN": true,
-      "DecisionTree": true,
+      "LinearSVC": false,
+      "KNN": false,
+      "DecisionTree": false,
       "RandomForest": true,
-      "AdaBoost": true,
+      "AdaBoost": false,
       "MLPClassifier": true,
       "LogisticRegressionGPU": true,
-      "LinearSVCGPU": true,
-      "KNNGPU": true,
-      "RandomForestGPU": true,
+      "LinearSVCGPU": false,
+      "KNNGPU": false,
+      "RandomForestGPU": false,
       "DistilBERT": true
     },
     "test_size": 0.2,
@@ -179,132 +140,6 @@
     "random_state": 42
   },
   "all_models": {
-    "NaiveBayes": {
-      "status": "trained",
-      "error": null,
-      "model_why": "Baseline rapide en texte; robuste avec des comptes/poids TF-IDF.",
-      "tuning": {
-        "best_params": {
-          "clf__alpha": 0.5,
-          "tfidf__min_df": 5,
-          "tfidf__ngram_range": [
-            1,
-            2
-          ]
-        },
-        "best_cv_score": 0.519232775279519,
-        "effective_param_grid": {
-          "tfidf__ngram_range": [
-            [
-              1,
-              1
-            ],
-            [
-              1,
-              2
-            ]
-          ],
-          "tfidf__min_df": [
-            2,
-            5
-          ],
-          "clf__alpha": [
-            0.5,
-            1.0
-          ]
-        }
-      },
-      "validation_metrics": {
-        "accuracy": 0.8467123840258168,
-        "balanced_accuracy": 0.4942586926961927,
-        "precision_macro": 0.7936148429198876,
-        "recall_macro": 0.4942586926961927,
-        "f1_macro": 0.5190993398758891
-      },
-      "test_metrics": {
-        "accuracy": 0.8456727859592496,
-        "balanced_accuracy": 0.49193982683501475,
-        "precision_macro": 0.8703446995482395,
-        "recall_macro": 0.49193982683501475,
-        "f1_macro": 0.521908210334494
-      },
-      "classification_report_test": {
-        "hate_speech": {
-          "precision": 0.875,
-          "recall": 0.024475524475524476,
-          "f1-score": 0.047619047619047616,
-          "support": 286.0
-        },
-        "offensive_language": {
-          "precision": 0.840929203539823,
-          "recall": 0.9903595622720167,
-          "f1-score": 0.9095477386934674,
-          "support": 3838.0
-        },
-        "neither": {
-          "precision": 0.8951048951048951,
-          "recall": 0.460984393757503,
-          "f1-score": 0.6085578446909667,
-          "support": 833.0
-        },
-        "accuracy": 0.8456727859592496,
-        "macro avg": {
-          "precision": 0.8703446995482395,
-          "recall": 0.49193982683501475,
-          "f1-score": 0.521908210334494,
-          "support": 4957.0
-        },
-        "weighted avg": {
-          "precision": 0.8519989228985715,
-          "recall": 0.8456727859592496,
-          "f1-score": 0.809237836060551,
-          "support": 4957.0
-        }
-      },
-      "cv_f1_macro_scores": [
-        0.5379262542498626,
-        0.5183899644875685,
-        0.5063678672897,
-        0.5209340746480842,
-        0.5188968002921812
-      ],
-      "cv_f1_macro_mean": 0.5205029921934793,
-      "selection_score": 0.41616960268986414,
-      "feature_config": {
-        "representation": "TF-IDF sparse vectors",
-        "backend": "cpu_sklearn",
-        "tfidf_ngram_range": [
-          1,
-          2
-        ],
-        "tfidf_min_df": 5,
-        "tfidf_max_features": null,
-        "deep_model_name": null,
-        "max_length": null
-      },
-      "cv_f1_macro_std": 0.011298256362413408,
-      "cv_f1_macro_ci95": 0.009903358347401744,
-      "selection_components": {
-        "val_f1_macro": 0.5190993398758891,
-        "test_f1_macro": 0.521908210334494,
-        "cv_f1_macro_mean": 0.5205029921934793,
-        "cv_f1_macro_std": 0.011298256362413408,
-        "cv_f1_macro_ci95": 0.009903358347401744,
-        "cv_ci95_available": true,
-        "hate_recall_test": 0.024475524475524476,
-        "weights": {
-          "validation": 0.3,
-          "test": 0.35,
-          "cv": 0.2,
-          "hate_recall": 0.15
-        },
-        "hate_recall_floor": 0.4,
-        "hate_recall_penalty": 0.03,
-        "penalty_applied": 0.03,
-        "score_before_penalty": 0.4461696026898641,
-        "score_after_penalty": 0.41616960268986414
-      }
-    },
     "LogisticRegression": {
       "status": "trained",
       "error": null,
@@ -395,8 +230,8 @@
         0.7240356733233502,
         0.7370576911729704
       ],
-      "cv_f1_macro_mean": 0.7298126372781367,
-      "selection_score": 0.6977337555584197,
+      "cv_f1_macro_mean": 0.7298126372781366,
+      "selection_score": 0.6977337555584195,
       "feature_config": {
         "representation": "TF-IDF sparse vectors",
         "backend": "cpu_sklearn",
@@ -414,7 +249,7 @@
       "selection_components": {
         "val_f1_macro": 0.7257251414947863,
         "test_f1_macro": 0.7326608800913679,
-        "cv_f1_macro_mean": 0.7298126372781367,
+        "cv_f1_macro_mean": 0.7298126372781366,
         "cv_f1_macro_std": 0.006281018598412479,
         "cv_f1_macro_ci95": 0.005505555545164376,
         "cv_ci95_available": true,
@@ -428,401 +263,8 @@
         "hate_recall_floor": 0.4,
         "hate_recall_penalty": 0.03,
         "penalty_applied": 0.0,
-        "score_before_penalty": 0.6977337555584197,
-        "score_after_penalty": 0.6977337555584197
-      }
-    },
-    "LinearSVC": {
-      "status": "trained",
-      "error": null,
-      "model_why": "SVM linéaire performant sur grands espaces de features TF-IDF.",
-      "tuning": {
-        "best_params": {
-          "clf__C": 0.5,
-          "tfidf__min_df": 2,
-          "tfidf__ngram_range": [
-            1,
-            1
-          ]
-        },
-        "best_cv_score": 0.7326111967168892,
-        "effective_param_grid": {
-          "tfidf__ngram_range": [
-            [
-              1,
-              1
-            ],
-            [
-              1,
-              2
-            ]
-          ],
-          "tfidf__min_df": [
-            2,
-            5
-          ],
-          "clf__C": [
-            0.5,
-            1.0,
-            2.0
-          ]
-        }
-      },
-      "validation_metrics": {
-        "accuracy": 0.8781766841468334,
-        "balanced_accuracy": 0.740339695027195,
-        "precision_macro": 0.6977885920873986,
-        "recall_macro": 0.740339695027195,
-        "f1_macro": 0.7169409028668116
-      },
-      "test_metrics": {
-        "accuracy": 0.8876336493847085,
-        "balanced_accuracy": 0.7507752208992788,
-        "precision_macro": 0.7193235914786289,
-        "recall_macro": 0.7507752208992788,
-        "f1_macro": 0.7338272820871716
-      },
-      "classification_report_test": {
-        "hate_speech": {
-          "precision": 0.4033333333333333,
-          "recall": 0.4230769230769231,
-          "f1-score": 0.4129692832764505,
-          "support": 286.0
-        },
-        "offensive_language": {
-          "precision": 0.9469860064585576,
-          "recall": 0.9168837936425221,
-          "f1-score": 0.931691818903892,
-          "support": 3838.0
-        },
-        "neither": {
-          "precision": 0.8076514346439958,
-          "recall": 0.9123649459783914,
-          "f1-score": 0.8568207440811725,
-          "support": 833.0
-        },
-        "accuracy": 0.8876336493847085,
-        "macro avg": {
-          "precision": 0.7193235914786289,
-          "recall": 0.7507752208992788,
-          "f1-score": 0.7338272820871716,
-          "support": 4957.0
-        },
-        "weighted avg": {
-          "precision": 0.8922048156505398,
-          "recall": 0.8876336493847085,
-          "f1-score": 0.8891817824873551,
-          "support": 4957.0
-        }
-      },
-      "cv_f1_macro_scores": [
-        0.7372235969804241,
-        0.7265675428254363,
-        0.7244343811412367,
-        0.7273261297920915,
-        0.7424605496073089
-      ],
-      "cv_f1_macro_mean": 0.7316024400692995,
-      "selection_score": 0.6817038460659519,
-      "feature_config": {
-        "representation": "TF-IDF sparse vectors",
-        "backend": "cpu_sklearn",
-        "tfidf_ngram_range": [
-          1,
-          1
-        ],
-        "tfidf_min_df": 2,
-        "tfidf_max_features": null,
-        "deep_model_name": null,
-        "max_length": null
-      },
-      "cv_f1_macro_std": 0.00781847229959744,
-      "cv_f1_macro_ci95": 0.006853193132502799,
-      "selection_components": {
-        "val_f1_macro": 0.7169409028668116,
-        "test_f1_macro": 0.7338272820871716,
-        "cv_f1_macro_mean": 0.7316024400692995,
-        "cv_f1_macro_std": 0.00781847229959744,
-        "cv_f1_macro_ci95": 0.006853193132502799,
-        "cv_ci95_available": true,
-        "hate_recall_test": 0.4230769230769231,
-        "weights": {
-          "validation": 0.3,
-          "test": 0.35,
-          "cv": 0.2,
-          "hate_recall": 0.15
-        },
-        "hate_recall_floor": 0.4,
-        "hate_recall_penalty": 0.03,
-        "penalty_applied": 0.0,
-        "score_before_penalty": 0.6817038460659519,
-        "score_after_penalty": 0.6817038460659519
-      }
-    },
-    "KNN": {
-      "status": "trained",
-      "error": null,
-      "model_why": "Référence non paramétrique utile comme comparaison.",
-      "tuning": {
-        "best_params": {
-          "clf__n_neighbors": 11,
-          "clf__weights": "distance",
-          "tfidf__min_df": 2,
-          "tfidf__ngram_range": [
-            1,
-            1
-          ]
-        },
-        "best_cv_score": 0.3713154369425323,
-        "effective_param_grid": {
-          "tfidf__ngram_range": [
-            [
-              1,
-              1
-            ]
-          ],
-          "tfidf__min_df": [
-            2,
-            5
-          ],
-          "clf__n_neighbors": [
-            3,
-            5,
-            11
-          ],
-          "clf__weights": [
-            "uniform",
-            "distance"
-          ]
-        }
-      },
-      "validation_metrics": {
-        "accuracy": 0.5465913674868899,
-        "balanced_accuracy": 0.40215496309246307,
-        "precision_macro": 0.3806884919894941,
-        "recall_macro": 0.40215496309246307,
-        "f1_macro": 0.3668216700701555
-      },
-      "test_metrics": {
-        "accuracy": 0.5600161387936252,
-        "balanced_accuracy": 0.3945456010672926,
-        "precision_macro": 0.380512371136094,
-        "recall_macro": 0.3945456010672926,
-        "f1_macro": 0.36691949876720625
-      },
-      "classification_report_test": {
-        "hate_speech": {
-          "precision": 0.07407407407407407,
-          "recall": 0.25874125874125875,
-          "f1-score": 0.11517509727626458,
-          "support": 286.0
-        },
-        "offensive_language": {
-          "precision": 0.8125823451910409,
-          "recall": 0.6427826993225638,
-          "f1-score": 0.7177771312190864,
-          "support": 3838.0
-        },
-        "neither": {
-          "precision": 0.25488069414316705,
-          "recall": 0.28211284513805523,
-          "f1-score": 0.2678062678062678,
-          "support": 833.0
-        },
-        "accuracy": 0.5600161387936252,
-        "macro avg": {
-          "precision": 0.380512371136094,
-          "recall": 0.3945456010672926,
-          "f1-score": 0.36691949876720625,
-          "support": 4957.0
-        },
-        "weighted avg": {
-          "precision": 0.6762541545793138,
-          "recall": 0.5600161387936252,
-          "f1-score": 0.6073938528389119,
-          "support": 4957.0
-        }
-      },
-      "cv_f1_macro_scores": [
-        0.41739342323744594,
-        0.4010137811397776,
-        0.33635694306502967,
-        0.34887164318506025,
-        0.33755980858895174
-      ],
-      "cv_f1_macro_mean": 0.368239119843253,
-      "selection_score": 0.32092733836940823,
-      "feature_config": {
-        "representation": "TF-IDF sparse vectors",
-        "backend": "cpu_sklearn",
-        "tfidf_ngram_range": [
-          1,
-          1
-        ],
-        "tfidf_min_df": 2,
-        "tfidf_max_features": null,
-        "deep_model_name": null,
-        "max_length": null
-      },
-      "cv_f1_macro_std": 0.03815467354247738,
-      "cv_f1_macro_ci95": 0.03344404593051452,
-      "selection_components": {
-        "val_f1_macro": 0.3668216700701555,
-        "test_f1_macro": 0.36691949876720625,
-        "cv_f1_macro_mean": 0.368239119843253,
-        "cv_f1_macro_std": 0.03815467354247738,
-        "cv_f1_macro_ci95": 0.03344404593051452,
-        "cv_ci95_available": true,
-        "hate_recall_test": 0.25874125874125875,
-        "weights": {
-          "validation": 0.3,
-          "test": 0.35,
-          "cv": 0.2,
-          "hate_recall": 0.15
-        },
-        "hate_recall_floor": 0.4,
-        "hate_recall_penalty": 0.03,
-        "penalty_applied": 0.03,
-        "score_before_penalty": 0.35092733836940826,
-        "score_after_penalty": 0.32092733836940823
-      }
-    },
-    "DecisionTree": {
-      "status": "trained",
-      "error": null,
-      "model_why": "Modèle interprétable pour analyser des règles décisionnelles.",
-      "tuning": {
-        "best_params": {
-          "clf__ccp_alpha": 0.0,
-          "clf__max_depth": 40,
-          "clf__min_samples_leaf": 1,
-          "clf__min_samples_split": 5,
-          "tfidf__min_df": 5,
-          "tfidf__ngram_range": [
-            1,
-            1
-          ]
-        },
-        "best_cv_score": 0.6834708536203233,
-        "effective_param_grid": {
-          "tfidf__ngram_range": [
-            [
-              1,
-              1
-            ]
-          ],
-          "tfidf__min_df": [
-            2,
-            5
-          ],
-          "clf__max_depth": [
-            20,
-            40,
-            null
-          ],
-          "clf__min_samples_split": [
-            2,
-            5
-          ],
-          "clf__min_samples_leaf": [
-            1,
-            2
-          ],
-          "clf__ccp_alpha": [
-            0.0,
-            0.001
-          ]
-        }
-      },
-      "validation_metrics": {
-        "accuracy": 0.8483259378781767,
-        "balanced_accuracy": 0.7591880341880343,
-        "precision_macro": 0.6594446537317483,
-        "recall_macro": 0.7591880341880343,
-        "f1_macro": 0.6952593360676435
-      },
-      "test_metrics": {
-        "accuracy": 0.8559612668952996,
-        "balanced_accuracy": 0.7425017686336388,
-        "precision_macro": 0.6630531677809615,
-        "recall_macro": 0.7425017686336388,
-        "f1_macro": 0.6942416957265461
-      },
-      "classification_report_test": {
-        "hate_speech": {
-          "precision": 0.2833333333333333,
-          "recall": 0.4160839160839161,
-          "f1-score": 0.3371104815864023,
-          "support": 286.0
-        },
-        "offensive_language": {
-          "precision": 0.9570200573065902,
-          "recall": 0.870244919228765,
-          "f1-score": 0.9115720524017468,
-          "support": 3838.0
-        },
-        "neither": {
-          "precision": 0.7488061127029608,
-          "recall": 0.9411764705882353,
-          "f1-score": 0.8340425531914893,
-          "support": 833.0
-        },
-        "accuracy": 0.8559612668952996,
-        "macro avg": {
-          "precision": 0.6630531677809615,
-          "recall": 0.7425017686336388,
-          "f1-score": 0.6942416957265461,
-          "support": 4957.0
-        },
-        "weighted avg": {
-          "precision": 0.8831615503646547,
-          "recall": 0.8559612668952996,
-          "f1-score": 0.8653993507484619,
-          "support": 4957.0
-        }
-      },
-      "cv_f1_macro_scores": [
-        0.694536935121317,
-        0.691986891699364,
-        0.6775668102264527,
-        0.692717245832516,
-        0.6990315793532252
-      ],
-      "cv_f1_macro_mean": 0.691167892446575,
-      "selection_score": 0.6522085602264865,
-      "feature_config": {
-        "representation": "TF-IDF sparse vectors",
-        "backend": "cpu_sklearn",
-        "tfidf_ngram_range": [
-          1,
-          1
-        ],
-        "tfidf_min_df": 5,
-        "tfidf_max_features": null,
-        "deep_model_name": null,
-        "max_length": null
-      },
-      "cv_f1_macro_std": 0.008081595039953092,
-      "cv_f1_macro_ci95": 0.007083830383376414,
-      "selection_components": {
-        "val_f1_macro": 0.6952593360676435,
-        "test_f1_macro": 0.6942416957265461,
-        "cv_f1_macro_mean": 0.691167892446575,
-        "cv_f1_macro_std": 0.008081595039953092,
-        "cv_f1_macro_ci95": 0.007083830383376414,
-        "cv_ci95_available": true,
-        "hate_recall_test": 0.4160839160839161,
-        "weights": {
-          "validation": 0.3,
-          "test": 0.35,
-          "cv": 0.2,
-          "hate_recall": 0.15
-        },
-        "hate_recall_floor": 0.4,
-        "hate_recall_penalty": 0.03,
-        "penalty_applied": 0.0,
-        "score_before_penalty": 0.6522085602264865,
-        "score_after_penalty": 0.6522085602264865
+        "score_before_penalty": 0.6977337555584195,
+        "score_after_penalty": 0.6977337555584195
       }
     },
     "RandomForest": {
@@ -962,151 +404,6 @@
         "score_after_penalty": 0.6887361043574748
       }
     },
-    "AdaBoost": {
-      "status": "trained",
-      "error": null,
-      "model_why": "Boosting séquentiel de classifieurs faibles pour réduire le biais; peut capturer des frontières plus complexes qu'un arbre unique.",
-      "tuning": {
-        "best_params": {
-          "clf__estimator__max_depth": 3,
-          "clf__estimator__min_samples_leaf": 1,
-          "clf__learning_rate": 0.03,
-          "clf__n_estimators": 200,
-          "tfidf__min_df": 5,
-          "tfidf__ngram_range": [
-            1,
-            2
-          ]
-        },
-        "best_cv_score": 0.5293418100538747,
-        "effective_param_grid": {
-          "tfidf__ngram_range": [
-            [
-              1,
-              1
-            ],
-            [
-              1,
-              2
-            ]
-          ],
-          "tfidf__min_df": [
-            2,
-            5
-          ],
-          "clf__n_estimators": [
-            200,
-            400,
-            800
-          ],
-          "clf__learning_rate": [
-            0.03,
-            0.1,
-            0.3,
-            1.0
-          ],
-          "clf__estimator__max_depth": [
-            1,
-            2,
-            3
-          ],
-          "clf__estimator__min_samples_leaf": [
-            1,
-            2
-          ]
-        }
-      },
-      "validation_metrics": {
-        "accuracy": 0.7486889874949576,
-        "balanced_accuracy": 0.6310703185703186,
-        "precision_macro": 0.5905646878454626,
-        "recall_macro": 0.6310703185703186,
-        "f1_macro": 0.5546327511472463
-      },
-      "test_metrics": {
-        "accuracy": 0.7423845067581198,
-        "balanced_accuracy": 0.6172357820274934,
-        "precision_macro": 0.5848004661980039,
-        "recall_macro": 0.6172357820274934,
-        "f1_macro": 0.538218365238937
-      },
-      "classification_report_test": {
-        "hate_speech": {
-          "precision": 0.36,
-          "recall": 0.1258741258741259,
-          "f1-score": 0.18652849740932642,
-          "support": 286.0
-        },
-        "offensive_language": {
-          "precision": 0.9734024179620034,
-          "recall": 0.7342365815528922,
-          "f1-score": 0.8370711421357493,
-          "support": 3838.0
-        },
-        "neither": {
-          "precision": 0.42099898063200814,
-          "recall": 0.9915966386554622,
-          "f1-score": 0.5910554561717353,
-          "support": 833.0
-        },
-        "accuracy": 0.7423845067581198,
-        "macro avg": {
-          "precision": 0.5848004661980039,
-          "recall": 0.6172357820274934,
-          "f1-score": 0.538218365238937,
-          "support": 4957.0
-        },
-        "weighted avg": {
-          "precision": 0.8451826973985541,
-          "recall": 0.7423845067581198,
-          "f1-score": 0.7581955595656906,
-          "support": 4957.0
-        }
-      },
-      "cv_f1_macro_scores": [
-        0.534050879980652,
-        0.49543255737948383,
-        0.48562091889465847,
-        0.5497786353469624,
-        0.5470600620901994
-      ],
-      "cv_f1_macro_mean": 0.5223886107383912,
-      "selection_score": 0.44812509420659896,
-      "feature_config": {
-        "representation": "TF-IDF sparse vectors",
-        "backend": "cpu_sklearn",
-        "tfidf_ngram_range": [
-          1,
-          2
-        ],
-        "tfidf_min_df": 5,
-        "tfidf_max_features": null,
-        "deep_model_name": null,
-        "max_length": null
-      },
-      "cv_f1_macro_std": 0.029888938003656586,
-      "cv_f1_macro_ci95": 0.026198809283369567,
-      "selection_components": {
-        "val_f1_macro": 0.5546327511472463,
-        "test_f1_macro": 0.538218365238937,
-        "cv_f1_macro_mean": 0.5223886107383912,
-        "cv_f1_macro_std": 0.029888938003656586,
-        "cv_f1_macro_ci95": 0.026198809283369567,
-        "cv_ci95_available": true,
-        "hate_recall_test": 0.1258741258741259,
-        "weights": {
-          "validation": 0.3,
-          "test": 0.35,
-          "cv": 0.2,
-          "hate_recall": 0.15
-        },
-        "hate_recall_floor": 0.4,
-        "hate_recall_penalty": 0.03,
-        "penalty_applied": 0.03,
-        "score_before_penalty": 0.47812509420659893,
-        "score_after_penalty": 0.44812509420659896
-      }
-    },
     "MLPClassifier": {
       "status": "trained",
       "error": null,
@@ -1219,7 +516,7 @@
         0.57360411283293,
         0.5906357018165495
       ],
-      "cv_f1_macro_mean": 0.5958601920449371,
+      "cv_f1_macro_mean": 0.595860192044937,
       "selection_score": 0.49366161275365705,
       "feature_config": {
         "representation": "TF-IDF sparse vectors",
@@ -1238,7 +535,7 @@
       "selection_components": {
         "val_f1_macro": 0.6018270776896185,
         "test_f1_macro": 0.6023701797882745,
-        "cv_f1_macro_mean": 0.5958601920449371,
+        "cv_f1_macro_mean": 0.595860192044937,
         "cv_f1_macro_std": 0.01847498291674016,
         "cv_f1_macro_ci95": 0.01619403653251151,
         "cv_ci95_available": true,
@@ -1257,52 +554,29 @@
       }
     },
     "LogisticRegressionGPU": {
-      "status": "failed",
-      "error": "/opt/cuda/include/cuda_fp8.hpp(1498): error: this declaration has no storage class or type specifier\n      __NV_SILENCE_DEPRECATION_BEGIN\n      ^\n\n/opt/cuda/include/cuda_fp8.hpp(1499): error: expected a \";\"\n      explicit __CUDA_HOSTDEVICE_FP8__ __nv_fp8x4_e5m2(const double4 f) {\n      ^\n\n/opt/cuda/include/cuda_fp8.hpp(1559): warning #12-D: parsing restarts here after previous syntax error\n  };\n  ^\n\nRemark: The warnings can be suppressed with \"-diag-suppress <warning-number>\"\n\n/opt/cuda/include/cuda_fp8.hpp(2127): error: this declaration has no storage class or type specifier\n      __NV_SILENCE_DEPRECATION_BEGIN\n      ^\n\n/opt/cuda/include/cuda_fp8.hpp(2128): error: expected a \";\"\n      explicit __CUDA_HOSTDEVICE_FP8__ __nv_fp8x4_e4m3(const double4 f) {\n      ^\n\n/opt/cuda/include/cuda_fp8.hpp(2188): warning #12-D: parsing restarts here after previous syntax error\n  };\n  ^\n\n/opt/cuda/include/cuda_fp8.hpp(2776): error: this declaration has no storage class or type specifier\n      __NV_SILENCE_DEPRECATION_BEGIN\n      ^\n\n/opt/cuda/include/cuda_fp8.hpp(2777): error: expected a \";\"\n      explicit __CUDA_HOSTDEVICE_FP8__ __nv_fp8x4_e8m0(const double4 f) {\n      ^\n\n/opt/cuda/include/cuda_fp8.hpp(2838): warning #12-D: parsing restarts here after previous syntax error\n  };\n  ^\n\n/opt/cuda/include/cuda_fp6.hpp(1032): error: this declaration has no storage class or type specifier\n      __NV_SILENCE_DEPRECATION_BEGIN\n      ^\n\n/opt/cuda/include/cuda_fp6.hpp(1033): error: expected a \";\"\n      explicit __CUDA_HOSTDEVICE_FP6__ __nv_fp6x4_e3m2(const double4 f) {\n      ^\n\n/opt/cuda/include/cuda_fp6.hpp(1093): warning #12-D: parsing restarts here after previous syntax error\n  };\n  ^\n\n/opt/cuda/include/cuda_fp6.hpp(1614): error: this declaration has no storage class or type specifier\n      __NV_SILENCE_DEPRECATION_BEGIN\n      ^\n\n/opt/cuda/include/cuda_fp6.hpp(1615): error: expected a \";\"\n      explicit __CUDA_HOSTDEVICE_FP6__ __nv_fp6x4_e2m3(const double4 f) {\n      ^\n\n/opt/cuda/include/cuda_fp6.hpp(1675): warning #12-D: parsing restarts here after previous syntax error\n  };\n  ^\n\n/opt/cuda/include/cuda_fp4.hpp(973): error: this declaration has no storage class or type specifier\n      __NV_SILENCE_DEPRECATION_BEGIN\n      ^\n\n/opt/cuda/include/cuda_fp4.hpp(974): error: expected a \";\"\n      explicit __CUDA_HOSTDEVICE_FP4__ __nv_fp4x4_e2m1(const double4 f) {\n      ^\n\n/opt/cuda/include/cuda_fp4.hpp(1036): warning #12-D: parsing restarts here after previous syntax error\n  };\n  ^\n\n12 errors detected in the compilation of \"/tmp/tmpu0157bg3/f76abf3c16ef2526e059499e2786b5a72ae1484a.cubin.cu\".\n",
-      "model_why": "Alternative GPU de Logistic Regression via cuML: utile pour accélérer les runs sur des représentations textuelles denses après réduction SVD. Variante GPU (cuML) utile pour comparer les gains de temps et l'impact des hyperparamètres en environnement CUDA.",
-      "tuning": {},
-      "validation_metrics": {},
-      "test_metrics": {},
-      "classification_report_test": {},
-      "cv_f1_macro_scores": [],
-      "cv_f1_macro_mean": null,
-      "selection_score": null,
-      "feature_config": {}
-    },
-    "LinearSVCGPU": {
-      "status": "failed",
-      "error": "/opt/cuda/include/cuda_fp8.hpp(1498): error: this declaration has no storage class or type specifier\n      __NV_SILENCE_DEPRECATION_BEGIN\n      ^\n\n/opt/cuda/include/cuda_fp8.hpp(1499): error: expected a \";\"\n      explicit __CUDA_HOSTDEVICE_FP8__ __nv_fp8x4_e5m2(const double4 f) {\n      ^\n\n/opt/cuda/include/cuda_fp8.hpp(1559): warning #12-D: parsing restarts here after previous syntax error\n  };\n  ^\n\nRemark: The warnings can be suppressed with \"-diag-suppress <warning-number>\"\n\n/opt/cuda/include/cuda_fp8.hpp(2127): error: this declaration has no storage class or type specifier\n      __NV_SILENCE_DEPRECATION_BEGIN\n      ^\n\n/opt/cuda/include/cuda_fp8.hpp(2128): error: expected a \";\"\n      explicit __CUDA_HOSTDEVICE_FP8__ __nv_fp8x4_e4m3(const double4 f) {\n      ^\n\n/opt/cuda/include/cuda_fp8.hpp(2188): warning #12-D: parsing restarts here after previous syntax error\n  };\n  ^\n\n/opt/cuda/include/cuda_fp8.hpp(2776): error: this declaration has no storage class or type specifier\n      __NV_SILENCE_DEPRECATION_BEGIN\n      ^\n\n/opt/cuda/include/cuda_fp8.hpp(2777): error: expected a \";\"\n      explicit __CUDA_HOSTDEVICE_FP8__ __nv_fp8x4_e8m0(const double4 f) {\n      ^\n\n/opt/cuda/include/cuda_fp8.hpp(2838): warning #12-D: parsing restarts here after previous syntax error\n  };\n  ^\n\n/opt/cuda/include/cuda_fp6.hpp(1032): error: this declaration has no storage class or type specifier\n      __NV_SILENCE_DEPRECATION_BEGIN\n      ^\n\n/opt/cuda/include/cuda_fp6.hpp(1033): error: expected a \";\"\n      explicit __CUDA_HOSTDEVICE_FP6__ __nv_fp6x4_e3m2(const double4 f) {\n      ^\n\n/opt/cuda/include/cuda_fp6.hpp(1093): warning #12-D: parsing restarts here after previous syntax error\n  };\n  ^\n\n/opt/cuda/include/cuda_fp6.hpp(1614): error: this declaration has no storage class or type specifier\n      __NV_SILENCE_DEPRECATION_BEGIN\n      ^\n\n/opt/cuda/include/cuda_fp6.hpp(1615): error: expected a \";\"\n      explicit __CUDA_HOSTDEVICE_FP6__ __nv_fp6x4_e2m3(const double4 f) {\n      ^\n\n/opt/cuda/include/cuda_fp6.hpp(1675): warning #12-D: parsing restarts here after previous syntax error\n  };\n  ^\n\n/opt/cuda/include/cuda_fp4.hpp(973): error: this declaration has no storage class or type specifier\n      __NV_SILENCE_DEPRECATION_BEGIN\n      ^\n\n/opt/cuda/include/cuda_fp4.hpp(974): error: expected a \";\"\n      explicit __CUDA_HOSTDEVICE_FP4__ __nv_fp4x4_e2m1(const double4 f) {\n      ^\n\n/opt/cuda/include/cuda_fp4.hpp(1036): warning #12-D: parsing restarts here after previous syntax error\n  };\n  ^\n\n12 errors detected in the compilation of \"/tmp/tmppyig3oy6/f76abf3c16ef2526e059499e2786b5a72ae1484a.cubin.cu\".\n",
-      "model_why": "Version GPU du classifieur linéaire (cuML), pertinente pour des comparaisons directes avec LinearSVC sklearn sur de gros lots de runs. Variante GPU (cuML) utile pour comparer les gains de temps et l'impact des hyperparamètres en environnement CUDA.",
-      "tuning": {},
-      "validation_metrics": {},
-      "test_metrics": {},
-      "classification_report_test": {},
-      "cv_f1_macro_scores": [],
-      "cv_f1_macro_mean": null,
-      "selection_score": null,
-      "feature_config": {}
-    },
-    "KNNGPU": {
       "status": "trained",
       "error": null,
-      "model_why": "KNN GPU via cuML: souvent plus rapide que la version CPU sur des embeddings denses, utile pour explorer des profils voisins à grand volume. Variante GPU (cuML) utile pour comparer les gains de temps et l'impact des hyperparamètres en environnement CUDA.",
+      "model_why": "Alternative GPU de Logistic Regression via cuML: utile pour accélérer les runs sur des représentations textuelles denses après réduction SVD. Variante GPU (cuML) utile pour comparer les gains de temps et l'impact des hyperparamètres en environnement CUDA.",
       "tuning": {
         "best_params": {
-          "clf__n_neighbors": 5,
-          "clf__weights": "uniform",
-          "svd__n_components": 64,
-          "tfidf__min_df": 2,
+          "clf__C": 1.0,
+          "svd__n_components": 128,
+          "tfidf__min_df": 5,
           "tfidf__ngram_range": [
             1,
-            1
+            2
           ]
         },
-        "best_cv_score": 0.5125409550378495,
+        "best_cv_score": 0.6428891812611448,
         "effective_param_grid": {
           "tfidf__ngram_range": [
             [
               1,
               1
+            ],
+            [
+              1,
+              2
             ]
           ],
           "tfidf__min_df": [
@@ -1313,95 +587,91 @@
             64,
             128
           ],
-          "clf__n_neighbors": [
-            5,
-            11,
-            21
-          ],
-          "clf__weights": [
-            "uniform",
-            "distance"
+          "clf__C": [
+            0.5,
+            1.0,
+            2.0
           ]
         }
       },
       "validation_metrics": {
-        "accuracy": 0.7761194029850746,
-        "balanced_accuracy": 0.5334656662781663,
-        "precision_macro": 0.5398371072494296,
-        "recall_macro": 0.5334656662781663,
-        "f1_macro": 0.5299197853257073
+        "accuracy": 0.8789834610730133,
+        "balanced_accuracy": 0.6370119463869464,
+        "precision_macro": 0.7590960810775051,
+        "recall_macro": 0.6370119463869464,
+        "f1_macro": 0.649088605297815
       },
       "test_metrics": {
-        "accuracy": 0.7712326003631229,
-        "balanced_accuracy": 0.5131449935094164,
-        "precision_macro": 0.5098518414213093,
-        "recall_macro": 0.5131449935094164,
-        "f1_macro": 0.5046972970715653
+        "accuracy": 0.8807746620940085,
+        "balanced_accuracy": 0.6395627506916212,
+        "precision_macro": 0.7312794485026721,
+        "recall_macro": 0.6395627506916212,
+        "f1_macro": 0.6521347793706557
       },
       "classification_report_test": {
         "hate_speech": {
-          "precision": 0.176056338028169,
-          "recall": 0.08741258741258741,
-          "f1-score": 0.11682242990654206,
+          "precision": 0.5119047619047619,
+          "recall": 0.15034965034965034,
+          "f1-score": 0.23243243243243245,
           "support": 286.0
         },
         "offensive_language": {
-          "precision": 0.8711462450592885,
-          "recall": 0.8613861386138614,
-          "f1-score": 0.8662387003799292,
+          "precision": 0.9136546184738956,
+          "recall": 0.9484106305367379,
+          "f1-score": 0.9307082587573511,
           "support": 3838.0
         },
         "neither": {
-          "precision": 0.4823529411764706,
-          "recall": 0.5906362545018007,
-          "f1-score": 0.5310307609282245,
+          "precision": 0.7682789651293588,
+          "recall": 0.8199279711884754,
+          "f1-score": 0.7932636469221835,
           "support": 833.0
         },
-        "accuracy": 0.7712326003631229,
+        "accuracy": 0.8807746620940085,
         "macro avg": {
-          "precision": 0.5098518414213093,
-          "recall": 0.5131449935094164,
-          "f1-score": 0.5046972970715653,
+          "precision": 0.7312794485026721,
+          "recall": 0.6395627506916212,
+          "f1-score": 0.6521347793706557,
           "support": 4957.0
         },
         "weighted avg": {
-          "precision": 0.7657073635694182,
-          "recall": 0.7712326003631229,
-          "f1-score": 0.7666701575276681,
+          "precision": 0.8660455044503388,
+          "recall": 0.8807746620940085,
+          "f1-score": 0.8673235002365478,
           "support": 4957.0
         }
       },
       "cv_f1_macro_scores": [
-        0.5225834797841369,
-        0.5020020739832799,
-        0.5137817937007298,
-        0.5348418127814506,
-        0.49613411586874356
+        0.6543831954950935,
+        0.6541391519304901,
+        0.6487443162509167,
+        0.6371220008171306,
+        0.6409897126700508
       ],
-      "cv_f1_macro_mean": 0.5138686552236682,
-      "selection_score": 0.4215056087293818,
+      "cv_f1_macro_mean": 0.6470756754327363,
+      "selection_score": 0.5449413370080688,
       "feature_config": {
         "representation": "TF-IDF + SVD dense vectors",
         "backend": "gpu_cuml",
         "tfidf_ngram_range": [
           1,
-          1
+          2
         ],
-        "tfidf_min_df": 2,
+        "tfidf_min_df": 5,
         "tfidf_max_features": null,
         "deep_model_name": null,
         "max_length": null
       },
-      "cv_f1_macro_std": 0.015581709521531862,
-      "cv_f1_macro_ci95": 0.013657970584753978,
+      "cv_f1_macro_std": 0.0077812513932258975,
+      "cv_f1_macro_ci95": 0.006820567569585077,
       "selection_components": {
-        "val_f1_macro": 0.5299197853257073,
-        "test_f1_macro": 0.5046972970715653,
-        "cv_f1_macro_mean": 0.5138686552236682,
-        "cv_f1_macro_std": 0.015581709521531862,
-        "cv_f1_macro_ci95": 0.013657970584753978,
+        "val_f1_macro": 0.649088605297815,
+        "test_f1_macro": 0.6521347793706557,
+        "cv_f1_macro_mean": 0.6470756754327363,
+        "cv_f1_macro_std": 0.0077812513932258975,
+        "cv_f1_macro_ci95": 0.006820567569585077,
         "cv_ci95_available": true,
-        "hate_recall_test": 0.08741258741258741,
+        "hate_recall_test": 0.15034965034965034,
         "weights": {
           "validation": 0.3,
           "test": 0.35,
@@ -1411,22 +681,9 @@
         "hate_recall_floor": 0.4,
         "hate_recall_penalty": 0.03,
         "penalty_applied": 0.03,
-        "score_before_penalty": 0.4515056087293818,
-        "score_after_penalty": 0.4215056087293818
+        "score_before_penalty": 0.5749413370080688,
+        "score_after_penalty": 0.5449413370080688
       }
-    },
-    "RandomForestGPU": {
-      "status": "failed",
-      "error": "/opt/cuda/include/cuda_fp8.hpp(1498): error: this declaration has no storage class or type specifier\n      __NV_SILENCE_DEPRECATION_BEGIN\n      ^\n\n/opt/cuda/include/cuda_fp8.hpp(1499): error: expected a \";\"\n      explicit __CUDA_HOSTDEVICE_FP8__ __nv_fp8x4_e5m2(const double4 f) {\n      ^\n\n/opt/cuda/include/cuda_fp8.hpp(1559): warning #12-D: parsing restarts here after previous syntax error\n  };\n  ^\n\nRemark: The warnings can be suppressed with \"-diag-suppress <warning-number>\"\n\n/opt/cuda/include/cuda_fp8.hpp(2127): error: this declaration has no storage class or type specifier\n      __NV_SILENCE_DEPRECATION_BEGIN\n      ^\n\n/opt/cuda/include/cuda_fp8.hpp(2128): error: expected a \";\"\n      explicit __CUDA_HOSTDEVICE_FP8__ __nv_fp8x4_e4m3(const double4 f) {\n      ^\n\n/opt/cuda/include/cuda_fp8.hpp(2188): warning #12-D: parsing restarts here after previous syntax error\n  };\n  ^\n\n/opt/cuda/include/cuda_fp8.hpp(2776): error: this declaration has no storage class or type specifier\n      __NV_SILENCE_DEPRECATION_BEGIN\n      ^\n\n/opt/cuda/include/cuda_fp8.hpp(2777): error: expected a \";\"\n      explicit __CUDA_HOSTDEVICE_FP8__ __nv_fp8x4_e8m0(const double4 f) {\n      ^\n\n/opt/cuda/include/cuda_fp8.hpp(2838): warning #12-D: parsing restarts here after previous syntax error\n  };\n  ^\n\n/opt/cuda/include/cuda_fp6.hpp(1032): error: this declaration has no storage class or type specifier\n      __NV_SILENCE_DEPRECATION_BEGIN\n      ^\n\n/opt/cuda/include/cuda_fp6.hpp(1033): error: expected a \";\"\n      explicit __CUDA_HOSTDEVICE_FP6__ __nv_fp6x4_e3m2(const double4 f) {\n      ^\n\n/opt/cuda/include/cuda_fp6.hpp(1093): warning #12-D: parsing restarts here after previous syntax error\n  };\n  ^\n\n/opt/cuda/include/cuda_fp6.hpp(1614): error: this declaration has no storage class or type specifier\n      __NV_SILENCE_DEPRECATION_BEGIN\n      ^\n\n/opt/cuda/include/cuda_fp6.hpp(1615): error: expected a \";\"\n      explicit __CUDA_HOSTDEVICE_FP6__ __nv_fp6x4_e2m3(const double4 f) {\n      ^\n\n/opt/cuda/include/cuda_fp6.hpp(1675): warning #12-D: parsing restarts here after previous syntax error\n  };\n  ^\n\n/opt/cuda/include/cuda_fp4.hpp(973): error: this declaration has no storage class or type specifier\n      __NV_SILENCE_DEPRECATION_BEGIN\n      ^\n\n/opt/cuda/include/cuda_fp4.hpp(974): error: expected a \";\"\n      explicit __CUDA_HOSTDEVICE_FP4__ __nv_fp4x4_e2m1(const double4 f) {\n      ^\n\n/opt/cuda/include/cuda_fp4.hpp(1036): warning #12-D: parsing restarts here after previous syntax error\n  };\n  ^\n\n12 errors detected in the compilation of \"/tmp/tmpg2psw65z/b2e9282a567a8f103e5223b9f017cff49a8aaa71.cubin.cu\".\n",
-      "model_why": "Version GPU de Random Forest via cuML: utile pour réduire le temps des grilles arbres tout en conservant une logique de modèle non linéaire. Variante GPU (cuML) utile pour comparer les gains de temps et l'impact des hyperparamètres en environnement CUDA.",
-      "tuning": {},
-      "validation_metrics": {},
-      "test_metrics": {},
-      "classification_report_test": {},
-      "cv_f1_macro_scores": [],
-      "cv_f1_macro_mean": null,
-      "selection_score": null,
-      "feature_config": {}
     },
     "DistilBERT": {
       "status": "trained",
@@ -1444,55 +701,55 @@
         "note": "DistilBERT entraîné via fine-tuning direct (pas de GridSearchCV pour limiter le coût)."
       },
       "validation_metrics": {
-        "accuracy": 0.9120613150463897,
-        "balanced_accuracy": 0.7104033119658119,
-        "precision_macro": 0.7591745997995359,
-        "recall_macro": 0.7104033119658119,
-        "f1_macro": 0.7179933860941657
+        "accuracy": 0.9096409842678499,
+        "balanced_accuracy": 0.6985746891996891,
+        "precision_macro": 0.7423271941934672,
+        "recall_macro": 0.6985746891996891,
+        "f1_macro": 0.7033468256431722
       },
       "test_metrics": {
-        "accuracy": 0.9092192858583821,
-        "balanced_accuracy": 0.690546735462461,
-        "precision_macro": 0.7529656603340218,
-        "recall_macro": 0.690546735462461,
-        "f1_macro": 0.7044365540275782
+        "accuracy": 0.9098244906193262,
+        "balanced_accuracy": 0.6883366778094863,
+        "precision_macro": 0.7573392525620245,
+        "recall_macro": 0.6883366778094863,
+        "f1_macro": 0.7027944371956468
       },
       "classification_report_test": {
         "hate_speech": {
-          "precision": 0.464,
-          "recall": 0.20279720279720279,
-          "f1-score": 0.2822384428223844,
+          "precision": 0.47863247863247865,
+          "recall": 0.1958041958041958,
+          "f1-score": 0.27791563275434245,
           "support": 286.0
         },
         "offensive_language": {
-          "precision": 0.9340075853350189,
-          "recall": 0.962480458572173,
-          "f1-score": 0.9480302835878353,
+          "precision": 0.9336361342417361,
+          "recall": 0.9640437727983324,
+          "f1-score": 0.9485963338033585,
           "support": 3838.0
         },
         "neither": {
-          "precision": 0.8608893956670467,
-          "recall": 0.9063625450180072,
-          "f1-score": 0.8830409356725146,
+          "precision": 0.8597491448118586,
+          "recall": 0.9051620648259304,
+          "f1-score": 0.8818713450292398,
           "support": 833.0
         },
-        "accuracy": 0.9092192858583821,
+        "accuracy": 0.9098244906193262,
         "macro avg": {
-          "precision": 0.7529656603340218,
-          "recall": 0.690546735462461,
-          "f1-score": 0.7044365540275782,
+          "precision": 0.7573392525620245,
+          "recall": 0.6883366778094863,
+          "f1-score": 0.7027944371956468,
           "support": 4957.0
         },
         "weighted avg": {
-          "precision": 0.8946027797269424,
-          "recall": 0.9092192858583821,
-          "f1-score": 0.8986954856712768,
+          "precision": 0.8949678050710005,
+          "recall": 0.9098244906193262,
+          "f1-score": 0.8986878011931387,
           "support": 4957.0
         }
       },
       "cv_f1_macro_scores": [],
-      "cv_f1_macro_mean": 0.7179933860941657,
-      "selection_score": 0.6059690673763155,
+      "cv_f1_macro_mean": 0.7033468256431722,
+      "selection_score": 0.5970220952106918,
       "feature_config": {
         "representation": "Transformer embeddings",
         "backend": "gpu_torch",
@@ -1505,13 +762,13 @@
       "cv_f1_macro_std": null,
       "cv_f1_macro_ci95": null,
       "selection_components": {
-        "val_f1_macro": 0.7179933860941657,
-        "test_f1_macro": 0.7044365540275782,
-        "cv_f1_macro_mean": 0.7179933860941657,
+        "val_f1_macro": 0.7033468256431722,
+        "test_f1_macro": 0.7027944371956468,
+        "cv_f1_macro_mean": 0.7033468256431722,
         "cv_f1_macro_std": null,
         "cv_f1_macro_ci95": null,
         "cv_ci95_available": false,
-        "hate_recall_test": 0.20279720279720279,
+        "hate_recall_test": 0.1958041958041958,
         "weights": {
           "validation": 0.3,
           "test": 0.35,
@@ -1521,23 +778,23 @@
         "hate_recall_floor": 0.4,
         "hate_recall_penalty": 0.03,
         "penalty_applied": 0.03,
-        "score_before_penalty": 0.6359690673763155,
-        "score_after_penalty": 0.6059690673763155
+        "score_before_penalty": 0.6270220952106919,
+        "score_after_penalty": 0.5970220952106918
       }
     }
   },
   "timing_seconds": {
-    "prepare_outputs_and_device": 0.7118039079941809,
-    "load_clean_sample_data": 0.11807825800497085,
-    "eda_summary_and_figures": 0.41223941699718125,
-    "split_train_val_test": 0.0066796939936466515,
-    "train_models": 944.7412614319765,
-    "evaluate_on_test": 2.9867867520079017,
-    "evaluation_figures": 0.7810704389994498,
-    "cv_and_selection_scores": 24.76295972900698,
-    "best_model_figures": 2.5976854230102617,
-    "save_artifacts_and_error_analysis": 0.0970052029879298,
-    "save_final_report": 2.3756001610308886e-05,
-    "pipeline_total": 977.2513302830048
+    "prepare_outputs_and_device": 0.5471013589994982,
+    "load_clean_sample_data": 0.1910961980029242,
+    "eda_summary_and_figures": 0.5531435120064998,
+    "split_train_val_test": 0.0069978760002413765,
+    "train_models": 172.42266945099982,
+    "evaluate_on_test": 2.227349039996625,
+    "evaluation_figures": 0.3495156940043671,
+    "cv_and_selection_scores": 7.104503264999948,
+    "best_model_figures": 2.053983382997103,
+    "save_artifacts_and_error_analysis": 0.10183757099730428,
+    "save_final_report": 5.8883990277536213e-05,
+    "pipeline_total": 185.59446439301246
   }
 }

@@ -52,7 +52,7 @@ def get_device() -> str:
         import torch
 
         return "cuda" if torch.cuda.is_available() else "cpu"
-    except Exception:
+    except (ImportError, ModuleNotFoundError):
         return "cpu"
 
 
@@ -152,12 +152,14 @@ def plot_text_length(df: pd.DataFrame, class_names: dict[int, str], save_path: s
         class_names: Mapping id -> nom de classe.
         save_path: Chemin de sortie PNG.
     """
+    df_plot = df.copy()
+    # Crée une colonne avec les noms de classes lisibles pour l'affichage
+    df_plot["class_name"] = df_plot["class"].map(class_names).fillna(df_plot["class"].astype(str))
     plt.figure(figsize=(8, 4))
-    sns.histplot(data=df, x="tweet_length", hue="class", bins=40, kde=True, element="step")
+    sns.histplot(data=df_plot, x="tweet_length", hue="class_name", bins=40, kde=True, element="step")
     plt.title("Distribution de la longueur des tweets")
     plt.xlabel("Nombre de caractères")
     plt.ylabel("Fréquence")
-    plt.legend(labels=[class_names.get(i, str(i)) for i in sorted(df["class"].unique())], title="Classe")
     plt.tight_layout()
     plt.savefig(save_path, dpi=150)
     plt.close()

@@ -150,7 +150,7 @@ def _compute_selection_scores(
         test_f1 = test_metrics[model_name]["f1_macro"]
         w_val, w_test, w_cv = selection_weights
         model_selection_scores[model_name] = float((w_val * val_f1) + (w_test * test_f1) + (w_cv * cv_mean))
-        full_report[model_name]["cv_f1_macro_scores"] = cv_scores
+        full_report[model_name]["cv_f1_macro_scores"] = model_cv_scores[model_name]
         full_report[model_name]["cv_f1_macro_mean"] = cv_mean
         full_report[model_name]["selection_score"] = model_selection_scores[model_name]
 

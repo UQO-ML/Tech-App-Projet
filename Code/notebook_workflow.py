@@ -9,8 +9,8 @@ from typing import Any
 
 import pandas as pd
 
-import utils
-from main import run_pipeline
+from Code import utils
+from Code.main import run_pipeline
 
 DEFAULT_FIGURE_NAMES = [
     "runs_comparison_overview.png",

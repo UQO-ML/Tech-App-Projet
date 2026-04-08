@@ -23,13 +23,13 @@
     0.7240356733233502,
     0.7370576911729704
   ],
-  "best_model_selection_score": 0.697653306066264,
+  "best_model_selection_score": 0.6977337555584195,
   "model_selection_method": {
     "formula": "selection_score = w_val * val_f1_macro + w_test * test_f1_macro + w_cv * cv_f1_macro_mean + w_hate * hate_recall_test - penalty_if(hate_recall_test < hate_recall_floor)",
     "weights": {
-      "validation": 0.25,
-      "test": 0.25,
-      "cv": 0.35,
+      "validation": 0.3,
+      "test": 0.35,
+      "cv": 0.2,
       "hate_recall": 0.15
     },
     "hate_recall_floor": 0.4,
@@ -41,10 +41,10 @@
     "cv_fallback_explanation": "Pour les modèles deep learning coûteux (ex. DistilBERT), le terme CV peut être approché par le score validation afin de garder un temps d'exécution raisonnable."
   },
   "model_selection_scores": {
-    "LogisticRegression": 0.697653306066264,
-    "RandomForest": 0.6890078095165715,
-    "MLPClassifier": 0.49271226969708926,
-    "LogisticRegressionGPU": 0.5443347801210229
+    "LogisticRegression": 0.6977337555584195,
+    "RandomForest": 0.6887361043574748,
+    "MLPClassifier": 0.49366161275365705,
+    "LogisticRegressionGPU": 0.5449413370080688
   },
   "model_selection_ranking": [
     "LogisticRegression",
@@ -122,9 +122,9 @@
     "model_param_overrides": {},
     "model_grid_overrides": {},
     "selection_weights": [
-      0.25,
-      0.25,
+      0.3,
       0.35,
+      0.2,
       0.15
     ],
     "hate_recall_floor": 0.4,
@@ -223,7 +223,7 @@
         0.7370576911729704
       ],
       "cv_f1_macro_mean": 0.7298126372781366,
-      "selection_score": 0.697653306066264,
+      "selection_score": 0.6977337555584195,
       "feature_config": {
         "representation": "TF-IDF sparse vectors",
         "backend": "cpu_sklearn",
@@ -247,16 +247,16 @@
         "cv_ci95_available": true,
         "hate_recall_test": 0.5174825174825175,
         "weights": {
-          "validation": 0.25,
-          "test": 0.25,
-          "cv": 0.35,
+          "validation": 0.3,
+          "test": 0.35,
+          "cv": 0.2,
           "hate_recall": 0.15
         },
         "hate_recall_floor": 0.4,
         "hate_recall_penalty": 0.03,
         "penalty_applied": 0.0,
-        "score_before_penalty": 0.697653306066264,
-        "score_after_penalty": 0.697653306066264
+        "score_before_penalty": 0.6977337555584195,
+        "score_after_penalty": 0.6977337555584195
       }
     },
     "RandomForest": {
@@ -360,7 +360,7 @@
         0.7409934662873422
       ],
       "cv_f1_macro_mean": 0.7299369531029586,
-      "selection_score": 0.6890078095165715,
+      "selection_score": 0.6887361043574748,
       "feature_config": {
         "representation": "TF-IDF sparse vectors",
         "backend": "cpu_sklearn",
@@ -384,16 +384,16 @@
         "cv_ci95_available": true,
         "hate_recall_test": 0.458041958041958,
         "weights": {
-          "validation": 0.25,
-          "test": 0.25,
-          "cv": 0.35,
+          "validation": 0.3,
+          "test": 0.35,
+          "cv": 0.2,
           "hate_recall": 0.15
         },
         "hate_recall_floor": 0.4,
         "hate_recall_penalty": 0.03,
         "penalty_applied": 0.0,
-        "score_before_penalty": 0.6890078095165715,
-        "score_after_penalty": 0.6890078095165715
+        "score_before_penalty": 0.6887361043574748,
+        "score_after_penalty": 0.6887361043574748
       }
     },
     "MLPClassifier": {
@@ -509,7 +509,7 @@
         0.5906357018165495
       ],
       "cv_f1_macro_mean": 0.595860192044937,
-      "selection_score": 0.49271226969708926,
+      "selection_score": 0.49366161275365705,
       "feature_config": {
         "representation": "TF-IDF sparse vectors",
         "backend": "cpu_sklearn",
@@ -533,16 +533,16 @@
         "cv_ci95_available": true,
         "hate_recall_test": 0.08741258741258741,
         "weights": {
-          "validation": 0.25,
-          "test": 0.25,
-          "cv": 0.35,
+          "validation": 0.3,
+          "test": 0.35,
+          "cv": 0.2,
           "hate_recall": 0.15
         },
         "hate_recall_floor": 0.4,
         "hate_recall_penalty": 0.03,
         "penalty_applied": 0.03,
-        "score_before_penalty": 0.5227122696970893,
-        "score_after_penalty": 0.49271226969708926
+        "score_before_penalty": 0.5236616127536571,
+        "score_after_penalty": 0.49366161275365705
       }
     },
     "LogisticRegressionGPU": {
@@ -641,7 +641,7 @@
         0.6409897126700508
       ],
       "cv_f1_macro_mean": 0.6470756754327363,
-      "selection_score": 0.5443347801210229,
+      "selection_score": 0.5449413370080688,
       "feature_config": {
         "representation": "TF-IDF + SVD dense vectors",
         "backend": "gpu_cuml",
@@ -665,31 +665,31 @@
         "cv_ci95_available": true,
         "hate_recall_test": 0.15034965034965034,
         "weights": {
-          "validation": 0.25,
-          "test": 0.25,
-          "cv": 0.35,
+          "validation": 0.3,
+          "test": 0.35,
+          "cv": 0.2,
           "hate_recall": 0.15
         },
         "hate_recall_floor": 0.4,
         "hate_recall_penalty": 0.03,
         "penalty_applied": 0.03,
-        "score_before_penalty": 0.5743347801210229,
-        "score_after_penalty": 0.5443347801210229
+        "score_before_penalty": 0.5749413370080688,
+        "score_after_penalty": 0.5449413370080688
       }
     }
   },
   "timing_seconds": {
-    "prepare_outputs_and_device": 0.533144536006148,
-    "load_clean_sample_data": 0.1806405109964544,
-    "eda_summary_and_figures": 0.44176223999238573,
-    "split_train_val_test": 0.006905568006914109,
-    "train_models": 140.56766441299987,
-    "evaluate_on_test": 0.4514545189886121,
-    "evaluation_figures": 0.3707414779928513,
-    "cv_and_selection_scores": 6.399719669003389,
-    "best_model_figures": 1.4914523420011392,
-    "save_artifacts_and_error_analysis": 0.12013557899626903,
-    "save_final_report": 3.8053010939620435e-05,
-    "pipeline_total": 150.59892492200015
+    "prepare_outputs_and_device": 0.7511497870000312,
+    "load_clean_sample_data": 0.17162900799303316,
+    "eda_summary_and_figures": 0.47134392900625244,
+    "split_train_val_test": 0.006773807996069081,
+    "train_models": 305.5286061730003,
+    "evaluate_on_test": 0.5162045609904453,
+    "evaluation_figures": 0.645256841002265,
+    "cv_and_selection_scores": 8.757030100008706,
+    "best_model_figures": 4.293338709991076,
+    "save_artifacts_and_error_analysis": 0.08451248198980466,
+    "save_final_report": 0.00011943100253120065,
+    "pipeline_total": 321.26924710899766
   }
 }

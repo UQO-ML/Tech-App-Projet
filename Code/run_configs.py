@@ -64,7 +64,15 @@ DISTILBERT_PARAMS_EP3 = {
         "weight_decay": 0.01,
     }
 }
-
+DISTILBERT_PARAMS_EP2 = {
+    "DistilBERT": {
+        "epochs": 2,
+        "batch_size": 16,
+        "max_length": 160,
+        "learning_rate": 3e-5,
+        "weight_decay": 0.01,
+    }
+}
 DISTILBERT_RUN_MAP = {
     "run_d_fast": "fast",
     "run_d_balanced": "balanced",
@@ -126,7 +134,7 @@ def get_default_runs() -> dict[str, dict[str, Any]]:
                 "scoring": SCORING,
                 "model_param_overrides": MODEL_PARAM_OVERRIDES_BASE,
                 "model_grid_overrides": MODEL_GRID_OVERRIDES_BASE,
-                "selection_weights": SELECTION_WEIGHTS_CV_HEAVY,
+                "selection_weights": SELECTION_WEIGHTS_BALANCED,
                 "algorithm_switches": ALGORITHM_SWITCHES_CLASSIC_ONLY,
                 "hate_recall_floor": HATE_RECALL_FLOOR,
                 "hate_recall_penalty": HATE_RECALL_PENALTY,
@@ -137,15 +145,15 @@ def get_default_runs() -> dict[str, dict[str, Any]]:
             "why": "Run DistilBERT ep3 avec pondération adaptée au CV proxy.",
             "config": {
                 "max_samples": MAX_SAMPLES_DEFAULT,
-                "distilbert_epochs": 3,
+                "distilbert_epochs": 2,
                 "include_distilbert": True,
                 "test_size": TEST_SIZE,
                 "val_size": VAL_SIZE,
                 "cv_folds": CV_FOLDS_STANDARD,
                 "scoring": SCORING,
-                "model_param_overrides": DISTILBERT_PARAMS_EP3,
+                "model_param_overrides": DISTILBERT_PARAMS_EP2,
                 "model_grid_overrides": MODEL_GRID_OVERRIDES_BASE,
-                "selection_weights": SELECTION_WEIGHTS_DISTILBERT_SAFE,
+                "selection_weights": SELECTION_WEIGHTS_BALANCED,
                 "algorithm_switches": ALGORITHM_SWITCHES_ALL,
                 "hate_recall_floor": HATE_RECALL_FLOOR,
                 "hate_recall_penalty": HATE_RECALL_PENALTY,

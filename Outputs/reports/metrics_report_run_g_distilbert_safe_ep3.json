@@ -3,29 +3,29 @@
   "n_samples": 24783,
   "best_model": "DistilBERT",
   "best_model_validation_metrics": {
-    "accuracy": 0.9048003227107705,
-    "balanced_accuracy": 0.7581912878787879,
-    "precision_macro": 0.7505615453728661,
-    "recall_macro": 0.7581912878787879,
-    "f1_macro": 0.7543190525949147
+    "accuracy": 0.9112545381202097,
+    "balanced_accuracy": 0.7586162101787103,
+    "precision_macro": 0.7641665900915838,
+    "recall_macro": 0.7586162101787103,
+    "f1_macro": 0.7606561307061938
   },
   "best_model_test_metrics": {
-    "accuracy": 0.9140609239459351,
-    "balanced_accuracy": 0.7539037749296944,
-    "precision_macro": 0.7836408256448494,
-    "recall_macro": 0.7539037749296944,
-    "f1_macro": 0.7669358954406579
+    "accuracy": 0.9128505144240469,
+    "balanced_accuracy": 0.7495201005147974,
+    "precision_macro": 0.778049909780952,
+    "recall_macro": 0.7495201005147974,
+    "f1_macro": 0.7618443325552805
   },
   "best_model_cv_f1_macro_scores": [
-    0.7543190525949147
+    0.7606561307061938
   ],
-  "best_model_selection_score": 0.7081060437320867,
+  "best_model_selection_score": 0.7072882670621303,
   "model_selection_method": {
     "formula": "selection_score = w_val * val_f1_macro + w_test * test_f1_macro + w_cv * cv_f1_macro_mean + w_hate * hate_recall_test - penalty_if(hate_recall_test < hate_recall_floor)",
     "weights": {
       "validation": 0.3,
-      "test": 0.4,
-      "cv": 0.15,
+      "test": 0.35,
+      "cv": 0.2,
       "hate_recall": 0.15
     },
     "hate_recall_floor": 0.4,
@@ -39,11 +39,11 @@
     "cv_fallback_explanation": "Pour les modèles deep learning coûteux (ex. DistilBERT), le terme CV peut être approché par le score validation afin de garder un temps d'exécution raisonnable."
   },
   "model_selection_scores": {
-    "LogisticRegression": 0.6978761676990812,
-    "RandomForest": 0.6884933780638254,
-    "MLPClassifier": 0.493987112140824,
-    "LogisticRegressionGPU": 0.5451942922049647,
-    "DistilBERT": 0.7081060437320867
+    "LogisticRegression": 0.6977337555584195,
+    "RandomForest": 0.6887361043574748,
+    "MLPClassifier": 0.49366161275365705,
+    "LogisticRegressionGPU": 0.5449413370080688,
+    "DistilBERT": 0.7072882670621303
   },
   "model_selection_ranking": [
     "DistilBERT",
@@ -59,7 +59,7 @@
     "LogisticRegressionGPU": "Alternative GPU de Logistic Regression via cuML: utile pour accélérer les runs sur des représentations textuelles denses après réduction SVD. Variante GPU (cuML) utile pour comparer les gains de temps et l'impact des hyperparamètres en environnement CUDA.",
     "DistilBERT": "Modèle Transformer pré-entraîné qui capte mieux le contexte sémantique des tweets; souvent plus performant sur la détection de nuances offensantes/haineuses."
   },
-  "best_model_selection_explanation": "Le modèle DistilBERT obtient le meilleur score global pondéré (0.7081) en combinant validation, test, CV et rappel `hate_speech` (avec pénalité éventuelle sous seuil). Il est retenu pour son compromis entre performance et robustesse.",
+  "best_model_selection_explanation": "Le modèle DistilBERT obtient le meilleur score global pondéré (0.7073) en combinant validation, test, CV et rappel `hate_speech` (avec pénalité éventuelle sous seuil). Il est retenu pour son compromis entre performance et robustesse.",
   "distilbert_included": true,
   "distilbert_note": "DistilBERT inclus dans la comparaison.",
   "expected_models": [
@@ -102,7 +102,7 @@
   },
   "run_config": {
     "max_samples": null,
-    "distilbert_epochs": 3,
+    "distilbert_epochs": 2,
     "include_distilbert": true,
     "algorithm_switches": {
       "NaiveBayes": false,
@@ -125,7 +125,7 @@
     "scoring": "f1_macro",
     "model_param_overrides": {
       "DistilBERT": {
-        "epochs": 3,
+        "epochs": 2,
         "batch_size": 16,
         "max_length": 160,
         "learning_rate": 3e-05,
@@ -135,8 +135,8 @@
     "model_grid_overrides": {},
     "selection_weights": [
       0.3,
-      0.4,
-      0.15,
+      0.35,
+      0.2,
       0.15
     ],
     "hate_recall_floor": 0.4,
@@ -235,7 +235,7 @@
         0.7370576911729704
       ],
       "cv_f1_macro_mean": 0.7298126372781366,
-      "selection_score": 0.6978761676990812,
+      "selection_score": 0.6977337555584195,
       "feature_config": {
         "representation": "TF-IDF sparse vectors",
         "backend": "cpu_sklearn",
@@ -260,15 +260,15 @@
         "hate_recall_test": 0.5174825174825175,
         "weights": {
           "validation": 0.3,
-          "test": 0.4,
-          "cv": 0.15,
+          "test": 0.35,
+          "cv": 0.2,
           "hate_recall": 0.15
         },
         "hate_recall_floor": 0.4,
         "hate_recall_penalty": 0.03,
         "penalty_applied": 0.0,
-        "score_before_penalty": 0.6978761676990812,
-        "score_after_penalty": 0.6978761676990812
+        "score_before_penalty": 0.6977337555584195,
+        "score_after_penalty": 0.6977337555584195
       }
     },
     "RandomForest": {
@@ -372,7 +372,7 @@
         0.7409934662873422
       ],
       "cv_f1_macro_mean": 0.7299369531029586,
-      "selection_score": 0.6884933780638254,
+      "selection_score": 0.6887361043574748,
       "feature_config": {
         "representation": "TF-IDF sparse vectors",
         "backend": "cpu_sklearn",
@@ -397,15 +397,15 @@
         "hate_recall_test": 0.458041958041958,
         "weights": {
           "validation": 0.3,
-          "test": 0.4,
-          "cv": 0.15,
+          "test": 0.35,
+          "cv": 0.2,
           "hate_recall": 0.15
         },
         "hate_recall_floor": 0.4,
         "hate_recall_penalty": 0.03,
         "penalty_applied": 0.0,
-        "score_before_penalty": 0.6884933780638254,
-        "score_after_penalty": 0.6884933780638254
+        "score_before_penalty": 0.6887361043574748,
+        "score_after_penalty": 0.6887361043574748
       }
     },
     "MLPClassifier": {
@@ -521,7 +521,7 @@
         0.5906357018165495
       ],
       "cv_f1_macro_mean": 0.595860192044937,
-      "selection_score": 0.493987112140824,
+      "selection_score": 0.49366161275365705,
       "feature_config": {
         "representation": "TF-IDF sparse vectors",
         "backend": "cpu_sklearn",
@@ -546,15 +546,15 @@
         "hate_recall_test": 0.08741258741258741,
         "weights": {
           "validation": 0.3,
-          "test": 0.4,
-          "cv": 0.15,
+          "test": 0.35,
+          "cv": 0.2,
           "hate_recall": 0.15
         },
         "hate_recall_floor": 0.4,
         "hate_recall_penalty": 0.03,
         "penalty_applied": 0.03,
-        "score_before_penalty": 0.523987112140824,
-        "score_after_penalty": 0.493987112140824
+        "score_before_penalty": 0.5236616127536571,
+        "score_after_penalty": 0.49366161275365705
       }
     },
     "LogisticRegressionGPU": {
@@ -653,7 +653,7 @@
         0.6409897126700508
       ],
       "cv_f1_macro_mean": 0.6470756754327363,
-      "selection_score": 0.5451942922049647,
+      "selection_score": 0.5449413370080688,
       "feature_config": {
         "representation": "TF-IDF + SVD dense vectors",
         "backend": "gpu_cuml",
@@ -678,15 +678,15 @@
         "hate_recall_test": 0.15034965034965034,
         "weights": {
           "validation": 0.3,
-          "test": 0.4,
-          "cv": 0.15,
+          "test": 0.35,
+          "cv": 0.2,
           "hate_recall": 0.15
         },
         "hate_recall_floor": 0.4,
         "hate_recall_penalty": 0.03,
         "penalty_applied": 0.03,
-        "score_before_penalty": 0.5751942922049648,
-        "score_after_penalty": 0.5451942922049647
+        "score_before_penalty": 0.5749413370080688,
+        "score_after_penalty": 0.5449413370080688
       }
     },
     "DistilBERT": {
@@ -696,7 +696,7 @@
       "tuning": {
         "best_params": {
           "model_name": "distilbert-base-uncased",
-          "epochs": 3,
+          "epochs": 2,
           "batch_size": 16,
           "max_length": 160,
           "learning_rate": 3e-05
@@ -705,55 +705,55 @@
         "note": "DistilBERT entraîné via fine-tuning direct (pas de GridSearchCV pour limiter le coût)."
       },
       "validation_metrics": {
-        "accuracy": 0.9048003227107705,
-        "balanced_accuracy": 0.7581912878787879,
-        "precision_macro": 0.7505615453728661,
-        "recall_macro": 0.7581912878787879,
-        "f1_macro": 0.7543190525949147
+        "accuracy": 0.9112545381202097,
+        "balanced_accuracy": 0.7586162101787103,
+        "precision_macro": 0.7641665900915838,
+        "recall_macro": 0.7586162101787103,
+        "f1_macro": 0.7606561307061938
       },
       "test_metrics": {
-        "accuracy": 0.9140609239459351,
-        "balanced_accuracy": 0.7539037749296944,
-        "precision_macro": 0.7836408256448494,
-        "recall_macro": 0.7539037749296944,
-        "f1_macro": 0.7669358954406579
+        "accuracy": 0.9128505144240469,
+        "balanced_accuracy": 0.7495201005147974,
+        "precision_macro": 0.778049909780952,
+        "recall_macro": 0.7495201005147974,
+        "f1_macro": 0.7618443325552805
       },
       "classification_report_test": {
         "hate_speech": {
-          "precision": 0.5130434782608696,
-          "recall": 0.4125874125874126,
-          "f1-score": 0.4573643410852713,
+          "precision": 0.5043859649122807,
+          "recall": 0.4020979020979021,
+          "f1-score": 0.4474708171206226,
           "support": 286.0
         },
         "offensive_language": {
-          "precision": 0.9414934565050038,
-          "recall": 0.9559666492965087,
-          "f1-score": 0.9486748545572075,
+          "precision": 0.9422039558181351,
+          "recall": 0.955706096925482,
+          "f1-score": 0.9489069978010607,
           "support": 3838.0
         },
         "neither": {
-          "precision": 0.8963855421686747,
-          "recall": 0.8931572629051621,
-          "f1-score": 0.8947684906794949,
+          "precision": 0.8875598086124402,
+          "recall": 0.8907563025210085,
+          "f1-score": 0.8891551827441582,
           "support": 833.0
         },
-        "accuracy": 0.9140609239459351,
+        "accuracy": 0.9128505144240469,
         "macro avg": {
-          "precision": 0.7836408256448494,
-          "recall": 0.7539037749296944,
-          "f1-score": 0.7669358954406579,
+          "precision": 0.778049909780952,
+          "recall": 0.7495201005147974,
+          "f1-score": 0.7618443325552805,
           "support": 4957.0
         },
         "weighted avg": {
-          "precision": 0.9091933583771071,
-          "recall": 0.9140609239459351,
-          "f1-score": 0.911269406107922,
+          "precision": 0.9077608410266447,
+          "recall": 0.9128505144240469,
+          "f1-score": 0.9099350370148988,
           "support": 4957.0
         }
       },
       "cv_f1_macro_scores": [],
-      "cv_f1_macro_mean": 0.7543190525949147,
-      "selection_score": 0.7081060437320867,
+      "cv_f1_macro_mean": 0.7606561307061938,
+      "selection_score": 0.7072882670621303,
       "feature_config": {
         "representation": "Transformer embeddings",
         "backend": "gpu_torch",
@@ -766,39 +766,39 @@
       "cv_f1_macro_std": null,
       "cv_f1_macro_ci95": null,
       "selection_components": {
-        "val_f1_macro": 0.7543190525949147,
-        "test_f1_macro": 0.7669358954406579,
-        "cv_f1_macro_mean": 0.7543190525949147,
+        "val_f1_macro": 0.7606561307061938,
+        "test_f1_macro": 0.7618443325552805,
+        "cv_f1_macro_mean": 0.7606561307061938,
         "cv_f1_macro_std": null,
         "cv_f1_macro_ci95": null,
         "cv_ci95_available": false,
-        "hate_recall_test": 0.4125874125874126,
+        "hate_recall_test": 0.4020979020979021,
         "weights": {
           "validation": 0.3,
-          "test": 0.4,
-          "cv": 0.15,
+          "test": 0.35,
+          "cv": 0.2,
           "hate_recall": 0.15
         },
         "hate_recall_floor": 0.4,
         "hate_recall_penalty": 0.03,
         "penalty_applied": 0.0,
-        "score_before_penalty": 0.7081060437320867,
-        "score_after_penalty": 0.7081060437320867
+        "score_before_penalty": 0.7072882670621303,
+        "score_after_penalty": 0.7072882670621303
       }
     }
   },
   "timing_seconds": {
-    "prepare_outputs_and_device": 0.5969061280047754,
-    "load_clean_sample_data": 0.19894535699859262,
-    "eda_summary_and_figures": 0.461712592994445,
-    "split_train_val_test": 0.0065590260055614635,
-    "train_models": 156.6873710880027,
-    "evaluate_on_test": 2.036816938998527,
-    "evaluation_figures": 0.3266198820056161,
-    "cv_and_selection_scores": 6.951026948008803,
-    "best_model_figures": 0.4287348009966081,
-    "save_artifacts_and_error_analysis": 0.05280758300796151,
-    "save_final_report": 3.639099304564297e-05,
-    "pipeline_total": 169.50314620201243
+    "prepare_outputs_and_device": 0.8874400260101538,
+    "load_clean_sample_data": 0.18870754599629436,
+    "eda_summary_and_figures": 0.5299139380076667,
+    "split_train_val_test": 0.007684955999138765,
+    "train_models": 303.6520547340042,
+    "evaluate_on_test": 2.1254910379939247,
+    "evaluation_figures": 0.4217600859992672,
+    "cv_and_selection_scores": 7.157943109996268,
+    "best_model_figures": 0.4701039459905587,
+    "save_artifacts_and_error_analysis": 0.07032996299676597,
+    "save_final_report": 6.225099787116051e-05,
+    "pipeline_total": 317.4155208880111
   }
 }

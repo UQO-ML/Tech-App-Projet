@@ -1,8 +1,8 @@
 {
   "summary": {
     "n_test_samples": 4957,
-    "n_errors": 426,
-    "error_rate": 0.08593907605406496,
+    "n_errors": 432,
+    "error_rate": 0.0871494855759532,
     "n_false_negative_hate_speech": 10,
     "n_false_positive_hate_speech": 10
   },
@@ -16,6 +16,13 @@
     },
     {
       "text": "these new nigga hipster hypebeasts love all these faggot ass bright colors and nike keeps giving them what they want smh",
+      "true_label": 0,
+      "true_name": "hate_speech",
+      "pred_label": 1,
+      "pred_name": "offensive_language"
+    },
+    {
+      "text": "faggot sack",
       "true_label": 0,
       "true_name": "hate_speech",
       "pred_label": 1,
@@ -69,16 +76,16 @@
       "true_name": "hate_speech",
       "pred_label": 1,
       "pred_name": "offensive_language"
-    },
-    {
-      "text": "let s kill cracker babies wtf did i just hear wow",
-      "true_label": 0,
-      "true_name": "hate_speech",
-      "pred_label": 1,
-      "pred_name": "offensive_language"
     }
   ],
   "false_positive_hate_speech": [
+    {
+      "text": "let s hang out nigger",
+      "true_label": 1,
+      "true_name": "offensive_language",
+      "pred_label": 0,
+      "pred_name": "hate_speech"
+    },
     {
       "text": "ok faggot",
       "true_label": 1,
@@ -90,13 +97,6 @@
       "text": "people who never use any hair product are unkept white trash douche bags",
       "true_label": 1,
       "true_name": "offensive_language",
-      "pred_label": 0,
-      "pred_name": "hate_speech"
-    },
-    {
-      "text": "she colored not lebanese",
-      "true_label": 2,
-      "true_name": "neither",
       "pred_label": 0,
       "pred_name": "hate_speech"
     },
@@ -115,21 +115,7 @@
       "pred_name": "hate_speech"
     },
     {
-      "text": "i should probs shave my spic stash soon its kinda getting out of hand",
-      "true_label": 1,
-      "true_name": "offensive_language",
-      "pred_label": 0,
-      "pred_name": "hate_speech"
-    },
-    {
       "text": "every half breed cop in america is trying to rape white women",
-      "true_label": 1,
-      "true_name": "offensive_language",
-      "pred_label": 0,
-      "pred_name": "hate_speech"
-    },
-    {
-      "text": "we bout to be the next chik fil a lmao couple of fags said we told them if they didn t like their food to get out never happened",
       "true_label": 1,
       "true_name": "offensive_language",
       "pred_label": 0,
@@ -144,6 +130,20 @@
     },
     {
       "text": "i openly admit to being the level of white trash that will drive across town to the gas station with free hot dogs amp half price drinks",
+      "true_label": 2,
+      "true_name": "neither",
+      "pred_label": 0,
+      "pred_name": "hate_speech"
+    },
+    {
+      "text": "thanksgiving with some ignore the chink eyes",
+      "true_label": 1,
+      "true_name": "offensive_language",
+      "pred_label": 0,
+      "pred_name": "hate_speech"
+    },
+    {
+      "text": "that wasn t as bad though drawing conclusions about white america based on a person poll is a slippery slope",
       "true_label": 2,
       "true_name": "neither",
       "pred_label": 0,
@@ -164,6 +164,13 @@
       "true_name": "neither",
       "pred_label": 1,
       "pred_name": "offensive_language"
+    },
+    {
+      "text": "let s hang out nigger",
+      "true_label": 1,
+      "true_name": "offensive_language",
+      "pred_label": 0,
+      "pred_name": "hate_speech"
     },
     {
       "text": "ok faggot",
@@ -187,16 +194,16 @@
       "pred_name": "offensive_language"
     },
     {
+      "text": "faggot sack",
+      "true_label": 0,
+      "true_name": "hate_speech",
+      "pred_label": 1,
+      "pred_name": "offensive_language"
+    },
+    {
       "text": "people who never use any hair product are unkept white trash douche bags",
       "true_label": 1,
       "true_name": "offensive_language",
-      "pred_label": 0,
-      "pred_name": "hate_speech"
-    },
-    {
-      "text": "she colored not lebanese",
-      "true_label": 2,
-      "true_name": "neither",
       "pred_label": 0,
       "pred_name": "hate_speech"
     },
@@ -209,13 +216,6 @@
     },
     {
       "text": "granted cracker isn t that bad because when you say that to a white person your saying their one of the slave",
-      "true_label": 1,
-      "true_name": "offensive_language",
-      "pred_label": 0,
-      "pred_name": "hate_speech"
-    },
-    {
-      "text": "seeing elder queer couples marry really is emotional they get to live their final years with equality and with dignity",
       "true_label": 1,
       "true_name": "offensive_language",
       "pred_label": 0,

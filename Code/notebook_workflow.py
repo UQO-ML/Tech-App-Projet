@@ -35,6 +35,13 @@ def _distilbert_enabled_from_run_config(run_config: dict[str, Any]) -> bool:
     return include_distilbert
 
 
+def _is_distilbert_cv_proxy_for_winner(run_report: dict[str, Any]) -> bool:
+    """Vrai si le meilleur modèle est DistilBERT avec CV proxy."""
+    best_model = run_report.get("best_model")
+    cv_fallback_models = run_report.get("model_selection_method", {}).get("cv_fallback_for_models", [])
+    return best_model == "DistilBERT" and ("DistilBERT" in cv_fallback_models)
+
+
 def _run_pipeline_subprocess(run_name: str, run_config: dict[str, Any], project_root: Path) -> dict[str, Any]:
     """Exécute `run_pipeline` dans un subprocess Python isolé.
 
@@ -149,8 +156,7 @@ def build_runs_comparison_table(reports_dir: str | Path, distilbert_proxy_penalt
     for path in run_report_files:
         run_report = load_report(path)
         include_distilbert = _distilbert_enabled_from_run_config(run_report.get("run_config", {}))
-        cv_fallback_models = run_report.get("model_selection_method", {}).get("cv_fallback_for_models", [])
-        distilbert_cv_proxy = include_distilbert and ("DistilBERT" in cv_fallback_models)
+        distilbert_cv_proxy = _is_distilbert_cv_proxy_for_winner(run_report)
         # Compensation réaliste: léger malus de prudence quand DistilBERT utilise un CV proxy.
         fairness_penalty = float(distilbert_proxy_penalty) if distilbert_cv_proxy else 0.0
         base_score = run_report.get("best_model_selection_score")
@@ -228,8 +234,7 @@ def run_all_configs(runs: dict[str, dict[str, Any]], distilbert_proxy_penalty: f
         run_report = load_report(run_report_path)
 
         include_distilbert = _distilbert_enabled_from_run_config(run_config)
-        cv_fallback_models = run_report.get("model_selection_method", {}).get("cv_fallback_for_models", [])
-        distilbert_cv_proxy = include_distilbert and ("DistilBERT" in cv_fallback_models)
+        distilbert_cv_proxy = _is_distilbert_cv_proxy_for_winner(run_report)
         fairness_penalty = float(distilbert_proxy_penalty) if distilbert_cv_proxy else 0.0
         base_score = run_report.get("best_model_selection_score")
         adjusted_score = None if base_score is None else float(base_score - fairness_penalty)

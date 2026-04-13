@@ -14,6 +14,7 @@ import pandas as pd
 import seaborn as sns
 from sklearn.metrics import (
     accuracy_score,
+    balanced_accuracy_score,
     classification_report,
     confusion_matrix,
     precision_recall_fscore_support,
@@ -64,7 +65,7 @@ def compute_metrics(y_true: pd.Series, y_pred: np.ndarray) -> dict[str, float]:
         y_pred: Labels prédits.
 
     Retour:
-        Dictionnaire avec accuracy, precision_macro, recall_macro, f1_macro.
+        Dictionnaire avec accuracy, balanced_accuracy, precision_macro, recall_macro, f1_macro.
     """
     precision, recall, f1, _ = precision_recall_fscore_support(
         y_true,
@@ -74,6 +75,7 @@ def compute_metrics(y_true: pd.Series, y_pred: np.ndarray) -> dict[str, float]:
     )
     return {
         "accuracy": float(accuracy_score(y_true, y_pred)),
+        "balanced_accuracy": float(balanced_accuracy_score(y_true, y_pred)),
         "precision_macro": float(precision),
         "recall_macro": float(recall),
         "f1_macro": float(f1),
@@ -513,45 +515,133 @@ def plot_learning_curves(estimator: Any, X: pd.Series, y: pd.Series, save_path: 
     plt.close()
 
 
+def extract_feature_importance_from_pipeline(model_pipeline: Any, top_k: int = 20) -> list[dict[str, float | str]]:
+    """Extrait les termes les plus influents d'un pipeline texte.
+
+    Cette extraction gère deux cas:
+    - modèle direct sur vocabulaire TF-IDF (`coef_`/`feature_importances_` alignés vocabulaire),
+    - modèle sur espace réduit SVD (projection des poids composantes vers les termes).
+    """
+    if not hasattr(model_pipeline, "named_steps"):
+        return []
+
+    tfidf = model_pipeline.named_steps.get("tfidf")
+    clf = model_pipeline.named_steps.get("clf")
+    if tfidf is None or clf is None or not hasattr(tfidf, "get_feature_names_out"):
+        return []
+
+    feature_names = np.asarray(tfidf.get_feature_names_out())
+    if feature_names.size == 0:
+        return []
+
+    raw_importances: np.ndarray | None = None
+    if hasattr(clf, "coef_"):
+        coef = np.asarray(getattr(clf, "coef_"))
+        coef = np.abs(coef)
+        raw_importances = coef if coef.ndim == 1 else coef.mean(axis=0)
+    elif hasattr(clf, "feature_importances_"):
+        raw_importances = np.asarray(getattr(clf, "feature_importances_")).ravel()
+
+    if raw_importances is None or raw_importances.size == 0:
+        return []
+
+    svd = model_pipeline.named_steps.get("svd")
+    svd_components = getattr(svd, "components_", None) if svd is not None else None
+
+    if svd_components is not None and raw_importances.shape[0] == svd_components.shape[0]:
+        # Projection composantes -> vocabulaire pour interpréter les termes.
+        term_importances = np.abs(raw_importances) @ np.abs(np.asarray(svd_components))
+    elif raw_importances.shape[0] == feature_names.shape[0]:
+        term_importances = np.abs(raw_importances)
+    else:
+        return []
+
+    top_count = min(int(top_k), int(term_importances.shape[0]))
+    if top_count <= 0:
+        return []
+    top_idx = np.argsort(term_importances)[-top_count:][::-1]
+    return [
+        {"term": str(feature_names[idx]), "importance": float(term_importances[idx])}
+        for idx in top_idx
+    ]
+
+
 def plot_feature_importance_from_pipeline(
     model_pipeline: Any,
     save_path: str | Path,
     top_k: int = 20,
 ) -> bool:
-    """Trace l'importance des features d'un pipeline si disponible.
-
-    Paramètres:
-        model_pipeline: Pipeline sklearn avec étapes `tfidf` et `clf`.
-        save_path: Chemin de sortie PNG.
-        top_k: Nombre maximal de features à afficher.
-
-    Retour:
-        `True` si une figure a été créée, sinon `False`.
-    """
-    if not hasattr(model_pipeline, "named_steps"):
+    """Trace les termes les plus influents pour un pipeline donné."""
+    top_terms = extract_feature_importance_from_pipeline(model_pipeline=model_pipeline, top_k=top_k)
+    if not top_terms:
         return False
 
-    tfidf = model_pipeline.named_steps.get("tfidf")
-    clf = model_pipeline.named_steps.get("clf")
-    if tfidf is None or clf is None or not hasattr(tfidf, "get_feature_names_out"):
-        return False
-
-    feature_names = tfidf.get_feature_names_out()
-    importances = None
-
-    if hasattr(clf, "coef_"):
-        importances = np.abs(clf.coef_).mean(axis=0)
-    elif hasattr(clf, "feature_importances_"):
-        importances = clf.feature_importances_
-
-    if importances is None:
-        return False
-
-    top_idx = np.argsort(importances)[-top_k:]
+    terms = [str(row["term"]) for row in top_terms][::-1]
+    importances = [float(row["importance"]) for row in top_terms][::-1]
     plt.figure(figsize=(9, 6))
-    plt.barh(feature_names[top_idx], importances[top_idx])
+    plt.barh(terms, importances)
     plt.title("Top mots influents du meilleur modèle")
-    plt.xlabel("Importance")
+    plt.xlabel("Importance (absolue)")
+    plt.ylabel("Terme")
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=150)
+    plt.close()
+    return True
+
+
+def build_feature_importance_summary_by_model(
+    model_pipelines: dict[str, Any],
+    top_k_per_model: int = 15,
+) -> dict[str, list[dict[str, float | str]]]:
+    """Construit un résumé des top termes influents pour chaque modèle."""
+    summary: dict[str, list[dict[str, float | str]]] = {}
+    for model_name, estimator in model_pipelines.items():
+        top_terms = extract_feature_importance_from_pipeline(estimator, top_k=top_k_per_model)
+        if top_terms:
+            summary[model_name] = top_terms
+    return summary
+
+
+def plot_feature_importance_comparison(
+    model_pipelines: dict[str, Any],
+    save_path: str | Path,
+    top_k_per_model: int = 15,
+    max_terms_union: int = 40,
+) -> bool:
+    """Compare l'importance des termes entre plusieurs modèles (heatmap)."""
+    summary = build_feature_importance_summary_by_model(
+        model_pipelines=model_pipelines,
+        top_k_per_model=top_k_per_model,
+    )
+    if not summary:
+        return False
+
+    term_scores: dict[str, float] = {}
+    for rows in summary.values():
+        for row in rows:
+            term = str(row["term"])
+            score = float(row["importance"])
+            term_scores[term] = max(term_scores.get(term, 0.0), score)
+
+    selected_terms = [
+        term for term, _ in sorted(term_scores.items(), key=lambda item: item[1], reverse=True)[: max_terms_union]
+    ]
+    if not selected_terms:
+        return False
+
+    models = list(summary.keys())
+    matrix = pd.DataFrame(0.0, index=selected_terms, columns=models)
+    for model_name, rows in summary.items():
+        for row in rows:
+            term = str(row["term"])
+            if term in matrix.index:
+                matrix.loc[term, model_name] = float(row["importance"])
+
+    matrix = matrix.sort_values(by=models, ascending=False)
+    plt.figure(figsize=(max(10, len(models) * 1.8), max(8, len(selected_terms) * 0.25)))
+    sns.heatmap(matrix, cmap="YlGnBu", linewidths=0.2)
+    plt.title("Contributions des features par modèle")
+    plt.xlabel(MODEL_LABEL)
     plt.ylabel("Terme")
     plt.tight_layout()
     plt.savefig(save_path, dpi=150)

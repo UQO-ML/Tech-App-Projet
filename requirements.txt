@@ -1,31 +1,34 @@
-# Tech-App-Devoir-II — INF 6243 — Dépendances
-# Avec venv activé : pip install -r requirements.txt
-# Python 3.10+ recommandé.
-#
-# Device : le code utilise CUDA en priorité pour l’apprentissage profond (PyTorch/TensorFlow).
-# Si CUDA est indisponible (pas de GPU, driver manquant, ou build CPU-only), le repli sur CPU
-# est automatique via get_device() (voir Code/utils.py et README). Installer une build GPU
-# depuis les index PyTorch (cu118/cu121) pour activer CUDA ; sinon le projet tourne sur CPU.
+# Tech-App-Devoir-II — requirements pinned
+# Recommandé: Python 3.11.x
+# IMPORTANT: avant exécution, faire `unset CUDA_PATH`
 
-# Core scientific stack
-numpy>=1.24
-pandas>=2.0
-scipy>=1.10
-joblib>=1.3
+# Core
+numpy==2.2.6
+pandas==2.2.3
+scipy==1.14.1
+joblib==1.4.2
 
-# Machine learning (classiques + validation, grid search)
-scikit-learn>=1.3
+# ML
+scikit-learn==1.6.1
 
-# Visualisation
-matplotlib>=3.7
-seaborn>=0.12
-
-# Notebook (présentation des résultats)
-jupyter>=1.0
+# Viz / notebook
+matplotlib==3.10.1
+seaborn==0.13.2
+jupyter==1.1.1
 
 # Deep learning (DistilBERT)
-# Pour GPU: installer une build torch CUDA adaptée à votre machine.
-torch>=2.0
-transformers>=4.42
-datasets>=2.20
-accelerate>=0.33
+torch==2.8.0
+transformers==4.49.0
+datasets==4.6.1
+accelerate==1.5.2
+fsspec==2026.2.0
+huggingface_hub==0.36.2
+
+# GPU classiques (RAPIDS/cuML)
+# NOTE: cuml-cu12 impose scikit-learn>=1.5, scipy>=1.13, cupy-cuda12x>=13.6
+cuml-cu12==26.2.0
+cupy-cuda12x==14.0.1
+numba==0.61.2
+numba-cuda==0.22.2
+nvidia-cusparse-cu12==12.5.10.65
+nvidia-nvjitlink-cu12==12.9.86

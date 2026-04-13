@@ -1,0 +1,225 @@
+{
+  "summary": {
+    "n_test_samples": 4957,
+    "n_errors": 429,
+    "error_rate": 0.08654428081500908,
+    "n_false_negative_hate_speech": 10,
+    "n_false_positive_hate_speech": 10
+  },
+  "false_negative_hate_speech": [
+    {
+      "text": "rt stfu hoe rt i m proud to be african american proud african american i m proud to be white racist",
+      "true_label": 0,
+      "true_name": "hate_speech",
+      "pred_label": 1,
+      "pred_name": "offensive_language"
+    },
+    {
+      "text": "rt i don t fuck with bitch niggas i only fuck niggas bitches",
+      "true_label": 0,
+      "true_name": "hate_speech",
+      "pred_label": 1,
+      "pred_name": "offensive_language"
+    },
+    {
+      "text": "stupid teabagger restaurant making customers pay minimum wage fee",
+      "true_label": 0,
+      "true_name": "hate_speech",
+      "pred_label": 2,
+      "pred_name": "neither"
+    },
+    {
+      "text": "lmao let these hoes be hoes ain t no savin nem",
+      "true_label": 0,
+      "true_name": "hate_speech",
+      "pred_label": 1,
+      "pred_name": "offensive_language"
+    },
+    {
+      "text": "rt man some lame niggah when i find him i m unfollowing tf out his ass",
+      "true_label": 0,
+      "true_name": "hate_speech",
+      "pred_label": 1,
+      "pred_name": "offensive_language"
+    },
+    {
+      "text": "harm this pussy instead rt missing yr old usc medical student last seen tuesday may harm himself",
+      "true_label": 0,
+      "true_name": "hate_speech",
+      "pred_label": 1,
+      "pred_name": "offensive_language"
+    },
+    {
+      "text": "rt amp alla my niggas hot boys so don t bring no ice in this bitch",
+      "true_label": 0,
+      "true_name": "hate_speech",
+      "pred_label": 1,
+      "pred_name": "offensive_language"
+    },
+    {
+      "text": "niggas ain t playin a gram of defense man george need to tell these bitch ass niggas man up",
+      "true_label": 0,
+      "true_name": "hate_speech",
+      "pred_label": 1,
+      "pred_name": "offensive_language"
+    },
+    {
+      "text": "let s kill cracker babies wtf did i just hear wow",
+      "true_label": 0,
+      "true_name": "hate_speech",
+      "pred_label": 1,
+      "pred_name": "offensive_language"
+    },
+    {
+      "text": "they should have never gave a cracker a transmitter will flip when he sees this",
+      "true_label": 0,
+      "true_name": "hate_speech",
+      "pred_label": 2,
+      "pred_name": "neither"
+    }
+  ],
+  "false_positive_hate_speech": [
+    {
+      "text": "ok faggot",
+      "true_label": 1,
+      "true_name": "offensive_language",
+      "pred_label": 0,
+      "pred_name": "hate_speech"
+    },
+    {
+      "text": "people who never use any hair product are unkept white trash douche bags",
+      "true_label": 1,
+      "true_name": "offensive_language",
+      "pred_label": 0,
+      "pred_name": "hate_speech"
+    },
+    {
+      "text": "granted cracker isn t that bad because when you say that to a white person your saying their one of the slave",
+      "true_label": 1,
+      "true_name": "offensive_language",
+      "pred_label": 0,
+      "pred_name": "hate_speech"
+    },
+    {
+      "text": "seeing elder queer couples marry really is emotional they get to live their final years with equality and with dignity",
+      "true_label": 1,
+      "true_name": "offensive_language",
+      "pred_label": 0,
+      "pred_name": "hate_speech"
+    },
+    {
+      "text": "every half breed cop in america is trying to rape white women",
+      "true_label": 1,
+      "true_name": "offensive_language",
+      "pred_label": 0,
+      "pred_name": "hate_speech"
+    },
+    {
+      "text": "we bout to be the next chik fil a lmao couple of fags said we told them if they didn t like their food to get out never happened",
+      "true_label": 1,
+      "true_name": "offensive_language",
+      "pred_label": 0,
+      "pred_name": "hate_speech"
+    },
+    {
+      "text": "faggot",
+      "true_label": 1,
+      "true_name": "offensive_language",
+      "pred_label": 0,
+      "pred_name": "hate_speech"
+    },
+    {
+      "text": "i openly admit to being the level of white trash that will drive across town to the gas station with free hot dogs amp half price drinks",
+      "true_label": 2,
+      "true_name": "neither",
+      "pred_label": 0,
+      "pred_name": "hate_speech"
+    },
+    {
+      "text": "chill i m not a coon rt sick of you fake bougie ass coons lol",
+      "true_label": 1,
+      "true_name": "offensive_language",
+      "pred_label": 0,
+      "pred_name": "hate_speech"
+    },
+    {
+      "text": "photo giving you that trailer park trash",
+      "true_label": 2,
+      "true_name": "neither",
+      "pred_label": 0,
+      "pred_name": "hate_speech"
+    }
+  ],
+  "generic_errors": [
+    {
+      "text": "rt stfu hoe rt i m proud to be african american proud african american i m proud to be white racist",
+      "true_label": 0,
+      "true_name": "hate_speech",
+      "pred_label": 1,
+      "pred_name": "offensive_language"
+    },
+    {
+      "text": "ok faggot",
+      "true_label": 1,
+      "true_name": "offensive_language",
+      "pred_label": 0,
+      "pred_name": "hate_speech"
+    },
+    {
+      "text": "noap not taking them rt maca root pills making my vagina do the wop",
+      "true_label": 2,
+      "true_name": "neither",
+      "pred_label": 1,
+      "pred_name": "offensive_language"
+    },
+    {
+      "text": "people who never use any hair product are unkept white trash douche bags",
+      "true_label": 1,
+      "true_name": "offensive_language",
+      "pred_label": 0,
+      "pred_name": "hate_speech"
+    },
+    {
+      "text": "",
+      "true_label": 1,
+      "true_name": "offensive_language",
+      "pred_label": 2,
+      "pred_name": "neither"
+    },
+    {
+      "text": "my fault it sound like it fucc nicca",
+      "true_label": 2,
+      "true_name": "neither",
+      "pred_label": 1,
+      "pred_name": "offensive_language"
+    },
+    {
+      "text": "granted cracker isn t that bad because when you say that to a white person your saying their one of the slave",
+      "true_label": 1,
+      "true_name": "offensive_language",
+      "pred_label": 0,
+      "pred_name": "hate_speech"
+    },
+    {
+      "text": "seeing elder queer couples marry really is emotional they get to live their final years with equality and with dignity",
+      "true_label": 1,
+      "true_name": "offensive_language",
+      "pred_label": 0,
+      "pred_name": "hate_speech"
+    },
+    {
+      "text": "rt i don t fuck with bitch niggas i only fuck niggas bitches",
+      "true_label": 0,
+      "true_name": "hate_speech",
+      "pred_label": 1,
+      "pred_name": "offensive_language"
+    },
+    {
+      "text": "munching on ww crackers amp studying nycs trans syst since nyc amp i haven t had a thing in over yrs",
+      "true_label": 2,
+      "true_name": "neither",
+      "pred_label": 1,
+      "pred_name": "offensive_language"
+    }
+  ]
+}

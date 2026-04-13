@@ -1,0 +1,235 @@
+{
+  "dataset_path": "/workspace/Data/labeled_data.csv",
+  "n_samples": 24783,
+  "best_model": "DistilBERT",
+  "best_model_validation_metrics": {
+    "accuracy": 0.9112545381202097,
+    "balanced_accuracy": 0.7586162101787103,
+    "precision_macro": 0.7641665900915838,
+    "recall_macro": 0.7586162101787103,
+    "f1_macro": 0.7606561307061938
+  },
+  "best_model_test_metrics": {
+    "accuracy": 0.9128505144240469,
+    "balanced_accuracy": 0.7495201005147974,
+    "precision_macro": 0.778049909780952,
+    "recall_macro": 0.7495201005147974,
+    "f1_macro": 0.7618443325552805
+  },
+  "best_model_cv_f1_macro_scores": [
+    0.7606561307061938
+  ],
+  "best_model_selection_score": 0.7073476771545847,
+  "model_selection_method": {
+    "formula": "selection_score = w_val * val_f1_macro + w_test * test_f1_macro + w_cv * cv_f1_macro_mean + w_hate * hate_recall_test - penalty_if(hate_recall_test < hate_recall_floor)",
+    "weights": {
+      "validation": 0.3,
+      "test": 0.4,
+      "cv": 0.15,
+      "hate_recall": 0.15
+    },
+    "hate_recall_floor": 0.4,
+    "hate_recall_penalty": 0.03,
+    "why_this_formula": "Le F1 test reçoit le plus de poids pour refléter la performance hors entraînement; la validation sert de garde-fou pendant le tuning; la CV ajoute une mesure de stabilité; le rappel `hate_speech` protège la classe minoritaire; une pénalité s'applique si ce rappel est trop bas.",
+    "precision_policy": "La précision macro est suivie comme métrique diagnostique, mais n'est pas utilisée comme critère principal de sélection.",
+    "tie_break_rule": "En cas d'égalité, choisir le meilleur f1_macro test puis accuracy test.",
+    "cv_fallback_for_models": [
+      "DistilBERT"
+    ],
+    "cv_fallback_explanation": "Pour les modèles deep learning coûteux (ex. DistilBERT), le terme CV peut être approché par le score validation afin de garder un temps d'exécution raisonnable."
+  },
+  "model_selection_scores": {
+    "DistilBERT": 0.7073476771545847
+  },
+  "model_selection_ranking": [
+    "DistilBERT"
+  ],
+  "model_rationales": {
+    "DistilBERT": "Modèle Transformer pré-entraîné qui capte mieux le contexte sémantique des tweets; souvent plus performant sur la détection de nuances offensantes/haineuses."
+  },
+  "best_model_selection_explanation": "Le modèle DistilBERT obtient le meilleur score global pondéré (0.7073) en combinant validation, test, CV et rappel `hate_speech` (avec pénalité éventuelle sous seuil). Il est retenu pour son compromis entre performance et robustesse.",
+  "distilbert_included": true,
+  "distilbert_note": "DistilBERT inclus dans la comparaison.",
+  "expected_models": [
+    "DistilBERT"
+  ],
+  "trained_models": [
+    "DistilBERT"
+  ],
+  "model_execution_status": {
+    "DistilBERT": "trained"
+  },
+  "artifacts_generated": {
+    "figures_dir": "/workspace/Outputs/figures",
+    "reports_dir": "/workspace/Outputs/reports",
+    "models_dir": "/workspace/Outputs/models",
+    "error_cases_json": "/workspace/Outputs/reports/error_cases_best_model.json",
+    "error_cases_markdown": "/workspace/Outputs/reports/error_cases_best_model.md",
+    "feature_importance_summary_json": "/workspace/Outputs/reports/feature_importance_summary.json",
+    "main_figures": [
+      "models_compilation_overview.png",
+      "models_status_overview.png",
+      "confusion_matrices_all_models.png",
+      "models_comparison_test.png",
+      "learning_curve_best_model.png",
+      "feature_importance_best_model.png",
+      "feature_importance_comparison_models.png"
+    ]
+  },
+  "run_config": {
+    "max_samples": null,
+    "distilbert_epochs": 2,
+    "include_distilbert": true,
+    "algorithm_switches": {
+      "NaiveBayes": false,
+      "LogisticRegression": false,
+      "LinearSVC": false,
+      "KNN": false,
+      "DecisionTree": false,
+      "RandomForest": false,
+      "AdaBoost": false,
+      "MLPClassifier": false,
+      "LogisticRegressionGPU": false,
+      "LinearSVCGPU": false,
+      "KNNGPU": false,
+      "RandomForestGPU": false,
+      "DistilBERT": true
+    },
+    "test_size": 0.2,
+    "val_size": 0.1,
+    "cv_folds": 5,
+    "scoring": "f1_macro",
+    "model_param_overrides": {
+      "DistilBERT": {
+        "epochs": 2,
+        "batch_size": 16,
+        "max_length": 160,
+        "learning_rate": 3e-05,
+        "weight_decay": 0.01
+      }
+    },
+    "model_grid_overrides": {},
+    "selection_weights": [
+      0.3,
+      0.4,
+      0.15,
+      0.15
+    ],
+    "hate_recall_floor": 0.4,
+    "hate_recall_penalty": 0.03,
+    "random_state": 42
+  },
+  "all_models": {
+    "DistilBERT": {
+      "status": "trained",
+      "error": null,
+      "model_why": "Modèle Transformer pré-entraîné qui capte mieux le contexte sémantique des tweets; souvent plus performant sur la détection de nuances offensantes/haineuses.",
+      "tuning": {
+        "best_params": {
+          "model_name": "distilbert-base-uncased",
+          "epochs": 2,
+          "batch_size": 16,
+          "max_length": 160,
+          "learning_rate": 3e-05
+        },
+        "best_cv_score": null,
+        "note": "DistilBERT entraîné via fine-tuning direct (pas de GridSearchCV pour limiter le coût)."
+      },
+      "validation_metrics": {
+        "accuracy": 0.9112545381202097,
+        "balanced_accuracy": 0.7586162101787103,
+        "precision_macro": 0.7641665900915838,
+        "recall_macro": 0.7586162101787103,
+        "f1_macro": 0.7606561307061938
+      },
+      "test_metrics": {
+        "accuracy": 0.9128505144240469,
+        "balanced_accuracy": 0.7495201005147974,
+        "precision_macro": 0.778049909780952,
+        "recall_macro": 0.7495201005147974,
+        "f1_macro": 0.7618443325552805
+      },
+      "classification_report_test": {
+        "hate_speech": {
+          "precision": 0.5043859649122807,
+          "recall": 0.4020979020979021,
+          "f1-score": 0.4474708171206226,
+          "support": 286.0
+        },
+        "offensive_language": {
+          "precision": 0.9422039558181351,
+          "recall": 0.955706096925482,
+          "f1-score": 0.9489069978010607,
+          "support": 3838.0
+        },
+        "neither": {
+          "precision": 0.8875598086124402,
+          "recall": 0.8907563025210085,
+          "f1-score": 0.8891551827441582,
+          "support": 833.0
+        },
+        "accuracy": 0.9128505144240469,
+        "macro avg": {
+          "precision": 0.778049909780952,
+          "recall": 0.7495201005147974,
+          "f1-score": 0.7618443325552805,
+          "support": 4957.0
+        },
+        "weighted avg": {
+          "precision": 0.9077608410266447,
+          "recall": 0.9128505144240469,
+          "f1-score": 0.9099350370148988,
+          "support": 4957.0
+        }
+      },
+      "cv_f1_macro_scores": [],
+      "cv_f1_macro_mean": 0.7606561307061938,
+      "selection_score": 0.7073476771545847,
+      "feature_config": {
+        "representation": "Transformer embeddings",
+        "backend": "gpu_torch",
+        "tfidf_ngram_range": null,
+        "tfidf_min_df": null,
+        "tfidf_max_features": null,
+        "deep_model_name": "distilbert-base-uncased",
+        "max_length": 160
+      },
+      "cv_f1_macro_std": null,
+      "cv_f1_macro_ci95": null,
+      "selection_components": {
+        "val_f1_macro": 0.7606561307061938,
+        "test_f1_macro": 0.7618443325552805,
+        "cv_f1_macro_mean": 0.7606561307061938,
+        "cv_f1_macro_std": null,
+        "cv_f1_macro_ci95": null,
+        "cv_ci95_available": false,
+        "hate_recall_test": 0.4020979020979021,
+        "weights": {
+          "validation": 0.3,
+          "test": 0.4,
+          "cv": 0.15,
+          "hate_recall": 0.15
+        },
+        "hate_recall_floor": 0.4,
+        "hate_recall_penalty": 0.03,
+        "penalty_applied": 0.0,
+        "score_before_penalty": 0.7073476771545847,
+        "score_after_penalty": 0.7073476771545847
+      }
+    }
+  },
+  "timing_seconds": {
+    "prepare_outputs_and_device": 0.6169723579951096,
+    "load_clean_sample_data": 0.18452904900186695,
+    "eda_summary_and_figures": 0.44375182800285984,
+    "split_train_val_test": 0.006460719989263453,
+    "train_models": 26.48817627399694,
+    "evaluate_on_test": 1.6271605609945254,
+    "evaluation_figures": 0.11618526199890766,
+    "cv_and_selection_scores": 0.00028565499815158546,
+    "best_model_figures": 0.33152516500558704,
+    "save_artifacts_and_error_analysis": 0.0020291950058890507,
+    "save_final_report": 1.7735001165419817e-05,
+    "pipeline_total": 31.39222758100368
+  }
+}

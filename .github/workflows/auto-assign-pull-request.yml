@@ -12,7 +12,7 @@ jobs:
         uses: pozil/auto-assign-issue@v1
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          assignees: T4rg3n, kiloutyg, Spir0uche
-          numOfAssignee: 1
+          assignees: T4rg3n, kiloutyg, Spir0uche, Carylart
+          numOfAssignee: 3
           abortIfPreviousAssignees: true
           allowSelfAssign: true

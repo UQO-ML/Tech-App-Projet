@@ -207,6 +207,7 @@ marimo/_lsp/
 __marimo__/
 
 # Project: data and model artifacts (keep repo small)
-data/
-models/
-outputs/
+# data/
+# models/
+# outputs/
+# Outputs/

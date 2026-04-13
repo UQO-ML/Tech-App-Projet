@@ -1,0 +1,5 @@
+{
+  "best_model": "DistilBERT",
+  "save_strategy": "manual_huggingface",
+  "why": "Le meilleur modèle est un Transformer. La sérialisation joblib n'est pas adaptée; utiliser model.save_pretrained/tokenizer.save_pretrained."
+}

@@ -211,3 +211,6 @@ __marimo__/
 # models/
 # outputs/
 # Outputs/
+
+*venv*
+.venv*

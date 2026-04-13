@@ -1,0 +1,298 @@
+{
+  "dataset_path": "/workspace/Data/labeled_data.csv",
+  "n_samples": 24783,
+  "best_model": "AdaBoost",
+  "best_model_validation_metrics": {
+    "accuracy": 0.7486889874949576,
+    "balanced_accuracy": 0.6310703185703186,
+    "precision_macro": 0.5905646878454626,
+    "recall_macro": 0.6310703185703186,
+    "f1_macro": 0.5546327511472463
+  },
+  "best_model_test_metrics": {
+    "accuracy": 0.7423845067581198,
+    "balanced_accuracy": 0.6172357820274934,
+    "precision_macro": 0.5848004661980039,
+    "recall_macro": 0.6172357820274934,
+    "f1_macro": 0.538218365238937
+  },
+  "best_model_cv_f1_macro_scores": [
+    0.534050879980652,
+    0.49543255737948383,
+    0.48562091889465847,
+    0.5497786353469624,
+    0.5470600620901994
+  ],
+  "best_model_selection_score": 0.4480958626362108,
+  "model_selection_method": {
+    "formula": "selection_score = w_val * val_f1_macro + w_test * test_f1_macro + w_cv * cv_f1_macro_mean + w_hate * hate_recall_test - penalty_if(hate_recall_test < hate_recall_floor)",
+    "weights": {
+      "validation": 0.25,
+      "test": 0.45,
+      "cv": 0.15,
+      "hate_recall": 0.15
+    },
+    "hate_recall_floor": 0.4,
+    "hate_recall_penalty": 0.03,
+    "why_this_formula": "Le F1 test reçoit le plus de poids pour refléter la performance hors entraînement; la validation sert de garde-fou pendant le tuning; la CV ajoute une mesure de stabilité; le rappel `hate_speech` protège la classe minoritaire; une pénalité s'applique si ce rappel est trop bas.",
+    "precision_policy": "La précision macro est suivie comme métrique diagnostique, mais n'est pas utilisée comme critère principal de sélection.",
+    "tie_break_rule": "En cas d'égalité, choisir le meilleur f1_macro test puis accuracy test.",
+    "cv_fallback_for_models": [],
+    "cv_fallback_explanation": "Pour les modèles deep learning coûteux (ex. DistilBERT), le terme CV peut être approché par le score validation afin de garder un temps d'exécution raisonnable."
+  },
+  "model_selection_scores": {
+    "AdaBoost": 0.4480958626362108
+  },
+  "model_selection_ranking": [
+    "AdaBoost"
+  ],
+  "model_rationales": {
+    "AdaBoost": "Boosting séquentiel de classifieurs faibles pour réduire le biais; peut capturer des frontières plus complexes qu'un arbre unique."
+  },
+  "best_model_selection_explanation": "Le modèle AdaBoost obtient le meilleur score global pondéré (0.4481) en combinant validation, test, CV et rappel `hate_speech` (avec pénalité éventuelle sous seuil). Il est retenu pour son compromis entre performance et robustesse.",
+  "distilbert_included": false,
+  "distilbert_note": "DistilBERT ignoré: dépendances deep learning non disponibles dans l'environnement courant.",
+  "expected_models": [
+    "AdaBoost"
+  ],
+  "trained_models": [
+    "AdaBoost"
+  ],
+  "model_execution_status": {
+    "AdaBoost": "trained"
+  },
+  "artifacts_generated": {
+    "figures_dir": "/workspace/Outputs/figures",
+    "reports_dir": "/workspace/Outputs/reports",
+    "models_dir": "/workspace/Outputs/models",
+    "error_cases_json": "/workspace/Outputs/reports/error_cases_best_model.json",
+    "error_cases_markdown": "/workspace/Outputs/reports/error_cases_best_model.md",
+    "feature_importance_summary_json": "/workspace/Outputs/reports/feature_importance_summary.json",
+    "main_figures": [
+      "models_compilation_overview.png",
+      "models_status_overview.png",
+      "confusion_matrices_all_models.png",
+      "models_comparison_test.png",
+      "learning_curve_best_model.png",
+      "feature_importance_best_model.png",
+      "feature_importance_comparison_models.png"
+    ]
+  },
+  "run_config": {
+    "max_samples": null,
+    "distilbert_epochs": 1,
+    "include_distilbert": false,
+    "algorithm_switches": {
+      "NaiveBayes": false,
+      "LogisticRegression": false,
+      "LinearSVC": false,
+      "KNN": false,
+      "DecisionTree": false,
+      "RandomForest": false,
+      "AdaBoost": true,
+      "MLPClassifier": false,
+      "LogisticRegressionGPU": false,
+      "LinearSVCGPU": false,
+      "KNNGPU": false,
+      "RandomForestGPU": false,
+      "DistilBERT": false
+    },
+    "test_size": 0.2,
+    "val_size": 0.1,
+    "cv_folds": 5,
+    "scoring": "f1_macro",
+    "model_param_overrides": {},
+    "model_grid_overrides": {
+      "AdaBoost": {
+        "clf__n_estimators": [
+          200,
+          400,
+          800
+        ],
+        "clf__learning_rate": [
+          0.03,
+          0.1,
+          0.3
+        ],
+        "clf__estimator__max_depth": [
+          1,
+          2,
+          3
+        ],
+        "clf__estimator__min_samples_leaf": [
+          1,
+          2
+        ]
+      }
+    },
+    "selection_weights": [
+      0.25,
+      0.45,
+      0.15,
+      0.15
+    ],
+    "hate_recall_floor": 0.4,
+    "hate_recall_penalty": 0.03,
+    "random_state": 42
+  },
+  "all_models": {
+    "AdaBoost": {
+      "status": "trained",
+      "error": null,
+      "model_why": "Boosting séquentiel de classifieurs faibles pour réduire le biais; peut capturer des frontières plus complexes qu'un arbre unique.",
+      "tuning": {
+        "best_params": {
+          "clf__estimator__max_depth": 3,
+          "clf__estimator__min_samples_leaf": 1,
+          "clf__learning_rate": 0.03,
+          "clf__n_estimators": 200,
+          "tfidf__min_df": 5,
+          "tfidf__ngram_range": [
+            1,
+            2
+          ]
+        },
+        "best_cv_score": 0.5293418100538747,
+        "effective_param_grid": {
+          "tfidf__ngram_range": [
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "tfidf__min_df": [
+            2,
+            5
+          ],
+          "clf__n_estimators": [
+            200,
+            400,
+            800
+          ],
+          "clf__learning_rate": [
+            0.03,
+            0.1,
+            0.3
+          ],
+          "clf__estimator__max_depth": [
+            1,
+            2,
+            3
+          ],
+          "clf__estimator__min_samples_leaf": [
+            1,
+            2
+          ]
+        }
+      },
+      "validation_metrics": {
+        "accuracy": 0.7486889874949576,
+        "balanced_accuracy": 0.6310703185703186,
+        "precision_macro": 0.5905646878454626,
+        "recall_macro": 0.6310703185703186,
+        "f1_macro": 0.5546327511472463
+      },
+      "test_metrics": {
+        "accuracy": 0.7423845067581198,
+        "balanced_accuracy": 0.6172357820274934,
+        "precision_macro": 0.5848004661980039,
+        "recall_macro": 0.6172357820274934,
+        "f1_macro": 0.538218365238937
+      },
+      "classification_report_test": {
+        "hate_speech": {
+          "precision": 0.36,
+          "recall": 0.1258741258741259,
+          "f1-score": 0.18652849740932642,
+          "support": 286.0
+        },
+        "offensive_language": {
+          "precision": 0.9734024179620034,
+          "recall": 0.7342365815528922,
+          "f1-score": 0.8370711421357493,
+          "support": 3838.0
+        },
+        "neither": {
+          "precision": 0.42099898063200814,
+          "recall": 0.9915966386554622,
+          "f1-score": 0.5910554561717353,
+          "support": 833.0
+        },
+        "accuracy": 0.7423845067581198,
+        "macro avg": {
+          "precision": 0.5848004661980039,
+          "recall": 0.6172357820274934,
+          "f1-score": 0.538218365238937,
+          "support": 4957.0
+        },
+        "weighted avg": {
+          "precision": 0.8451826973985541,
+          "recall": 0.7423845067581198,
+          "f1-score": 0.7581955595656906,
+          "support": 4957.0
+        }
+      },
+      "cv_f1_macro_scores": [
+        0.534050879980652,
+        0.49543255737948383,
+        0.48562091889465847,
+        0.5497786353469624,
+        0.5470600620901994
+      ],
+      "cv_f1_macro_mean": 0.5223886107383912,
+      "selection_score": 0.4480958626362108,
+      "feature_config": {
+        "representation": "TF-IDF sparse vectors",
+        "backend": "cpu_sklearn",
+        "tfidf_ngram_range": [
+          1,
+          2
+        ],
+        "tfidf_min_df": 5,
+        "tfidf_max_features": null,
+        "deep_model_name": null,
+        "max_length": null
+      },
+      "cv_f1_macro_std": 0.02988893800365659,
+      "cv_f1_macro_ci95": 0.02619880928336957,
+      "selection_components": {
+        "val_f1_macro": 0.5546327511472463,
+        "test_f1_macro": 0.538218365238937,
+        "cv_f1_macro_mean": 0.5223886107383912,
+        "cv_f1_macro_std": 0.02988893800365659,
+        "cv_f1_macro_ci95": 0.02619880928336957,
+        "cv_ci95_available": true,
+        "hate_recall_test": 0.1258741258741259,
+        "weights": {
+          "validation": 0.25,
+          "test": 0.45,
+          "cv": 0.15,
+          "hate_recall": 0.15
+        },
+        "hate_recall_floor": 0.4,
+        "hate_recall_penalty": 0.03,
+        "penalty_applied": 0.03,
+        "score_before_penalty": 0.4780958626362108,
+        "score_after_penalty": 0.4480958626362108
+      }
+    }
+  },
+  "timing_seconds": {
+    "prepare_outputs_and_device": 0.6053316190082114,
+    "load_clean_sample_data": 0.19361625300371088,
+    "eda_summary_and_figures": 0.7646106379979756,
+    "split_train_val_test": 0.0064210670097963884,
+    "train_models": 163.7482763470034,
+    "evaluate_on_test": 0.11317242900258861,
+    "evaluation_figures": 0.12520979400142096,
+    "cv_and_selection_scores": 4.205557428998873,
+    "best_model_figures": 4.002413516995148,
+    "save_artifacts_and_error_analysis": 0.09044918000290636,
+    "save_final_report": 2.108099579345435e-05,
+    "pipeline_total": 173.90831094600435
+  }
+}

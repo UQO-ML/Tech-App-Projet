@@ -1,0 +1,7 @@
+# Optional RAPIDS stack (latest available, experimental on very recent GPUs).
+cuml-cu12
+cupy-cuda12x
+numba
+numba-cuda
+nvidia-cusparse-cu12
+nvidia-nvjitlink-cu12

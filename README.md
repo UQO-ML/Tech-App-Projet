@@ -1,7 +1,7 @@
 # Projet : Détection de Hate Speech et Langage Offensif
 
-## 📋 Vue d'ensemble
-
+## Vue d'ensemble
+## Auteur & Attribution
 Ce projet implémente un **système de classification multiclasse** pour détecter automatiquement le hate speech, le langage offensif et les tweets neutres. Le modèle est entraîné et évalué sur le jeu de données [Hate Speech and Offensive Language Dataset](https://www.kaggle.com/datasets/mrmorj/hate-speech-and-offensive-language-dataset) disponible sur Kaggle.
 
 ### Objectif
@@ -12,9 +12,9 @@ Comparer plusieurs algorithmes de classification supervisée et sélectionner le
 
 ---
 
-## 🚀 Exécution sur Kaggle
+## Exécution sur Kaggle
 
-**⚠️ Important** : Ce notebook est **conçu pour tourner sur Kaggle Notebooks** avec accès aux datasets Kaggle.
+**Important** : Ce notebook est **conçu pour tourner sur Kaggle Notebooks** avec accès aux datasets Kaggle.
 
 ### Prérequis Kaggle
 - Compte Kaggle actif
@@ -32,10 +32,10 @@ Comparer plusieurs algorithmes de classification supervisée et sélectionner le
 Si vous souhaitez exécuter ce notebook **localement** en dehors de Kaggle, modifiez la cellule 4 de chargement des données :
 
 ```python
-# ❌ Actuel (Kaggle)
+# Actuel (Kaggle)
 URL = "/kaggle/input/datasets/mrmorj/hate-speech-and-offensive-language-dataset/labeled_data.csv"
 
-# ✅ Local
+# Local
 # Téléchargez d'abord le CSV depuis Kaggle
 import pandas as pd
 df = pd.read_csv("./Data/labeled_data.csv")  # chemin local
@@ -43,22 +43,22 @@ df = pd.read_csv("./Data/labeled_data.csv")  # chemin local
 
 ---
 
-## 📊 Structure du Notebook
+## Structure du Notebook
 
 Le notebook est organisé en **24 cellules** couvrant l'ensemble du pipeline Machine Learning :
 
-### 1️⃣ Préparation & Chargement des Données (Cellules 1-5)
+### 1. Préparation & Chargement des Données (Cellules 1-5)
 - Import des bibliothèques essentielles (pandas, scikit-learn, NLTK)
 - Installation automatique des dépendances via pip
 - **Chargement du dataset Kaggle** depuis `/kaggle/input/`
 - Statistiques descriptives du dataset
 
-### 2️⃣ Exploration Données (EDA) (Cellules 6-8)
+### 2. Exploration Données (EDA) (Cellules 6-8)
 - **Cellule 6** : Distribution des classes (histogramme + pie chart)
 - **Cellule 7** : Distribution des longueurs de tweets et comptage des mots
 - **Cellule 8** : Matrice de corrélation (heatmap) des features numériques
 
-### 3️⃣ Prétraitement Texte NLP (Cellules 9-10)
+### 3. Prétraitement Texte NLP (Cellules 9-10)
 - **Cellule 9** : Pipeline de nettoyage robuste
   - Conversion minuscules
   - Suppression URLs, mentions (@user), hashtags
@@ -68,47 +68,47 @@ Le notebook est organisé en **24 cellules** couvrant l'ensemble du pipeline Mac
   - Suppression des stop words anglais
 - **Cellule 10** : Vectorisation **TF-IDF** + **Split stratifié** train/validation/test (70%/15%/15%)
 
-### 4️⃣ Sélection & Justification des Modèles (Cellule 11)
+### 4. Sélection & Justification des Modèles (Cellule 11)
 Cellule **Markdown** expliquant le choix des 4 algorithmes :
 - Logistic Regression (baseline linear)
 - Linear SVM (performant sur texte sparse)
 - Multinomial Naive Bayes (adapté aux fréquences)
 - Random Forest (non-linéaire)
 
-### 5️⃣ Tuning d'Hyperparamètres (Cellules 12-13)
+### 5. Tuning d'Hyperparamètres (Cellules 12-13)
 - **Cellule 12** : **RandomizedSearchCV** pour optimisation d'hyperparamètres
   - 10 itérations d'exploration de grille stochastique
   - Validation interne 3-fold
   - Métrique : F1-macro (équilibrée pour classes déséquilibrées)
 - **Cellule 13** : Classement des modèles tuned sur ensemble de validation
 
-### 6️⃣ Évaluation Complète (Cellules 14-18)
+### 6. Évaluation Complète (Cellules 14-18)
 - **Cellule 14** : Métriques test complet (Accuracy, Precision, Recall, F1-macro pour chaque modèle)
 - **Cellule 15** : **Graphiques comparatifs** barplots (performances test)
 - **Cellule 16** : **Classification report** (précision/rappel/F1 par classe) pour chaque modèle
 - **Cellule 17** : **Matrices de confusion** (2 variantes : counts + normalized) pour chaque modèle
 - **Cellule 18** : **Validation croisée stratifiée 5-fold** (robustesse estimation)
 
-### 7️⃣ Interprétabilité (Cellules 19-20)
+### 7. Interprétabilité (Cellules 19-20)
 - **Cellule 19** : **Courbe d'apprentissage** (train F1 vs validation F1 en fonction de l'effectif d'entraînement)
 - **Cellule 20** : **Top 20 termes influents** (features importance ou |coef| pour modèles linéaires)
 
-### 8️⃣ Analyse des Erreurs (Cellule 21)
+### 8. Analyse des Erreurs (Cellule 21)
 - Identification des types d'erreurs les plus courants
 - Exemples concrets de tweets mal classifiés
 - Analyse des confusions entre classes
 
-### 9️⃣ Sauvegarde du Modèle (Cellule 22)
+### 9. Sauvegarde du Modèle (Cellule 22)
 - Sérialisation du modèle final en **pickle**
 - Inclusion du vectoriseur TF-IDF + label_map
 - Affichage taille fichier
 
-### 🔟 API de Prédiction (Cellule 23)
+### 10. API de Prédiction (Cellule 23)
 - Fonction `predict_hate_speech()` robuste
 - Demo sur 5 exemples texte
 - Gestion modèles avec/sans `predict_proba()`
 
-### 1️⃣1️⃣ **Export Résultats Complets** (Cellule 24) 🎯
+### 11. **Export Résultats Complets** (Cellule 24)
 **Génération automatique de 8 fichiers** dans `../Outputs/` :
 - `01_model_comparison.png` — Barplots Accuracy & F1-macro
 - `02_confusion_matrices.png` — Matrices tous modèles
@@ -121,7 +121,7 @@ Cellule **Markdown** expliquant le choix des 4 algorithmes :
 
 ---
 
-## 🔧 Dépendances
+## Dépendances
 
 ### Installation automatique
 Le notebook installe automatiquement via `%pip` :
@@ -135,13 +135,13 @@ pip install pandas numpy scikit-learn matplotlib seaborn nltk scipy
 ```
 
 ### Tests d'exécution
-- ✅ **Python 3.8+** requis
-- ✅ Testé sur Kaggle Notebooks (kernel Python 3.10)
-- ✅ Compatible Linux/Mac/Windows
+- **Python 3.8+** requis
+- Testé sur Kaggle Notebooks (kernel Python 3.10)
+- Compatible Linux/Mac/Windows
 
 ---
 
-## 📈 Résultats Attendus
+## Résultats Attendus
 
 ### Performance des Modèles
 Les résultats varient selon le dataset mais généralement :
@@ -171,9 +171,9 @@ Outputs/
 
 ---
 
-## 📌 Points Clés de Conformité
+## Points Clés de Conformité
 
-### ✅ Exigences du Projet
+### Exigences du Projet
 - ✓ **Exploration & Préparation** : Stats descriptives, distributions, corrélations, visualisations
 - ✓ **4+ Algorithmes** : Logistic Reg, SVM, Naive Bayes, Random Forest
 - ✓ **Réglage hyperparamètres** : RandomizedSearchCV pour chaque modèle
@@ -184,13 +184,13 @@ Outputs/
 - ✓ **Analyse d'erreurs** : Types d'erreurs, exemples mal classifiés
 - ✓ **Résultats exportés** : Graphiques + CSVs + rapport texte
 
-### 📊 Méthodologie
+### Méthodologie
 1. **Nettoyage NLP robuste** : lemmatisation + stop words
 2. **Vectorisation TF-IDF** : n-grams (1-2) pour capturer bi-grammes pertinents
 3. **Validation stratifiée** : respect du ratio classes dans chaque fold
 4. **Comparaison équitable** : même preprocessing, même splits, CV interne
 
-### 🎯 Innovation
+### Innovation
 - Générération **automatique** des 8 fichiers de résultats
 - Rapport texte **horodaté** et détaillé
 - Diagrammes **haute résolution** (300 DPI)
@@ -198,9 +198,9 @@ Outputs/
 
 ---
 
-## 🚀 Guide d'Utilisation
+## Guide d'Utilisation
 
-### Option 1 : Exécution sur Kaggle ⭐ (Recommandé)
+### Option 1 : Exécution sur Kaggle (Recommandé)
 ```
 1. Accéder à kaggle.com → Notebooks → New Notebook
 2. Importer/uploader le fichier hate-speech-model.ipynb
@@ -243,7 +243,7 @@ print(f"Classe: {label_map[prediction]}")
 
 ---
 
-## 📊 Exemples de Prédiction
+## Exemples de Prédiction
 
 ```
 Entrée: "I love spending time with my friends at the park"
@@ -258,7 +258,7 @@ Sortie: Hate Speech (Confidence: 92.1%)
 
 ---
 
-## 🔍 Troubleshooting
+## Troubleshooting
 
 | Problème | Cause | Solution |
 |---------|-------|---------|
@@ -270,7 +270,7 @@ Sortie: Hate Speech (Confidence: 92.1%)
 
 ---
 
-## 📚 Références & Ressources
+## Références & Ressources
 
 **Dataset** : [Hate Speech and Offensive Language Dataset - Kaggle](https://www.kaggle.com/datasets/mrmorj/hate-speech-and-offensive-language-dataset)
 
@@ -288,14 +288,14 @@ Sortie: Hate Speech (Confidence: 92.1%)
 
 ---
 
-## 👨‍💻 Auteur & Attribution
+## Auteur & Attribution
 
 - **Projet** : Techniques d'Apprentissage (UQO, 2026)
 - **Base initiale** : Code de [Elbeg Darkhanbaatar](https://kaggle.com/elbegdarkhanbaatar) (modifié et étoffé)
 - **Améliorations** : Tuning hyperparamètres, export automatique, rapport texte, API robuste
 
 ### Source
-Le code édite celui de l'utilisateur Kaggle Elbeg Darkhanbaatar, il a été modifié pour l'adapter au contexte donné par le cours.
+Le code édite celui de l'utilisateur Kaggle Elbeg Darkhanbaatar, il a été modifié pour l'adapter aux consignes.
 
 ---
 
@@ -305,7 +305,7 @@ Ce projet est à **usage éducatif**. Le dataset provient de Kaggle sous licence
 
 ---
 
-## ✨ Résumé Exécutif
+## Résumé
 
 | Aspect | Détails |
 |--------|---------|
@@ -313,12 +313,12 @@ Ce projet est à **usage éducatif**. Le dataset provient de Kaggle sous licence
 | **Classes** | 3 (Hate Speech, Offensive Language, Neither) |
 | **Modèles** | 4 (Logistic Reg, SVM, Naive Bayes, Random Forest) |
 | **Accuracy** | 90-96% selon modèle |
-| **Environment** | 🔴 **Kaggle Notebooks** (conçu pour) |
-| **Alternative** | ✅ Exécution locale possible |
+| **Environment** | Kaggle Notebooks (conçu pour) |
+| **Alternative** | Exécution locale possible (**en modifiant les chemins des fichiers in et out**)|
 | **Résultats** | 8 fichiers (PNG + CSV + TXT) |
 | **Temps d'exécution** | ~5-10 min (Kaggle) selon kernel |
 
 ---
 
 **Dernière mise à jour** : Avril 2026  
-**Statut** : ✅ **Conforme aux exigences du projet**
+**Statut** : Conforme aux exigences du projet

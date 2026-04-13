@@ -141,8 +141,8 @@ def get_default_runs() -> dict[str, dict[str, Any]]:
                 "random_state": RANDOM_STATE,
             },
         },
-        "run_g_distilbert_safe_ep3": {
-            "why": "Run DistilBERT ep3 avec pondération adaptée au CV proxy.",
+        "run_g_distilbert_safe_ep2": {
+            "why": "Run DistilBERT ep2 avec pondération adaptée au CV proxy.",
             "config": {
                 "max_samples": MAX_SAMPLES_DEFAULT,
                 "distilbert_epochs": 2,
@@ -228,7 +228,8 @@ def get_exhaustive_runs(
     sans modifier le code des profils eux-mêmes.
     """
     exhaustive_runs: dict[str, dict[str, Any]] = {
-        "run_a_data_balance": get_default_runs()["run_a_data_balance"]
+        "run_a_data_balance": get_default_runs()["run_a_data_balance"],
+        "run_e_method_strict_classic": get_default_runs()["run_e_method_strict_classic"]
     } if include_baseline else {}
 
     distilbert_profiles: dict[str, dict[str, dict[str, float | int]]] = {

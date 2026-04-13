@@ -1,183 +1,225 @@
 # Tech-App-Devoir-II — INF6243
 
 Projet de classification de tweets en 3 classes:
-- discours haineux (`hate_speech`)
-- langage offensant (`offensive_language`)
-- aucun des deux (`neither`)
+- `hate_speech`
+- `offensive_language`
+- `neither`
+
+## Objectif du dépôt
+
+Le projet compare plusieurs familles de modèles (classiques, GPU cuML, DistilBERT) avec une orchestration multi-runs.
+Le flux principal:
+1. préparer/nettoyer les données;
+2. entraîner plusieurs modèles;
+3. évaluer (validation + test + CV);
+4. sélectionner un meilleur compromis via un score pondéré;
+5. générer des artefacts (figures, rapports, modèle sauvegardé).
 
 ## Structure actuelle
 
 ```text
 Tech-App-Devoir-II/
-├── main.py
-├── notebook_principal.ipynb
+├── main.py                         # point d'entrée recommandé (CLI multi-runs)
+├── notebook_principal.ipynb        # workflow interactif notebook
 ├── requirements.txt
 ├── Code/
-│   ├── main.py
+│   ├── main.py                     # pipeline unitaire (run unique)
+│   ├── notebook_workflow.py        # orchestration partagée notebook/CLI
 │   ├── preprocessing.py
 │   ├── models.py
-│   ├── utils.py
+│   ├── run_configs.py              # matrice de runs et profils
+│   ├── run_pipeline_subprocess.py  # exécution isolée par subprocess
 │   ├── result_interpreter.py
 │   ├── report_markdown.py
-│   ├── run_pipeline_subprocess.py
-│   ├── run_configs.py
+│   ├── utils.py
 │   └── model_zoo/
 ├── Data/
 │   ├── labeled_data.csv
 │   └── lien_vers_dataset.txt
+├── docker/
+│   ├── Dockerfile
+│   ├── Dockerfile.arch
+│   ├── Dockerfile.fedora
+│   ├── docker-compose.simple.yml
+│   └── docker-compose.pipeline.yml
 ├── Docs/
-│   ├── GUIDE_PROJET.md
-│   ├── PLAN_RAPPORT.md
-│   └── PLAN_PRESENTATION.md
-└── Outputs/   # créé automatiquement à l'exécution
+└── Outputs/                        # créé automatiquement
 ```
 
-## Installation
+## Prérequis
+
+### Exécution locale (hors Docker)
+
+- Linux/macOS (ou WSL2 sur Windows) recommandé;
+- Python 3.11 recommandé;
+- `pip` à jour;
+- option GPU/cuML: CUDA + pilotes NVIDIA cohérents avec les libs installées.
+
+Important: le `requirements.txt` mentionne explicitement:
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install --upgrade pip
-pip install -r requirements.txt
+unset CUDA_PATH
 ```
 
-## Exécution Docker (GPU)
+à exécuter avant installation si votre environnement exporte `CUDA_PATH` et crée des conflits de résolution.
 
-Des fichiers prêts à l'emploi sont fournis dans `docker/`:
-- `docker/docker-compose.simple.yml`: usage interactif (Jupyter + shell manuel);
-- `docker/docker-compose.pipeline.yml`: exécution pipeline minimale puis arrêt.
-- `docker/Dockerfile`: image CUDA/NVIDIA (recommandée pour GPU).
-- `docker/Dockerfile.arch`: variante base Arch Linux.
-- `docker/Dockerfile.fedora`: variante base Fedora (compatible écosystème Red Hat).
-
-### Prérequis machine
+### Exécution Docker (recommandée pour GPU)
 
 - Docker + plugin Compose;
-- driver NVIDIA compatible;
-- NVIDIA Container Toolkit configuré pour Docker.
+- pilote NVIDIA compatible;
+- NVIDIA Container Toolkit configuré.
 
-Test rapide GPU Docker:
+Test rapide:
 
 ```bash
 docker run --rm --gpus all nvidia/cuda:12.6.3-cudnn-runtime-ubuntu24.04 nvidia-smi
 ```
 
-Build manuel d'une variante de Dockerfile:
-
-```bash
-docker build -f docker/Dockerfile.arch -t tech-app-devoir-ii:arch .
-docker build -f docker/Dockerfile.fedora -t tech-app-devoir-ii:fedora .
-```
-
-Avec requirements figés (défaut) ou latest:
-
-```bash
-docker build -f docker/Dockerfile.arch --build-arg REQUIREMENTS_MODE=freeze -t tech-app-devoir-ii:arch .
-docker build -f docker/Dockerfile.fedora --build-arg REQUIREMENTS_MODE=latest -t tech-app-devoir-ii:fedora .
-```
-
-Note versioning Docker:
-- `docker/requirements.base.txt` et `docker/requirements.rapids.txt` sont en mode *rolling latest* (pas de pin), donc les versions les plus récentes disponibles sont installées au moment du build;
-- des versions figées sont aussi fournies:
-  - `docker/requirements.base.lock.txt`
-  - `docker/requirements.rapids.lock.txt`
-  et le `docker/Dockerfile` les utilise par défaut (`REQUIREMENTS_MODE=freeze`).
-
-Build en mode figé (défaut):
-
-```bash
-docker compose -f docker/docker-compose.simple.yml build
-```
-
-Build en mode latest:
-
-```bash
-REQUIREMENTS_MODE=latest docker compose -f docker/docker-compose.simple.yml build
-```
-
-### 1) Mode simple: notebook ou shell manuel
+## Installation locale
 
 Depuis la racine du projet:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+unset CUDA_PATH
+pip install -r requirements.txt
+```
+
+Vérification minimale:
+
+```bash
+python -c "import sklearn, pandas, matplotlib; print('OK')"
+```
+
+## How-to: exécuter le projet
+
+## 1) Utiliser `main.py` (CLI, recommandé)
+
+Le `main.py` à la racine est le lanceur principal multi-runs.
+
+### Commandes utiles
+
+Run rapide:
+
+```bash
+python main.py --run-matrix default
+```
+
+Run complet:
+
+```bash
+python main.py --run-matrix exhaustive
+```
+
+Avec ajustement du malus DistilBERT CV proxy:
+
+```bash
+python main.py --run-matrix default --distilbert-proxy-penalty 0.02
+```
+
+### Ce que fait ce lanceur
+
+- charge la matrice de runs (`default` ou `exhaustive`) depuis `Code/run_configs.py`;
+- filtre les runs incompatibles avec l'environnement courant;
+- exécute chaque run dans un subprocess isolé (meilleure stabilité mémoire);
+- agrège et classe les runs;
+- affiche un résumé du meilleur run;
+- produit les artefacts dans `Outputs/`.
+
+### Différence avec `Code/main.py`
+
+- `main.py` (racine): orchestration multi-runs + comparaison globale.
+- `Code/main.py`: pipeline unitaire (`run_pipeline`) pour un run unique (utile surtout en dev interne).
+
+## 2) Utiliser `notebook_principal.ipynb`
+
+Le notebook est l'interface interactive pour piloter les mêmes runs que la CLI.
+
+### Étapes d'utilisation
+
+1. Ouvrir `notebook_principal.ipynb`.
+2. Exécuter la cellule d'import.
+3. Ajuster les paramètres dans la section "Paramètres du notebook":
+   - `RUN_MATRIX`;
+   - `SELECTED_MODELS`;
+   - profils DistilBERT/MLP/AdaBoost/GPU;
+   - `DISTILBERT_PROXY_PENALTY`.
+4. Exécuter la cellule d'orchestration (`run_all_configs`).
+5. Lire les tableaux et le rapport synthèse.
+6. Consulter les figures générées dans `Outputs/figures/`.
+
+### Conseils pratiques notebook
+
+- pour itérer vite: `RUN_MATRIX="default"` + peu de modèles;
+- pour une analyse complète: `RUN_MATRIX="exhaustive"` + profils ciblés;
+- si mémoire/VRAM limitée: éviter profils agressifs (`gpu_aggressive`, `vram_max`);
+- si DistilBERT/cuML absent: runs incompatibles automatiquement ignorés.
+
+## 3) Utiliser Docker
+
+### Mode interactif notebook/shell
 
 ```bash
 docker compose -f docker/docker-compose.simple.yml build
 docker compose -f docker/docker-compose.simple.yml up notebook
 ```
 
-Puis ouvrir Jupyter:
+Puis:
 - URL: `http://localhost:8888`
-- token par défaut: `techapp` (modifiable via `JUPYTER_TOKEN`).
+- token par défaut: `techapp` (modifiable via `JUPYTER_TOKEN`)
 
-Pour un shell interactif dans le même environnement conteneurisé:
+Shell interactif dans le même environnement:
 
 ```bash
 docker compose -f docker/docker-compose.simple.yml run --rm shell
 ```
 
-Exemple dans ce shell:
-
-```bash
-python main.py --run-matrix default
-```
-
-### 2) Mode pipeline minimal (run puis exit)
+### Mode pipeline non-interactif (run puis exit)
 
 ```bash
 docker compose -f docker/docker-compose.pipeline.yml build
 docker compose -f docker/docker-compose.pipeline.yml run --rm pipeline
 ```
 
-Ce mode:
-- utilise le GPU;
-- applique des bornes mémoire/CPU via Compose;
-- lance `python main.py --run-matrix default`;
-- s'arrête automatiquement en fin d'exécution.
+Ce mode lance automatiquement:
 
-### Option RAPIDS/cuML (expérimentale)
+```bash
+python main.py --run-matrix default
+```
 
-L'image Docker installe par défaut la stack stable (`docker/requirements.base.txt`).
-Pour ajouter RAPIDS/cuML au build:
+avec limites mémoire/CPU définies dans `docker/docker-compose.pipeline.yml`.
+
+### Variantes de build
+
+Build alternatif Arch/Fedora:
+
+```bash
+docker build -f docker/Dockerfile.arch -t tech-app-devoir-ii:arch .
+docker build -f docker/Dockerfile.fedora -t tech-app-devoir-ii:fedora .
+```
+
+Build latest plutôt que lock:
+
+```bash
+REQUIREMENTS_MODE=latest docker compose -f docker/docker-compose.simple.yml build
+```
+
+Activation RAPIDS/cuML (expérimental):
 
 ```bash
 ENABLE_RAPIDS=1 docker compose -f docker/docker-compose.simple.yml build
 ```
 
-Même logique pour `docker-compose.pipeline.yml`.
-Sur GPU très récents, cette option reste plus fragile que la stack stable.
+## Paramètres importants (CLI + notebook)
 
-## Exécution
-
-### Option 1 — Script
-```bash
-python main.py
-```
-
-### Option 2 — Notebook
-Ouvrir `notebook_principal.ipynb` (racine du projet) et exécuter les cellules.
-
-Dans le notebook, la configuration est pilotée par quelques constantes haut niveau:
-- `RUN_MATRIX`: `"default"` ou `"exhaustive"`;
-- `DISTILBERT_PROXY_PENALTY`: malus appliqué aux runs avec DistilBERT en CV proxy;
-- `DISTILBERT_PROFILES_ENABLED`, `MLP_PROFILES_ENABLED`, `ADABOOST_PROFILES_ENABLED`: profils activés;
-- `GPU_MODELS_ENABLED`, `GPU_PROFILES_ENABLED`: activation des modèles/profils GPU.
-
-Les détails de grilles et d'hyperparamètres sont centralisés dans `Code/run_configs.py` (source unique CLI + notebook).
-
-Pour la comparaison multi-runs, une règle dédiée est aussi paramétrable:
-- `DISTILBERT_PROXY_PENALTY`: `float` (recommandé: `0.00` à `0.05`) appliqué comme malus
-  aux runs où DistilBERT est évalué avec CV proxy.
-
-Guideline overrides:
-- `MODEL_PARAM_OVERRIDES["DistilBERT"]["epochs"]`: 1-5 (plus grand = plus long, parfois plus performant);
-- `MODEL_PARAM_OVERRIDES["DistilBERT"]["batch_size"]`: 8/16/32 (plus petit = moins de mémoire);
-- `MODEL_PARAM_OVERRIDES["DistilBERT"]["max_length"]`: 96-256 (plus grand = plus de contexte, plus de coût);
-- `MODEL_GRID_OVERRIDES["MLPClassifier"]`: ajouter/modifier des listes de valeurs (`clf__alpha`, `hidden_layer_sizes`, etc.) pour explorer plus large ou accélérer.
-- `MODEL_GRID_OVERRIDES["<ModelGPU>"]`: ajuster les grilles des modèles GPU (`LogisticRegressionGPU`, `LinearSVCGPU`, `KNNGPU`, `RandomForestGPU`).
-
-Configuration centralisée des runs:
-- les matrices de runs (`default` / `exhaustive`) sont définies dans `Code/run_configs.py`;
-- `main.py` et le notebook réutilisent la même source pour éviter la duplication;
-- les runs incompatibles avec l'environnement courant (ex: cuML absent, DistilBERT deps absentes) sont filtrés automatiquement.
+- `RUN_MATRIX`: `default` (rapide) ou `exhaustive` (coûteux);
+- `DISTILBERT_PROXY_PENALTY`: malus appliqué aux runs DistilBERT en CV proxy;
+- `MODEL_PARAM_OVERRIDES["DistilBERT"]`: `epochs`, `batch_size`, `max_length`, etc.;
+- `MODEL_GRID_OVERRIDES["<ModelName>"]`: surcharge de grille GridSearchCV;
+- profils activables dans `Code/run_configs.py` (DistilBERT, MLP, AdaBoost, GPU);
+- runs centralisés dans `Code/run_configs.py`, partagés par notebook + CLI.
 
 ## Ce que le pipeline produit
 
@@ -255,7 +297,7 @@ Note GPU classiques (cuML):
 La figure `runs_comparison_overview.png` est volontairement zoomée sur l'intervalle `[0.6, 0.8]`
 pour mieux visualiser les écarts fins entre runs.
 
-Le notebook inclut aussi un **interpréteur de résultats** (script dédié `Code/result_interpreter.py`) qui imprime:
+Le notebook inclut aussi un interpréteur de résultats (`Code/result_interpreter.py`) qui imprime:
 - le meilleur modèle et son score global;
 - la répartition des statuts d'exécution de tous les modèles;
 - un top-3 des modèles entraînés;
@@ -266,3 +308,11 @@ Le notebook inclut aussi un **interpréteur de résultats** (script dédié `Cod
 Les runs de `run_all_configs()` sont exécutés dans des subprocess Python isolés
 via `Code/run_pipeline_subprocess.py`. Cette stratégie limite les pics mémoire
 car chaque process libère ses ressources à la fin du run.
+
+## Dépannage rapide
+
+- Erreur Jupyter token: vérifier `JUPYTER_TOKEN` et le port exposé (`JUPYTER_PORT`);
+- DistilBERT indisponible: vérifier installation de `torch`, `transformers`, `datasets`;
+- modèles GPU absents: vérifier cuML/cupy + compatibilité CUDA/driver;
+- exécution trop lente: commencer avec `--run-matrix default` et/ou réduire les profils actifs;
+- mémoire saturée: réduire batch size DistilBERT, désactiver profils agressifs, garder l'exécution en subprocess.

@@ -15,7 +15,8 @@ import preprocessing as prep
 import utils
 
 RANDOM_STATE = 42
-DATA_PATH = Path(__file__).resolve().parent.parent / "Data" / "labeled_data.csv"
+DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "labeled_data.csv"
+
 HATE_CLASS_NAME = prep.CLASS_LABELS[0]
 DEFAULT_SELECTION_WEIGHTS = (0.30, 0.35, 0.20, 0.15)
 DEFAULT_HATE_RECALL_FLOOR = 0.40

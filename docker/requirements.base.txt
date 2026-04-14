@@ -14,3 +14,4 @@ datasets==4.6.1
 accelerate
 fsspec==2026.2.0
 huggingface_hub==0.36.2
+nltk

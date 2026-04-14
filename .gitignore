@@ -214,7 +214,7 @@ __marimo__/
 
 *venv*
 .venv*
-distilbert_export/
+distilbert*/
 # Large artifacts
 distilbert_export/
 *.safetensors

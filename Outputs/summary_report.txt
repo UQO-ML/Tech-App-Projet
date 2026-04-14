@@ -1,23 +1,23 @@
 ================================================================================
 RAPPORT D'ANALYSE - MODELE HATE SPEECH DETECTION
-Généré: 2026-04-14 05:17:05
+Généré: 2026-04-14 17:00:48
 ================================================================================
 
 1. MODELE SELECTIONNE
 --------------------------------------------------------------------------------
 Meilleur modèle (validation): DistilBERT
-Accuracy (test): 0.9072
-Macro-F1 (test): 0.7284
-Hyperparamètres: {'epochs': 2, 'batch_size': 16, 'max_length': 160, 'learning_rate': 3e-05, 'weight_decay': 0.01}
+Accuracy (test): 0.8824
+Macro-F1 (test): 0.7476
+Hyperparamètres: {'epochs': 2, 'batch_size': 16, 'max_length': 160, 'learning_rate': 3e-05, 'weight_decay': 0.01, 'warmup_ratio': 0.1, 'focal_gamma': 1.5, 'balanced_sampler': True, 'hate_threshold': 0.5}
 
 2. RESULTATS PAR MODELE (SET TEST)
 --------------------------------------------------------------------------------
 
 DistilBERT:
-  - Accuracy: 0.9072
-  - Precision (macro): 0.7707
-  - Recall (macro): 0.7058
-  - F1 (macro): 0.7284
+  - Accuracy: 0.8824
+  - Precision (macro): 0.7179
+  - Recall (macro): 0.7930
+  - F1 (macro): 0.7476
 
 Logistic Regression:
   - Accuracy: 0.8956
@@ -26,10 +26,10 @@ Logistic Regression:
   - F1 (macro): 0.7111
 
 Linear SVM:
-  - Accuracy: 0.8857
-  - Precision (macro): 0.7430
-  - Recall (macro): 0.6817
-  - F1 (macro): 0.7035
+  - Accuracy: 0.8905
+  - Precision (macro): 0.7771
+  - Recall (macro): 0.6444
+  - F1 (macro): 0.6724
 
 Random Forest:
   - Accuracy: 0.8857
@@ -45,9 +45,9 @@ Multinomial NB:
 
 3. VALIDATION CROISEE (5-FOLD)
 --------------------------------------------------------------------------------
-DistilBERT: Acc 0.9085±0.0046 | F1 0.7330±0.0272
+DistilBERT: Acc 0.9022±0.0026 | F1 0.8123±0.0062
 Logistic Regression: Acc 0.8990±0.0022 | F1 0.7035±0.0116
-Linear SVM: Acc 0.8919±0.0033 | F1 0.7023±0.0181
+Linear SVM: Acc 0.8957±0.0025 | F1 0.6763±0.0123
 Random Forest: Acc 0.8937±0.0027 | F1 0.6284±0.0112
 Multinomial NB: Acc 0.8543±0.0050 | F1 0.6180±0.0105
 
@@ -61,15 +61,15 @@ Vocabulaire TF-IDF: 16,214 terms
 5. ANALYSE DES ERREURS (MODELE FINAL)
 --------------------------------------------------------------------------------
 Total test: 3,717
-Mal classifiés: 345 (9.3%)
+Mal classifiés: 437 (11.8%)
 
 Types d'erreurs les plus courants:
-  Hate Speech          → Offensive Language   : 136 occurrences
-  Neither              → Offensive Language   : 73 occurrences
-  Offensive Language   → Neither              : 58 occurrences
-  Offensive Language   → Hate Speech          : 51 occurrences
-  Hate Speech          → Neither              : 17 occurrences
-  Neither              → Hate Speech          : 10 occurrences
+  Offensive Language   → Hate Speech          : 193 occurrences
+  Offensive Language   → Neither              : 101 occurrences
+  Hate Speech          → Offensive Language   : 77 occurrences
+  Neither              → Offensive Language   : 33 occurrences
+  Hate Speech          → Neither              : 18 occurrences
+  Neither              → Hate Speech          : 15 occurrences
 
 ================================================================================
 Fichiers générés:

@@ -1,7 +1,7 @@
 .git
 .gitignore
 .cursor
-.venv
+.venv*
 .venv-gpu
 __pycache__/
 *.pyc
@@ -13,7 +13,7 @@ __pycache__/
 .ipynb_checkpoints/
 
 Outputs/
-Data/*.zip
+data/*.zip
 
 node_modules/
 dist/

@@ -211,10 +211,12 @@ __marimo__/
 # models/
 # outputs/
 # Outputs/
-<<<<<<< HEAD
 
 *venv*
 .venv*
-=======
-Untitled
->>>>>>> main
+distilbert_export/
+# Large artifacts
+distilbert_export/
+*.safetensors
+*.joblib
+*.pkl

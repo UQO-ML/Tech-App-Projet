@@ -11,6 +11,7 @@ services:
     working_dir: /workspace
     volumes:
       - ..:/workspace
+      - data:/workspace/data
       - pip-cache:/root/.cache/pip
       - hf-cache:/root/.cache/huggingface
     ports:
@@ -33,31 +34,10 @@ services:
       --port=8888
       --no-browser
       --NotebookApp.token=${JUPYTER_TOKEN:-techapp}
-      --NotebookApp.allow_origin='*'"
-
-  shell:
-    image: tech-app-devoir-ii:latest
-    working_dir: /workspace
-    volumes:
-      - ..:/workspace
-      - pip-cache:/root/.cache/pip
-      - hf-cache:/root/.cache/huggingface
-    environment:
-      PYTHONUNBUFFERED: "1"
-      MPLBACKEND: "Agg"
-      TZ: "${TZ:-Etc/UTC}"
-      NVIDIA_VISIBLE_DEVICES: "${NVIDIA_VISIBLE_DEVICES:-all}"
-      NVIDIA_DRIVER_CAPABILITIES: "${NVIDIA_DRIVER_CAPABILITIES:-compute,utility}"
-      NVIDIA_DISABLE_REQUIRE: "${NVIDIA_DISABLE_REQUIRE:-1}"
-    gpus:
-      - driver: nvidia
-        count: all
-        capabilities: [compute, utility]
-    stdin_open: true
-    tty: true
-    profiles: ["shell"]
-    command: bash
+      --NotebookApp.allow_origin='*'
+      --allow-root"
 
 volumes:
   pip-cache:
   hf-cache:
+  data:

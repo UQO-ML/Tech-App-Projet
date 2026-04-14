@@ -27,6 +27,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     build-essential \
     git \
     curl \
+    unzip \
     ca-certificates \
     tini \
     && ln -sf /usr/bin/python3 /usr/bin/python \

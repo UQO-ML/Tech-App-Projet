@@ -3,7 +3,12 @@
 from .adaboost_model import AdaBoostModel
 from .cuml_wrappers import cuml_classic_deps_available
 from .decision_tree_model import DecisionTreeModel
-from .distilbert_model import DistilBertTextClassifier, build_distilbert_tuning, distilbert_deps_available
+from .distilbert_model import (
+    DistilBertTextClassifier,
+    OptimizedDistilBertClassifier,
+    build_distilbert_tuning,
+    distilbert_deps_available,
+)
 from .knn_model import KNNModel
 from .knn_gpu_model import KNNGPUModel
 from .linear_svc_model import LinearSVCModel
@@ -34,6 +39,7 @@ CLASSIC_MODEL_BUILDERS = [
 __all__ = [
     "CLASSIC_MODEL_BUILDERS",
     "DistilBertTextClassifier",
+    "OptimizedDistilBertClassifier",
     "ModelSpec",
     "build_distilbert_tuning",
     "cuml_classic_deps_available",

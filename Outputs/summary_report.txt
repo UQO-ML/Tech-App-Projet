@@ -1,6 +1,6 @@
 ================================================================================
 RAPPORT D'ANALYSE - MODELE HATE SPEECH DETECTION
-Généré: 2026-04-14 17:00:48
+Généré: 2026-04-14 17:58:06
 ================================================================================
 
 1. MODELE SELECTIONNE
@@ -80,6 +80,8 @@ Fichiers générés:
   - 02_confusion_matrices.png
   - 03_learning_curve.png
   - 04_feature_importance.png
+  - missing_values.png
+  - word_count_boxplot.png
   - summary_report.txt
 
 ================================================================================

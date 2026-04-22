@@ -1,0 +1,20 @@
+{
+  "model_name": "distilbert-base-uncased",
+  "max_length": 160,
+  "epochs": 2,
+  "batch_size": 16,
+  "learning_rate": 3e-05,
+  "weight_decay": 0.01,
+  "random_state": 42,
+  "label_to_id": {
+    "0": 0,
+    "1": 1,
+    "2": 2
+  },
+  "id_to_label": {
+    "0": 0,
+    "1": 1,
+    "2": 2
+  },
+  "hate_threshold": 0.5
+}

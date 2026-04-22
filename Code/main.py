@@ -54,6 +54,9 @@ def _build_empty_model_report(status: str, error: str | None, model_why: str, tu
         "cv_f1_macro_mean": None,
         "selection_score": None,
         "feature_config": {},
+        "cache_hit": None,
+        "cache_key": None,
+        "cache_strategy": None,
     }
 
 
@@ -249,6 +252,9 @@ def _evaluate_models(
         full_report[model_name]["test_metrics"] = metrics_test
         full_report[model_name]["classification_report_test"] = utils.build_classification_report(y_test, y_pred_test, prep.CLASS_LABELS)
         full_report[model_name]["feature_config"] = _build_feature_config(model_name, tuning_info)
+        full_report[model_name]["cache_hit"] = result.get("cache_hit", False)
+        full_report[model_name]["cache_key"] = result.get("cache_key", None)
+        full_report[model_name]["cache_strategy"] = result.get("cache_strategy", None)
         utils.plot_confusion_matrix(
             y_true=y_test,
             y_pred=y_pred_test,
@@ -466,6 +472,18 @@ def run_pipeline(
     )
     _toc("split_train_val_test", t0)
 
+    # Signature des données pour le cache des modèles
+    data_path_obj = Path(data_path)
+    split_signature = {
+        "data_path": str(data_path_obj.resolve()),
+        "data_mtime_ns": data_path_obj.stat().st_mtime_ns if data_path_obj.exists() else None,
+        "max_samples": max_samples,
+        "test_size": test_size,
+        "val_size": val_size,
+        "random_state": random_state,
+        "n_rows_after_clean": int(df.shape[0]),
+    }
+
     # Entraînement des modèles classiques + DistilBERT (si dépendances disponibles)
     t0 = _tic()
     results = models.train_all_models(
@@ -481,7 +499,14 @@ def run_pipeline(
         scoring=scoring,
         model_param_overrides=model_param_overrides,
         model_grid_overrides=model_grid_overrides,
+        split_signature=split_signature,
     )
+    cache_summary = {
+        "n_total": len(results),
+        "n_cache_hit": sum(1 for r in results.values() if r.get("cache_hit") is True),
+        "n_retrained": sum(1 for r in results.values() if r.get("status") == "trained" and r.get("cache_hit") is False),
+    }
+    print(f"[cache] hits={cache_summary['n_cache_hit']} retrained={cache_summary['n_retrained']} total={cache_summary['n_total']}")
     _toc("train_models", t0)
 
     t0 = _tic()
@@ -690,6 +715,7 @@ def run_pipeline(
             "random_state": random_state,
         },
         "all_models": full_report,
+        "cache_summary": cache_summary,
     }
     _toc("save_final_report", t0)
 

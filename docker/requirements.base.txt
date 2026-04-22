@@ -10,7 +10,7 @@ jupyterlab
 ipykernel
 torch==2.8.0
 transformers
-datasets==4.6.1
+datasets
 accelerate
 fsspec==2026.2.0
 huggingface_hub==0.36.2

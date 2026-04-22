@@ -220,3 +220,4 @@ distilbert_export/
 *.safetensors
 *.joblib
 *.pkl
+Docs/agent*

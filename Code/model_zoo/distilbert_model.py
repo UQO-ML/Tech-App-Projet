@@ -5,6 +5,7 @@ from __future__ import annotations
 import random
 from pathlib import Path
 from typing import Any
+import json
 
 import numpy as np
 import torch
@@ -22,24 +23,33 @@ def distilbert_deps_available() -> bool:
         import torch  # noqa: F401
         import transformers  # noqa: F401  # pyright: ignore[reportMissingImports]
 
+
         return True
     except Exception:
         return False
 
+from datasets import Dataset
+from transformers import (  # pyright: ignore[reportMissingImports]
+    AutoModelForSequenceClassification,
+    AutoTokenizer,
+    DataCollatorWithPadding,
+    EarlyStoppingCallback,
+    Trainer,
+    TrainingArguments,
+    set_seed,
+)
 
 def _set_random_seeds(random_state: int) -> None:
     """Fixe les seeds Python/Numpy/PyTorch."""
-    import torch
 
     random.seed(random_state)
     np.random.seed(random_state)
     torch.manual_seed(random_state)
 
-
 class DistilBertTextClassifier(ClassifierMixin, BaseEstimator):
     """Classifieur DistilBERT compatible avec les conventions sklearn."""
 
-    skip_cv = True
+    skip_cv = False
     is_deep_model = True
 
     def __init__(
@@ -73,14 +83,6 @@ class DistilBertTextClassifier(ClassifierMixin, BaseEstimator):
 
     def fit(self, x_train, y_train, x_val=None, y_val=None):
         """Fine-tune DistilBERT sur les données d'entraînement."""
-        from datasets import Dataset  # pyright: ignore[reportMissingImports]
-        from transformers import (  # pyright: ignore[reportMissingImports]
-            AutoModelForSequenceClassification,
-            AutoTokenizer,
-            DataCollatorWithPadding,
-            Trainer,
-            TrainingArguments,
-        )
 
         _set_random_seeds(self.random_state)
         self._build_label_mapping(y_train)
@@ -159,8 +161,6 @@ class DistilBertTextClassifier(ClassifierMixin, BaseEstimator):
         if not self._is_fitted or self._trainer is None or self._tokenizer is None:
             raise RuntimeError("Le modèle DistilBERT doit être entraîné avant predict().")
 
-        from datasets import Dataset  # pyright: ignore[reportMissingImports]
-
         texts = [str(text) for text in x]
         dataset = Dataset.from_dict({"text": texts})
 
@@ -188,6 +188,55 @@ class DistilBertTextClassifier(ClassifierMixin, BaseEstimator):
         for internal_idx, orig_label in self.id_to_label.items():
             probs_out[:, int(orig_label)] = probs_internal[:, int(internal_idx)]
         return probs_out
+
+    def save_local(self, export_dir: str | Path) -> None:
+        if not self._is_fitted or self._trainer is None or self._tokenizer is None:
+            raise RuntimeError("Model not fitted.")
+        export = Path(export_dir)
+        export.mkdir(parents=True, exist_ok=True)
+
+        self._trainer.model.save_pretrained(export / "hf_model")
+        self._tokenizer.save_pretrained(export / "hf_model")
+
+        meta = {
+            "model_name": self.model_name,
+            "max_length": self.max_length,
+            "epochs": self.epochs,
+            "batch_size": self.batch_size,
+            "learning_rate": self.learning_rate,
+            "weight_decay": self.weight_decay,
+            "random_state": self.random_state,
+            "label_to_id": self.label_to_id,
+            "id_to_label": self.id_to_label,
+            "hate_threshold": getattr(self, "hate_threshold", 0.5),
+        }
+        (export / "meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
+
+    @classmethod
+    def load_local(cls, export_dir: str | Path):
+
+        export = Path(export_dir)
+        meta = json.loads((export / "meta.json").read_text(encoding="utf-8"))
+
+        obj = cls(
+            model_name=meta["model_name"],
+            max_length=meta["max_length"],
+            epochs=meta["epochs"],
+            batch_size=meta["batch_size"],
+            learning_rate=meta["learning_rate"],
+            weight_decay=meta["weight_decay"],
+            random_state=meta["random_state"],
+        )
+        obj.label_to_id = {int(k): int(v) for k, v in meta["label_to_id"].items()}
+        obj.id_to_label = {int(k): int(v) for k, v in meta["id_to_label"].items()}
+        obj.hate_threshold = float(meta.get("hate_threshold", 0.5))
+
+        obj._tokenizer = AutoTokenizer.from_pretrained(export / "hf_model")
+        model = AutoModelForSequenceClassification.from_pretrained(export / "hf_model")
+        args = TrainingArguments(output_dir=str(export / "tmp"), report_to="none")
+        obj._trainer = Trainer(model=model, args=args, tokenizer=obj._tokenizer)
+        obj._is_fitted = True
+        return obj
 
 
 class WeightedFocalSamplerTrainer:
@@ -265,7 +314,7 @@ class WeightedFocalSamplerTrainer:
 class OptimizedDistilBertClassifier(ClassifierMixin, BaseEstimator):
     """DistilBERT with weighted/focal loss, balanced sampler, warmup, early stopping and threshold tuning."""
 
-    skip_cv = True
+    skip_cv = False
     is_deep_model = True
 
     def __init__(
@@ -310,7 +359,6 @@ class OptimizedDistilBertClassifier(ClassifierMixin, BaseEstimator):
         self.id_to_label = {idx: label for label, idx in self.label_to_id.items()}
 
     def _tokenize_ds(self, texts, labels=None):
-        from datasets import Dataset  # pyright: ignore[reportMissingImports]
 
         payload = {"text": [str(text) for text in texts]}
         if labels is not None:
@@ -366,15 +414,6 @@ class OptimizedDistilBertClassifier(ClassifierMixin, BaseEstimator):
         return best_t, {"best_f1_macro": best_f1, "best_hate_recall": best_hrec}
 
     def fit(self, x_train, y_train, x_val=None, y_val=None):
-        from transformers import (  # pyright: ignore[reportMissingImports]
-            AutoModelForSequenceClassification,
-            AutoTokenizer,
-            DataCollatorWithPadding,
-            EarlyStoppingCallback,
-            Trainer,
-            TrainingArguments,
-            set_seed,
-        )
 
         set_seed(self.random_state)
         self._build_mappings(y_train)
@@ -503,3 +542,5 @@ def build_distilbert_tuning(estimator: DistilBertTextClassifier) -> dict[str, An
         "best_cv_score": None,
         "note": "DistilBERT entraîné via fine-tuning direct (pas de GridSearchCV pour limiter le coût).",
     }
+
+

@@ -1,0 +1,63 @@
+{
+  "val_metrics": {
+    "accuracy": 0.8515530455828964,
+    "balanced_accuracy": 0.607240675990676,
+    "precision_macro": 0.7178758569931439,
+    "recall_macro": 0.607240675990676,
+    "f1_macro": 0.6018270776896185
+  },
+  "tuning": {
+    "best_params": {
+      "clf__alpha": 0.001,
+      "clf__hidden_layer_sizes": [
+        256,
+        128
+      ],
+      "clf__learning_rate_init": 0.001,
+      "svd__n_components": 40,
+      "tfidf__min_df": 2,
+      "tfidf__ngram_range": [
+        1,
+        2
+      ]
+    },
+    "best_cv_score": 0.5957836595528064,
+    "effective_param_grid": {
+      "tfidf__ngram_range": [
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "tfidf__min_df": [
+        2,
+        5
+      ],
+      "svd__n_components": [
+        20,
+        40
+      ],
+      "clf__hidden_layer_sizes": [
+        [
+          128
+        ],
+        [
+          256,
+          128
+        ]
+      ],
+      "clf__alpha": [
+        0.0001,
+        0.001
+      ],
+      "clf__learning_rate_init": [
+        0.001,
+        0.0005
+      ]
+    }
+  }
+}

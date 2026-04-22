@@ -1,23 +1,23 @@
 ================================================================================
 RAPPORT D'ANALYSE - MODELE HATE SPEECH DETECTION
-Généré: 2026-04-15 01:16:16
+Généré: 2026-04-16 18:48:01
 ================================================================================
 
 1. MODELE SELECTIONNE
 --------------------------------------------------------------------------------
 Meilleur modèle (validation): DistilBERT
-Accuracy (test): 0.8824
-Macro-F1 (test): 0.7476
-Hyperparamètres: {'epochs': 2, 'batch_size': 16, 'max_length': 160, 'learning_rate': 3e-05, 'weight_decay': 0.01, 'warmup_ratio': 0.1, 'focal_gamma': 1.5, 'balanced_sampler': True, 'hate_threshold': 0.5}
+Accuracy (test): 0.8902
+Macro-F1 (test): 0.7548
+Hyperparamètres: {'epochs': 2, 'batch_size': 8, 'max_length': 160, 'learning_rate': 3e-05, 'weight_decay': 0.01, 'warmup_ratio': 0.1, 'focal_gamma': 1.5, 'balanced_sampler': True, 'hate_threshold': 0.5}
 
 2. RESULTATS PAR MODELE (SET TEST)
 --------------------------------------------------------------------------------
 
 DistilBERT:
-  - Accuracy: 0.8824
-  - Precision (macro): 0.7179
-  - Recall (macro): 0.7930
-  - F1 (macro): 0.7476
+  - Accuracy: 0.8902
+  - Precision (macro): 0.7287
+  - Recall (macro): 0.7908
+  - F1 (macro): 0.7548
 
 Logistic Regression:
   - Accuracy: 0.8956
@@ -45,7 +45,7 @@ Multinomial NB:
 
 3. VALIDATION CROISEE (5-FOLD)
 --------------------------------------------------------------------------------
-DistilBERT: Acc 0.9022±0.0026 | F1 0.8123±0.0062
+DistilBERT: Acc 0.9120±0.0063 | F1 0.8279±0.0121
 Logistic Regression: Acc 0.8990±0.0022 | F1 0.7035±0.0116
 Linear SVM: Acc 0.8957±0.0025 | F1 0.6763±0.0123
 Random Forest: Acc 0.8937±0.0027 | F1 0.6284±0.0112
@@ -61,15 +61,15 @@ Vocabulaire TF-IDF: 16,214 terms
 5. ANALYSE DES ERREURS (MODELE FINAL)
 --------------------------------------------------------------------------------
 Total test: 3,717
-Mal classifiés: 437 (11.8%)
+Mal classifiés: 408 (11.0%)
 
 Types d'erreurs les plus courants:
-  Offensive Language   → Hate Speech          : 193 occurrences
-  Offensive Language   → Neither              : 101 occurrences
-  Hate Speech          → Offensive Language   : 77 occurrences
-  Neither              → Offensive Language   : 33 occurrences
-  Hate Speech          → Neither              : 18 occurrences
-  Neither              → Hate Speech          : 15 occurrences
+  Offensive Language   → Hate Speech          : 165 occurrences
+  Offensive Language   → Neither              : 94 occurrences
+  Hate Speech          → Offensive Language   : 79 occurrences
+  Neither              → Offensive Language   : 35 occurrences
+  Hate Speech          → Neither              : 19 occurrences
+  Neither              → Hate Speech          : 16 occurrences
 
 ================================================================================
 Fichiers générés:

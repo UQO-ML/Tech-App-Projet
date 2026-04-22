@@ -11,7 +11,7 @@ services:
     working_dir: /workspace
     volumes:
       - ..:/workspace
-      - data:/workspace/data
+      # - data:/workspace/data
       - pip-cache:/root/.cache/pip
       - hf-cache:/root/.cache/huggingface
     ports:
@@ -21,6 +21,7 @@ services:
       MPLBACKEND: "Agg"
       TZ: "${TZ:-Etc/UTC}"
       JUPYTER_TOKEN: "${JUPYTER_TOKEN:-techapp}"
+      HF_TOKEN: "${HF_TOKEN:-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}"
       NVIDIA_VISIBLE_DEVICES: "${NVIDIA_VISIBLE_DEVICES:-all}"
       NVIDIA_DRIVER_CAPABILITIES: "${NVIDIA_DRIVER_CAPABILITIES:-compute,utility}"
       NVIDIA_DISABLE_REQUIRE: "${NVIDIA_DISABLE_REQUIRE:-1}"
@@ -40,4 +41,4 @@ services:
 volumes:
   pip-cache:
   hf-cache:
-  data:
+  # data:

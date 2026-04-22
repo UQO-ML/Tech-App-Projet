@@ -1,0 +1,20 @@
+{
+  "val_metrics": {
+    "accuracy": 0.9112545381202097,
+    "balanced_accuracy": 0.7586162101787103,
+    "precision_macro": 0.7641665900915838,
+    "recall_macro": 0.7586162101787103,
+    "f1_macro": 0.7606561307061938
+  },
+  "tuning": {
+    "best_params": {
+      "model_name": "distilbert-base-uncased",
+      "epochs": 2,
+      "batch_size": 16,
+      "max_length": 160,
+      "learning_rate": 3e-05
+    },
+    "best_cv_score": null,
+    "note": "DistilBERT entraîné via fine-tuning direct (pas de GridSearchCV pour limiter le coût)."
+  }
+}

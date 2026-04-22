@@ -6,15 +6,108 @@ from typing import Any
 
 from sklearn.model_selection import GridSearchCV, cross_val_score
 
+import hashlib
+import json
+from pathlib import Path
+import joblib
+
 from model_zoo import CLASSIC_MODEL_BUILDERS
 from model_zoo import (
     DistilBertTextClassifier,
+    OptimizedDistilBertClassifier,
     build_distilbert_tuning,
     cuml_classic_deps_available,
     distilbert_deps_available,
 )
 from utils import compute_metrics
 
+CACHE_ROOT = Path(__file__).resolve().parents[1] / "Outputs" / "cache" / "models"
+
+def _stable_hash(payload: dict[str, Any]) -> str:
+    raw = json.dumps(payload, sort_keys=True, default=str)
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()[:16]
+
+def _build_model_cache_key(
+    model_name: str,
+    random_state: int,
+    cv_folds: int,
+    scoring: str,
+    split_signature: dict[str, Any],  # injecté depuis run_pipeline
+    grid_override: dict[str, list[Any]] | None = None,
+    param_override: dict[str, Any] | None = None,
+) -> str:
+    payload = {
+        "model_name": model_name,
+        "random_state": random_state,
+        "cv_folds": cv_folds,
+        "scoring": scoring,
+        "split_signature": split_signature,
+        "grid_override": grid_override or {},
+        "param_override": param_override or {},
+    }
+    return _stable_hash(payload)
+
+def _cache_dir(model_name: str, key: str) -> Path:
+    return CACHE_ROOT / model_name / key
+
+def _load_cached_classic(model_name: str, key: str) -> dict[str, Any] | None:
+    cdir = _cache_dir(model_name, key)
+    model_path = cdir / "estimator.joblib"
+    meta_path = cdir / "meta.json"
+    if not (model_path.exists() and meta_path.exists()):
+        return None
+    estimator = joblib.load(model_path)
+    meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    return {
+        "status": "trained",
+        "estimator": estimator,
+        "val_metrics": meta.get("val_metrics", {}),
+        "tuning": meta.get("tuning", {}),
+        "error": None,
+        "cache_hit": True,
+        "cache_key": key,
+    }
+
+def _save_cached_classic(model_name: str, key: str, estimator: Any, val_metrics: dict[str, Any], tuning: dict[str, Any]) -> None:
+    cdir = _cache_dir(model_name, key)
+    cdir.mkdir(parents=True, exist_ok=True)
+    joblib.dump(estimator, cdir / "estimator.joblib")
+    (cdir / "meta.json").write_text(
+        json.dumps({"val_metrics": val_metrics, "tuning": tuning}, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+
+def _load_cached_distilbert(key: str) -> dict[str, Any] | None:
+    cdir = _cache_dir("DistilBERT", key)
+    export_dir = cdir / "hf_export"
+    meta_path = cdir / "result_meta.json"
+    if not (export_dir.exists() and meta_path.exists()):
+        return None
+    try:
+        estimator = DistilBertTextClassifier.load_local(export_dir)
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        return {
+            "status": "trained",
+            "estimator": estimator,
+            "val_metrics": meta.get("val_metrics", {}),
+            "tuning": meta.get("tuning", {}),
+            "error": None,
+            "cache_hit": True,
+            "cache_key": key,
+            "cache_strategy": "distilbert_hf",
+        }
+    except Exception:
+        return None  # cache corrompu -> retrain
+
+def _save_cached_distilbert(key: str, estimator: DistilBertTextClassifier, val_metrics: dict[str, Any], tuning: dict[str, Any]) -> None:
+    cdir = _cache_dir("DistilBERT", key)
+    cdir.mkdir(parents=True, exist_ok=True)
+    export_dir = cdir / "hf_export"
+    estimator.save_local(export_dir)
+    (cdir / "result_meta.json").write_text(
+        json.dumps({"val_metrics": val_metrics, "tuning": tuning}, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
 
 def resolve_algorithm_switches(
     include_distilbert: bool = True,
@@ -197,6 +290,7 @@ def _train_single_classic_model(
     cv_folds: int,
     scoring: str,
     model_grid_overrides: dict[str, dict[str, list[Any]]] | None = None,
+    split_signature: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Entraîne un modèle classique et retourne un résultat normalisé.
 
@@ -206,6 +300,20 @@ def _train_single_classic_model(
             Exemple:
             `{"MLPClassifier": {"clf__alpha": [1e-4, 1e-3]}}`.
     """
+    grid_override = (model_grid_overrides or {}).get(model_name)
+    cache_key = _build_model_cache_key(
+        model_name=model_name,
+        random_state=random_state,
+        cv_folds=cv_folds,
+        scoring=scoring,
+        split_signature=split_signature or {},
+        grid_override=grid_override,
+        param_override=None,
+    )
+    cached = _load_cached_classic(model_name, cache_key)
+    if cached is not None:
+        return cached
+        
     grid_override = (model_grid_overrides or {}).get(model_name)
     estimator, tuning_info = train_with_grid_search(
         x_train=x_train,
@@ -217,8 +325,17 @@ def _train_single_classic_model(
         grid_override=grid_override,
     )
     y_val_pred = estimator.predict(x_val)
-    return _build_trained_result(estimator=estimator, y_val=y_val, y_val_pred=y_val_pred, tuning=tuning_info)
-
+    trained = _build_trained_result(estimator=estimator, y_val=y_val, y_val_pred=y_val_pred, tuning=tuning_info)
+    _save_cached_classic(
+        model_name=model_name,
+        key=cache_key,
+        estimator=trained["estimator"],
+        val_metrics=trained["val_metrics"],
+        tuning=trained["tuning"],
+    )
+    trained["cache_hit"] = False
+    trained["cache_key"] = cache_key
+    return trained
 
 def _train_or_skip_distilbert(
     x_train,
@@ -228,6 +345,7 @@ def _train_or_skip_distilbert(
     random_state: int,
     distilbert_epochs: int,
     distilbert_param_overrides: dict[str, Any] | None = None,
+    split_signature: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Entraîne DistilBERT, sinon retourne un statut `skipped`/`failed` explicite.
 
@@ -259,17 +377,41 @@ def _train_or_skip_distilbert(
     }
     if distilbert_param_overrides:
         estimator_kwargs.update(distilbert_param_overrides)
-    estimator = DistilBertTextClassifier(
-        **estimator_kwargs,
+
+    cache_key = _build_model_cache_key(
+        model_name="DistilBERT",
+        random_state=random_state,
+        cv_folds=1,  # DistilBERT n'utilise pas GridSearchCV ici
+        scoring="f1_macro",
+        split_signature=split_signature or {},
+        grid_override=None,
+        param_override=estimator_kwargs,
     )
+
+    cached = _load_cached_distilbert(cache_key)
+    if cached is not None:
+        return cached
+
+    estimator = DistilBertTextClassifier(**estimator_kwargs)
     estimator.fit(x_train, y_train, x_val=x_val, y_val=y_val)
     y_val_pred = estimator.predict(x_val)
-    return _build_trained_result(
+
+    result = _build_trained_result(
         estimator=estimator,
         y_val=y_val,
         y_val_pred=y_val_pred,
         tuning=build_distilbert_tuning(estimator),
     )
+    _save_cached_distilbert(
+        key=cache_key,
+        estimator=estimator,
+        val_metrics=result["val_metrics"],
+        tuning=result["tuning"],
+    )
+    result["cache_hit"] = False
+    result["cache_key"] = cache_key
+    result["cache_strategy"] = "distilbert_hf"
+    return result
 
 
 def train_all_models(
@@ -285,6 +427,7 @@ def train_all_models(
     scoring: str = "f1_macro",
     model_param_overrides: dict[str, dict[str, Any]] | None = None,
     model_grid_overrides: dict[str, dict[str, list[Any]]] | None = None,
+    split_signature: dict[str, Any] | None = None,
 ) -> dict[str, dict[str, Any]]:
     """Entraîne tous les modèles demandés (classiques + DistilBERT optionnel).
 
@@ -321,6 +464,7 @@ def train_all_models(
                 cv_folds=cv_folds,
                 scoring=scoring,
                 model_grid_overrides=model_grid_overrides,
+                split_signature=split_signature,
             )
         except Exception as exc:
             results[model_name] = _build_failed_result(str(exc))
@@ -335,6 +479,7 @@ def train_all_models(
                 random_state=random_state,
                 distilbert_epochs=distilbert_epochs,
                 distilbert_param_overrides=(model_param_overrides or {}).get("DistilBERT"),
+                split_signature=split_signature,
             )
         except Exception as exc:
             results["DistilBERT"] = _build_failed_result(str(exc))

@@ -1,5 +1,23 @@
 # Projet : Detection de Hate Speech et Langage Offensif
 
+## Objectif
+Classer des contenus selon le niveau de discours haineux.
+
+## Données
+Source, volume, classe cible, contraintes et limites.
+
+## Méthode
+Prétraitement, représentation, modèles testés, protocole de validation.
+
+## Résultats
+Métriques, matrice de confusion, faux positifs/faux négatifs.
+
+## Reproductibilité
+Docker, requirements.txt, commande de lancement, version Python.
+
+## Limites
+Biais des données, dérive possible, besoin de monitoring et de réentraînement.
+
 Projet de classification de tweets en 3 classes:
 - `hate_speech`
 - `offensive_language`
